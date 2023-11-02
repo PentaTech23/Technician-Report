@@ -1,30 +1,162 @@
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
-
+import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Container, Typography } from '@mui/material';
 
-// components
-import Iconify from '../components/iconify';
-// sections
-import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
-} from '../sections/@dashboard/app';
+const firebaseConfig = {
+  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
+  authDomain: "wp4-technician-dms.firebaseapp.com",
+  projectId: "wp4-technician-dms",
+  storageBucket: "wp4-technician-dms.appspot.com",
+  messagingSenderId: "1065436189229",
+  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
+};
 
-import Logo from '../img/logo.png';
-// ----------------------------------------------------------------------
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
 export default function DashboardAppPage() {
   const theme = useTheme();
+  const [items, setItems] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [borrows, setBorrows] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const itemQuery = collectionGroup(db, 'requests-items-form');
+      const userQuery = collectionGroup(db, 'services-requests-form');
+      const borrowQuery = collectionGroup(db, 'borrowers-items-form');
+
+      const itemSnapshot = await getDocs(itemQuery);
+      const userSnapshot = await getDocs(userQuery);
+      const borrowSnapshot = await getDocs(borrowQuery);
+
+      const itemData = itemSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const userData = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const borrowData = borrowSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      setItems(itemData);
+      setUsers(userData);
+      setBorrows(borrowData);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const ItemRequested = calculateItemCounts();
+  const ServiceRequested = calculateServiceCounts();
+  const BorrowedItems = calculateBorrowedItemCounts();
+
+  function calculateItemCounts() {
+    let Item1Count = 0;
+    let Item2Count = 0;
+    let Item3Count = 0;
+    let Item4Count = 0;
+    let Item5Count = 0;
+    let Item6Count = 0;
+
+    items.forEach((item) => {
+      if (item.Items === 'Mouse') {
+        Item1Count+=1;
+      } else if (item.Items === 'Keyboard') {
+        Item2Count+=1;
+      } else if (item.Items === 'Monitor') {
+        Item3Count+=1;
+      } else if (item.Items === 'AVR') {
+        Item4Count+=1;
+      } else if (item.Items === 'CPU') {
+        Item5Count+=1;
+      } else if (item.Items === 'Others') {
+        Item6Count+=1;
+      }
+    });
+
+    return [
+      { name: 'Mouse', items: Item1Count },
+      { name: 'Keyboard', items: Item2Count },
+      { name: 'Monitor', items: Item3Count },
+      { name: 'AVR', items: Item4Count },
+      { name: 'CPU', items: Item5Count },
+      { name: 'Others', items: Item6Count },
+    ];
+  }
+
+  function calculateServiceCounts() {
+    let UserServices1Count = 0;
+      let UserServices2Count = 0;
+      let UserServices3Count = 0;
+      let UserServices4Count = 0;
+      let UserServices5Count = 0;
+      let UserServices6Count = 0;
+  
+      users.forEach((user) => {
+        if (user.Services === 'Application Installation') {
+          UserServices1Count+=1;
+        } else if (user.Services === 'Network') {
+          UserServices2Count+=1;
+        } else if (user.Services === 'Inventory') {
+          UserServices3Count+=1;
+        } else if (user.Services === 'Reformat') {
+          UserServices4Count+=1;
+        } else if (user.Services === 'Repairs') {
+          UserServices5Count+=1;
+        } else if (user.Services === 'Others') {
+          UserServices6Count+=1;
+        }
+      });
+  
+      return [
+        { name: 'Application Installation', value: UserServices1Count, fill: '#FFA07A' },
+        { name: 'Network', value: UserServices2Count, fill: '#FF6600' },
+        { name: 'Inventory', value: UserServices3Count, fill: '#DAA520' },
+        { name: 'Reformat', value: UserServices4Count, fill: '#FF9933' },
+        { name: 'Repairs', value: UserServices5Count, fill: '#FF9F00' },
+        { name: 'Others', value: UserServices6Count, fill: '#F5C77E' },
+      ];
+  }
+
+  function calculateBorrowedItemCounts() {
+    let Borrow1Count = 0;
+    let Borrow2Count = 0;
+    let Borrow3Count = 0;
+    let Borrow4Count = 0;
+    let Borrow5Count = 0;
+    let Borrow6Count = 0;
+
+    borrows.forEach((borrow) => {
+      if (borrow.ItemBorrowed === 'HDMI') {
+        Borrow1Count+=1;
+      } else if (borrow.ItemBorrowed === 'Television') {
+        Borrow2Count+=1;
+      } else if (borrow.ItemBorrowed === 'Projector') {
+        Borrow3Count+=1;
+      } else if (borrow.ItemBorrowed === 'Chairs') {
+        Borrow4Count+=1;
+      } else if (borrow.ItemBorrowed === 'Monitor') {
+        Borrow5Count+=1;
+      } else if (borrow.ItemBorrowed === 'Others') {
+        Borrow6Count+=1;
+      }
+    });
+
+    return [
+      { name: 'HDMI', borrows: Borrow1Count },
+      { name: 'Television', borrows: Borrow2Count },
+      { name: 'Projector', borrows: Borrow3Count },
+      { name: 'Chairs', borrows: Borrow4Count },
+      { name: 'Monitor', borrows: Borrow5Count },
+      { name: 'Others', borrows: Borrow6Count },
+    ];
+  }
 
   return (
     <>
@@ -33,71 +165,51 @@ export default function DashboardAppPage() {
       </Helmet>
 
       <Container maxWidth="xl" sx={{ backgroundColor: '#F0EFF6', borderRadius: '10px' }}>
-        <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
+      <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
           CICT Technician Report
         </Typography>
+        <div className="dashboardbox">
+          <div className="first-box">
+            <Typography variant="h5">Breakdown of Items Requested</Typography>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart width={300} height={300} barSize={60} data={ItemRequested}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-4} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: 'black' }} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="items" fill="#FF8042" name='Items Requested' />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Weekly Sales" total={714000} icon={'ant-design:android-filled'} />
-          </Grid>
+          <div className="second-box">
+            <Typography variant="h5">Breakdown of Services Requested</Typography>
+            <ResponsiveContainer width="100%" height={320}>
+              <PieChart width={300} height={400}>
+                <Pie dataKey="value" data={ServiceRequested} cx="50%" cy="50%" outerRadius={120} fill="#8884d8" label />
+                <Tooltip />
+                <Legend iconType="circle" verticalAlign="middle" align="right" layout="vertical" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={6}>
-            <AppNewsUpdate
-              title="Recent Transactions"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/assets/images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
-              }))}
-            />
-          </Grid>
-
-          {/* <Grid item xs={12} md={6} lg={4}>
-            <AppOrderTimeline
-              title="Recent"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: [
-                  '1983, orders, $4220',
-                  '12 Invoices have been paid',
-                  'Order #37745 from September',
-                  'New order placed #XF-2356',
-                  'New order placed #XF-2346',
-                ][index],
-                type: `order${index + 1}`,
-                time: faker.date.past(),
-              }))}
-            />
-          </Grid> */}
-
-          <Grid item xs={12} md={6} lg={6}>
-            <AppTasks
-              title="Todo"
-              list={[
-                { id: '1', label: 'Create FireStone Logo' },
-                { id: '2', label: 'Add SCSS and JS files if required' },
-                { id: '3', label: 'Stakeholder Meeting' },
-                { id: '4', label: 'Scoping & Estimations' },
-                { id: '5', label: 'Sprint Showcase' },
-              ]}
-            />
-          </Grid>
-        </Grid>
+          <div className="third-box">
+            <Typography variant="h5">Breakdown of Borrowed Items</Typography>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart width={300} height={300} barSize={60} data={BorrowedItems}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-4} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: 'black' }} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="borrows" fill="#FF8042" name='Borrowed Items' />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </Container>
     </>
   );
