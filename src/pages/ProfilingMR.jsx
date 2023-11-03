@@ -918,7 +918,7 @@ export default function FormsIRF() {
                         marginTop: '10px',
                       }}
                     >
-                      Office Equipment
+                      Office item Equipment 
                     </Typography>
 
                     <br />
