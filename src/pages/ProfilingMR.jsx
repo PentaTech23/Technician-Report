@@ -918,13 +918,16 @@ export default function FormsIRF() {
                         marginTop: '10px',
                       }}
                     >
-                      Items
+                      Office Equipment
                     </Typography>
 
                     <br />
                     {inputField.map((inputField, index) => (
                       <div key={index}>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={0}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center">
                           {/* First Column */}
                           <Grid item xs={1}>
                             <TextField
