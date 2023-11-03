@@ -115,28 +115,7 @@ export default function FormsIRF() {
     },
   ]);
 
-  // const customStyles = {
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  //   transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '100%', // Set your custom width
-  //   height: '100%',
-  //   backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
-  // const customStylesContent = {
-  //   // position: 'absolute',
-  //   // top: '50%',
-  //   // left: '50%',
-  //   // transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '1800px', // Set your custom width
-  //   height: '100%',
-  //   // backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
+ 
 
   const handleChangeInput = (index, event) => {
     console.log(index, event.target.name);
