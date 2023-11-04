@@ -933,9 +933,6 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
 
-                  <br />
-                  
-                  <br />
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
                   <div>
