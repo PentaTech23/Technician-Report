@@ -43,9 +43,14 @@ export default function DashboardAppPage() {
   const [rooms, setRooms] = useState([]);
   const [equipments, setEquipments] = useState([]);
   const [totalRooms, setTotalRooms] = useState([]);
-  const [totalBorrows, setTotalBorrows] = useState([]);
-  const [totalUsers, setTotalUsers] = useState([]);
-  const [totalItems, setTotalItems] = useState([]);
+  const [services, setServices] = useState([]);
+  const [totalServices, setTotalServices] = useState([]);
+  const [irequest, setIrequest] = useState([]);
+  const [totalIrequest, setTotalIrequest] = useState([]);
+  const [brequest, setBrequest] = useState([]);
+  const [totalBrequest, setTotalBrequest] = useState([]);
+
+
 
   useEffect(() => {
     fetchData();
@@ -55,27 +60,41 @@ export default function DashboardAppPage() {
     try {
       const itemQuery = collectionGroup(db, 'requests-items-form');
       const userQuery = collectionGroup(db, 'services-requests-form');
+      const serviceQuery = collectionGroup(db, 'SERVICE-REQUEST');
       const borrowQuery = collectionGroup(db, 'borrowers-items-form');
       const roomQuery = collectionGroup(db, 'monthly-computer-inventory');
       const equipmentQuery = collectionGroup(db, 'monthly-equipment-inventory');
+      const irequestQuery = collectionGroup(db, 'ITEM-REQUEST');
+      const brequestQuery = collectionGroup(db, 'ITEM-BORROWERS');
 
       const itemSnapshot = await getDocs(itemQuery);
       const userSnapshot = await getDocs(userQuery);
+      const serviceSnapshot = await getDocs(serviceQuery);
       const borrowSnapshot = await getDocs(borrowQuery);
       const roomSnapshot = await getDocs(roomQuery);
       const equipmentSnapshot = await getDocs(equipmentQuery);
+      const irequestSnapshot = await getDocs(irequestQuery);
+      const brequestSnapshot = await getDocs(brequestQuery);
 
       const itemData = itemSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const userData = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const serviceData = serviceSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const borrowData = borrowSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const roomData = roomSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const equipmentData = equipmentSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const irequestData =irequestSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const brequestData =brequestSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
+
+      
       setItems(itemData);
       setUsers(userData);
+      setServices(serviceData);
       setBorrows(borrowData);
       setRooms(roomData);
       setEquipments(equipmentData);
+      setIrequest(irequestData);
+      setBrequest(brequestData);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -95,33 +114,33 @@ export default function DashboardAppPage() {
 
         useEffect(() => {
           // Count all the item borrow requests
-          const countItemBorrowed = () => {
-              const total = borrows.length;
-              setTotalBorrows(total);
+          const countItems = () => {
+              const total = brequest.length;
+              setTotalBrequest(total);
           };
-          countItemBorrowed();
-        }, [borrows]);
+          countItems();
+        }, [brequest]);
 
         
         useEffect(() => {
           // Count all the service requests
           const countServices = () => {
-              const total = users.length;
-              setTotalUsers(total);
+              const total = services.length;
+              setTotalServices(total);
           };
 
           countServices();
-        }, [users]);
+        }, [services]);
 
         useEffect(() => {
           // Count all the item requests
           const countItems = () => {
-              const total = items.length;
-              setTotalItems(total);
+              const total = irequest.length;
+              setTotalIrequest(total);
           };
 
           countItems();
-        }, [items]);
+        }, [irequest]);
 
 
 
@@ -129,6 +148,44 @@ export default function DashboardAppPage() {
   const ServiceRequested = calculateServiceCounts();
   const BorrowedItems = calculateBorrowedItemCounts();
   const RoomNo = calculateRoomNoCounts();
+  const LocationRoom = calculateLocationRoomCounts();
+
+
+  function calculateLocationRoomCounts() {
+    let LocationRoom1Count = 0;
+    let LocationRoom2Count = 0;
+    let LocationRoom3Count = 0;
+    let LocationRoom4Count = 0;
+    let LocationRoom5Count = 0;
+    let LocationRoom6Count = 0;
+
+
+    services.forEach((service) => {
+      if (service.LocationRoom === 'Maclab') {
+        LocationRoom1Count+=1;
+      } else if (service.LocationRoom === 'A3') {
+        LocationRoom2Count+=1;
+      } else if (service.LocationRoom === 'IT18') {
+        LocationRoom3Count+=1;
+      } else if (service.LocationRoom === 'IT7') {
+        LocationRoom4Count+=1;
+      } else if (service.LocationRoom === 'IT2') {
+        LocationRoom5Count+=1;
+      } else if (service.LocationRoom === 'IT11') {
+        LocationRoom6Count+=1;
+      }
+    });
+
+    return [
+      { name: 'Maclab', services: LocationRoom1Count },
+      { name: 'A3', services: LocationRoom2Count },
+      { name: 'IT18', services: LocationRoom3Count },
+      { name: 'IT7', services: LocationRoom4Count },
+      { name: 'IT2', services: LocationRoom5Count },
+      { name: 'IT11', services: LocationRoom6Count },
+    ];
+  }
+
 
   function calculateRoomNoCounts() {
     let Room1Count = 0;
@@ -272,10 +329,16 @@ export default function DashboardAppPage() {
 
   return (
     <>
-          <Container maxWidth="xl" sx={{ backgroundColor: '#F0EFF6',  borderRadius: '10px' }}>
+      <Helmet>
+        <title>CICT Technician Report</title>
+      </Helmet>
+    <Container>
         <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
-          CICT Technician Report
+        CICT Technician Report
         </Typography>
+        
+        <Container sx={{ backgroundColor: '#F0EFF6', borderRadius: '10px', paddingBottom: '20px' }}>
+   
 
         <Grid container spacing={3}>
           <Grid item xs={6} sm={3} md={3}>
@@ -283,15 +346,15 @@ export default function DashboardAppPage() {
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Item Borrow Requests " total={totalBorrows} color="info" /> }
+            { <AppWidgetSummary title="Item Borrow Requests " total={totalBrequest} color="info" /> }
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Service Requests" total={totalUsers} color="warning" /> }
+            { <AppWidgetSummary title="Service Requests" total={totalServices} color="warning" /> }
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Item Requests" total={totalItems} color="error"/> }
+            { <AppWidgetSummary title="Item Requests" total={totalIrequest} color="error"/> }
           </Grid>
 
 
@@ -359,8 +422,25 @@ export default function DashboardAppPage() {
           </div>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={12}>
+          <Grid item xs={12} md={6} lg={6}>
           <div className="fifth-box">
+            <Typography variant="h5">Total Service Requests Per Room</Typography>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart width={300} height={300} barSize={60} data={LocationRoom}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-4} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: 'black' }} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="services" fill="#FF8042" name='LocationRoom' />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={12}>
+          <div className="sixth-box">
           <table>
                             <thead>
                                 <tr>
@@ -396,7 +476,7 @@ export default function DashboardAppPage() {
             </div>
           </Grid>
           <Grid item xs={12} md={6} lg={12}>
-          <div className="sixth-box">
+          <div className="seventh-box">
           <table>
                             <thead>
                                 <tr>
@@ -426,7 +506,11 @@ export default function DashboardAppPage() {
           </div>
           </Grid>
 
+          
+
+
         </Grid>
+      </Container>
       </Container>
     </>
   );

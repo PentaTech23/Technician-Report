@@ -397,7 +397,6 @@ const handleConfirmDelete = async () => {
       
   // This one is for Pagination
 
-
 const [page, setPage] = useState(0); // Add these state variables for pagination
 const [rowsPerPage, setRowsPerPage] = useState(4);
 
@@ -857,6 +856,7 @@ const handleViewClose = () => {
           <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
         </DialogActions>
       </Dialog>
+
        <TablePagination
         rowsPerPageOptions={[4, 10, 25]}
         component="div"
