@@ -799,6 +799,7 @@ export default function UserPage() {
                         <br />
                         <div style={{ marginLeft: '42px' }}>
                           Others:
+                          <br />
                           <input
                             type="text"
                             name="Others:"
