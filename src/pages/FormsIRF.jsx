@@ -107,38 +107,12 @@ export default function FormsIRF() {
 
   const [inputField, setInputField] = useState([
     {
-      Quantity: '',
-      unitOfMeasure: '',
+      Issue: '',
       Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
+      ActionTakenSolution: '',
+      Recommendation: '',
     },
   ]);
-
-  // const customStyles = {
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  //   transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '100%', // Set your custom width
-  //   height: '100%',
-  //   backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
-  // const customStylesContent = {
-  //   // position: 'absolute',
-  //   // top: '50%',
-  //   // left: '50%',
-  //   // transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '1800px', // Set your custom width
-  //   height: '100%',
-  //   // backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
 
   const handleChangeInput = (index, event) => {
     console.log(index, event.target.name);
@@ -156,13 +130,10 @@ export default function FormsIRF() {
     setInputField([
       ...inputField,
       {
-        Quantity: '',
-        unitOfMeasure: '',
+        Issue: '',
         Description: '',
-        propertyNumber: '',
-        dateAquired: '',
-        unitCost: '',
-        remarks: '',
+        ActionTakenSolution: '',
+        Recommendation: '',
       },
     ]);
   };
@@ -260,7 +231,7 @@ export default function FormsIRF() {
   // function for Adding new documents
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const {
       ControlNum,
       Date,
@@ -270,15 +241,14 @@ export default function FormsIRF() {
       InspectedBy,
       NotedBy,
       fileURL,
-      inputField = [],
     } = formData;
-
+  
     try {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
-
+  
       const docRef = doc(InspectionReportCollectionRef, documentName);
-
+  
       const docData = {
         ControlNum,
         Date,
@@ -288,19 +258,17 @@ export default function FormsIRF() {
         InspectedBy,
         NotedBy,
         fileURL: fileURL || '',
-        inputField,
-        archived: false, // Include the 'archived' field and set it to false for new documents
-        originalLocation: 'INSPECTION-REPORT', // Include the 'originalLocation' field
+        inputField, // Add the dynamic input fields here
+        archived: false,
+        originalLocation: 'INSPECTION-REPORT',
       };
-
+  
       await setDoc(docRef, docData);
-
-      // Create a new data object that includes the custom ID
+  
       const newData = { ...docData, id: documentName };
-
-      // Update the state with the new data, adding it to the table
+  
       setFetchedData([...fetchedData, newData]);
-
+  
       setOpen(false);
       setSnackbarOpen(true);
     } catch (error) {
@@ -976,35 +944,22 @@ export default function FormsIRF() {
                         justifyContent="space-between"
                         alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={3}>
                             <TextField
                               type="text"
-                              name="Quantity"
-                              label="Quantity"
+                              name="Issue"
+                              label="Issue"
+                              multiline
                               fullWidth
                               variant="outlined"
                               size="small"
-                              value={inputField.Quantity}
+                              value={inputField.Issue}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
                           </Grid>
 
                           {/* Second Column */}
-                          <Grid item xs={1}>
-                            <TextField
-                              name="unitOfMeasure"
-                              label="Unit Of Measure"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={inputField.unitOfMeasure}
-                              onChange={(event) => handleChangeInput(index, event)}
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={5}>
+                          <Grid item xs={4}>
                             <TextField
                               name="Description"
                               label="Description"
@@ -1015,64 +970,37 @@ export default function FormsIRF() {
                               value={inputField.Description}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
+                            {/* Content for the second column */}
+                          </Grid>
+
+                          {/* Third Column */}
+                          <Grid item xs={4}>
+                            <TextField
+                              name="ActionTakenSolution"
+                              label="Action Taken/Solution"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.ActionTakenSolution}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
                             {/* Content for the third column */}
                           </Grid>
 
                           {/* Fourth Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={3}>
                             <TextField
-                              name="propertyNumber"
-                              label="Property Number"
+                              name="Recommendation"
+                              label="Recommendation"
                               variant="outlined"
+                              multiline
                               fullWidth
                               size="small"
-                              value={inputField.propertyNumber}
+                              value={inputField.Recommendation}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
                             {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type='date'
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputField.dateAquired}
-                              onChange={(event) => handleChangeInput(index, event)}
-                            />
-                            {/* Content for the fifth column */}
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              fullWidth
-                              label="Unit Cost"
-                              variant="outlined"
-                              size="small"
-                              value={inputField.unitCost}
-                              onChange={(event) => handleChangeInput(index, event)}
-                            />
-                            {/* Content for the sixth column */}
-                          </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="remarks"
-                              label="Remarks"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputField.remarks}
-                              onChange={(event) => handleChangeInput(index, event)}
-                            />
-                            {/* Content for the seventh column */}
                           </Grid>
 
                           {/* Eighth Column */}
