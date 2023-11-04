@@ -464,7 +464,7 @@ export default function UserPage() {
     setRowsPerPage(newRowsPerPage);
     setPage(0); // Reset to the first page when changing rows per page
   };
-
+  
   const [snackbarOpenDelete, setSnackbarOpenDelete] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   // This one is for menu button
@@ -839,8 +839,8 @@ export default function UserPage() {
                         <br />
                       </Grid>
                       <Grid>
-                        {/* <Typography variant="subtitle1">Document:</Typography> */}
-                        <TextField
+                        { <Typography variant="subtitle1">File:</Typography> }
+                      <TextField
                           type="file"
                           fullWidth
                           accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"

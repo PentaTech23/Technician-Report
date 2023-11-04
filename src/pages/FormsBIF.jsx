@@ -20,6 +20,7 @@ import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
@@ -746,13 +747,14 @@ const handleViewClose = () => {
                         <br/>
                       </Grid>
                       <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    sx={{ width: '100%' }}
-                  />
+                      { <Typography variant="subtitle1">File:</Typography> }
+                      <TextField
+                          type="file"
+                          fullWidth
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          sx={{ width: '100%' }}
+                        />
                         <br/>
                       </Grid>
                     </Grid>
