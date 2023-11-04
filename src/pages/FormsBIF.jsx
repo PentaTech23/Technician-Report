@@ -8,7 +8,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
 
 // @mui
-import {Card,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
+import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select} from '@mui/material';
@@ -573,14 +573,14 @@ const handleViewClose = () => {
   return (
     <>
       <Helmet>
-        <title> Item Borrower's Form | Minimal UI </title>
+        <title> Borrower Item's Form | Minimal UI </title>
       </Helmet>
 
       <Container>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
-        Item Borrower's Form
+        Borrower Item's Form
       </Typography>
     </Stack>
 
@@ -606,15 +606,16 @@ const handleViewClose = () => {
           <Button
             onClick={fetchAllDocuments}
             variant="contained"
+            size="large"
             style={{
               margin: '0 8px', // Add margin for spacing
               display: 'flex',
               justifyContent: 'center',
-              backgroundColor: 'transparent', // Set the background color to transparent
-              boxShadow: 'none', // Remove the box shadow
+               // Set the background color to transparent
+               // Remove the box shadow
             }}
           >
-            <Iconify icon="zondicons:refresh" color="#2065D1" width={55} height={55} />
+           Refresh
           </Button>
         </div>
       </div>
@@ -632,7 +633,7 @@ const handleViewClose = () => {
         )}
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-          <Button onClick={handleClickOpen} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Document
           </Button>
         </div>
@@ -645,53 +646,59 @@ const handleViewClose = () => {
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={formData.Date || ''}
-                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
+                <Grid
+                    container
+                    spacing={2}
+                    columns={16}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                    <TextField
                     type="text"
                     name="ControlNum"
-                    placeholder="Control Number"
+                    label="Control Number"
                     value={formData.ControlNum || ''}
                     onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                  <TextField
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <TextField
+                    type="date"
+                    name="Date"
+                    value={formData.Date || ''}
+                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <TextField
                     type="text"
                     name="FullName"
-                    placeholder="Faculty Name"
+                    label="Faculty Name"
                     value={formData.FullName || ''}
                     onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={formData.LocationRoom || ''}
-                    onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <TextField
                     type="text"
                     name="Borrower"
-                    placeholder="Borrower"
+                    label="Borrower"
                     value={formData.Borrower || ''}
                     onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                  
-                  <fieldset>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <fieldset>
                     <legend name="Items" >ITEMS:</legend>
                     <Checkbox
                       value=" HDMI,"
@@ -724,15 +731,34 @@ const handleViewClose = () => {
                     />
                       </div>
                   </fieldset>
-                  <br/>
-                  <Typography variant="subtitle1">File:</Typography>
+                    </Grid>
+
+                    <Grid item xs={8} spacing={1}>
+                      <Grid>
+                      <TextField
+                    type="text"
+                    name="Borrower"
+                    label="Borrower"
+                    value={formData.Borrower || ''}
+                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                        <br/>
+                      </Grid>
+                      <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
                   <TextField
                     type="file"
                     accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
                     onChange={(e) => handleFileUpload(e.target.files[0])}
                     sx={{ width: '100%' }}
                   />
-                  
+                        <br/>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <br />
                 </form>
               </DialogContent>
               <DialogActions>
@@ -863,53 +889,59 @@ const handleViewClose = () => {
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
             {/* Fields to edit */}
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
+            <Grid
+                    container
+                    spacing={2}
+                    columns={16}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                    <TextField
                     type="text"
                     name="ControlNum"
-                    placeholder="Control Number"
+                    label="Control Number"
                     value={editData ? editData.ControlNum : ''}
                     onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                  <TextField
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <TextField
+                    type="date"
+                    name="Date"
+                    value={editData ? editData.Date : ''}
+                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <TextField
                     type="text"
                     name="FullName"
-                    placeholder="Faculty Name"
+                    label="Faculty Name"
                     value={editData ? editData.FullName : ''}
                     onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <TextField
                     type="text"
                     name="Borrower"
-                    placeholder="Borrower"
+                    label="Borrower"
                     value={editData ? editData.Borrower : ''}
                     onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
+                    </Grid>
 
-                  <fieldset>
+                    <Grid item xs={8}>
+                    <fieldset>
                     <legend name="Items" >Items:</legend>
                     <Checkbox
                       value=" HDMI,"
@@ -941,8 +973,22 @@ const handleViewClose = () => {
                     />
                     </div>
                   </fieldset>
-                  <br/>
-                  <Typography variant="subtitle1">File:</Typography>
+                    </Grid>
+
+                    <Grid item xs={8} spacing={1}>
+                      <Grid>
+                      <TextField
+                    type="text"
+                    name="LocationRoom"
+                    label="Location/Room"
+                    value={editData ? editData.LocationRoom : ''}
+                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                        <br/>
+                      </Grid>
+                      <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
                   <TextField
                     type="file"
                     name="fileInput"
@@ -950,6 +996,12 @@ const handleViewClose = () => {
                     onChange={(e) => handleFileUpload(e.target.files[0])}
                     inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
                   />
+                        <br/>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <br />
           </form>
         </DialogContent>
         <DialogActions>
@@ -1010,17 +1062,16 @@ const handleViewClose = () => {
                ITEM BORROWER
             </Typography>
             <DialogContent>
-                <Typography variant="subtitle1">Date:</Typography>
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={viewItem ? viewItem.Date : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                <Typography variant="subtitle1">Control Number:</Typography>
+            <Grid
+                    container
+                    spacing={2}
+                    columns={16}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Control Number:</Typography>
                   <TextField
                     type="text"
                     name="ControlNum"
@@ -1029,8 +1080,22 @@ const handleViewClose = () => {
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                <Typography variant="subtitle1">Faculty Name:</Typography>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Date:</Typography>
+                  <TextField
+                    type="date"
+                    name="Date"
+                    placeholder="Date"
+                    value={viewItem ? viewItem.Date : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <Typography variant="subtitle1">Faculty Name:</Typography>
                   <TextField
                     type="text"
                     name="FullName"
@@ -1039,18 +1104,10 @@ const handleViewClose = () => {
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
-                <Typography variant="subtitle1">Location/Room:</Typography>
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={viewItem  ? viewItem .LocationRoom : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                <Typography variant="subtitle1">Borrower:</Typography>
+                    </Grid>
+
+                    <Grid item xs={16}>
+                    <Typography variant="subtitle1">Borrower:</Typography>
                   <TextField
                     type="text"
                     name="Borrower"
@@ -1059,9 +1116,10 @@ const handleViewClose = () => {
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                  <br />
+                    </Grid>
 
-                  <fieldset>
+                    <Grid item xs={8}>
+                    <fieldset>
                     <legend name="Items">ITEMS:</legend>
                     <Checkbox
                       value=" HDMI,"
@@ -1093,8 +1151,23 @@ const handleViewClose = () => {
                     />
                     </div>
                   </fieldset>
-                  <br/>
-                  <Typography variant="subtitle1">File:</Typography>
+                    </Grid>
+
+                    <Grid item xs={8} spacing={1}>
+                      <Grid>
+                      <Typography variant="subtitle1">Location/Room:</Typography>
+                  <TextField
+                    type="text"
+                    name="LocationRoom"
+                    placeholder="Location/Room"
+                    value={viewItem  ? viewItem .LocationRoom : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                        <br/>
+                      </Grid>
+                      <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
                     {viewItem && viewItem.fileURL ? (
                       <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
                         View / Download File
@@ -1102,6 +1175,12 @@ const handleViewClose = () => {
                     ) : (
                       "No File"
                     )}
+                        <br/>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <br />
             </DialogContent>
           </div>
         </div>
