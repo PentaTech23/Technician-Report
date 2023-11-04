@@ -773,15 +773,16 @@ export default function FormsIRF() {
               <Button
                 onClick={fetchAllDocuments}
                 variant="contained"
+                size="large"
                 style={{
                   margin: '0 8px', // Add margin for spacing
                   display: 'flex',
                   justifyContent: 'center',
-                  backgroundColor: 'transparent', // Set the background color to transparent
-                  boxShadow: 'none', // Remove the box shadow
+                   // Set the background color to transparent
+                   // Remove the box shadow
                 }}
               >
-                <Iconify icon="zondicons:refresh" color="#2065D1" width={55} height={55} />
+                Refresh
               </Button>
             </div>
           </div>
@@ -799,7 +800,7 @@ export default function FormsIRF() {
             )}
 
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-              <Button onClick={handleClickOpen} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+              <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
                 New User
               </Button>
             </div>
