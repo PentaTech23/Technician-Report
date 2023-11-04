@@ -32,6 +32,7 @@ const firebaseConfig = {
   appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
 };
 
+<<<<<<< HEAD
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
@@ -212,6 +213,31 @@ export default function DashboardAppPage() {
         
 
 
+=======
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+
+  const [open, setOpen] = useState(null);
+
+  const [page, setPage] = useState(0);
+
+  const [order, setOrder] = useState('asc');
+
+  const [selected, setSelected] = useState([]);
+
+  const [orderBy, setOrderBy] = useState('name');
+
+  const [filterName, setFilterName] = useState('');
+
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+>>>>>>> 9f2032d009ac0f72d8ef503b72f3ced93be37958
 
   return (
     <>
@@ -246,11 +272,113 @@ export default function DashboardAppPage() {
             { <AppWidgetSummary title="TOTAL FORMS" total={totalForms} color="error"/> }
           </Grid>
 
+<<<<<<< HEAD
           <Grid item xs={3} sm={3} md={3}>
             { <AppWidgetSummary title="TOTAL ARCHIVED FORMS" total={totalArchives} color="error"/> }
           </Grid>
             
            </Grid>
+=======
+        <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1, flexWrap: 'wrap'}}>
+        <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative' }}>
+      <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+        {/* <StyledProductImg alt={name} src={cover} /> */}
+      </Box>
+      <Stack spacing={2} sx={{ p: 3 }}>
+        <Link color="inherit" underline="hover">
+          <Typography
+            variant="subtitle2"
+          >
+            Total SRF:
+          </Typography>
+        </Link>
+ 
+      </Stack>
+    </Card>
+
+    
+          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
+            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+              {/* <StyledProductImg alt={name} src={cover} /> */}
+            </Box>
+            <Stack spacing={2} sx={{ p: 3 }}>
+              <Link color="inherit" underline="hover">
+                <Typography variant="subtitle2"
+                >
+                  Total BIF:
+                </Typography>
+              </Link>
+            
+            </Stack>
+          </Card>
+
+          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
+            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+              {/* <StyledProductImg alt={name} src={cover} /> */}
+            </Box>
+            <Stack spacing={2} sx={{ p: 3 }}>
+              <Link color="inherit" underline="hover">
+                <Typography variant="subtitle2"
+
+                >
+                  Total RIF:
+                </Typography>
+              </Link>
+             
+            </Stack>
+          </Card>
+    
+          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
+            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+              {/* <StyledProductImg alt={name} src={cover} /> */}
+            </Box>
+            <Stack spacing={2} sx={{ p: 3 }}>
+              <Link color="inherit" underline="hover">
+                <Typography variant="subtitle2"
+                >
+                  Total IRF:
+                </Typography>
+              </Link>
+            
+            </Stack>
+          </Card>
+          </Stack>
+            </Container>
+            
+            <Container> 
+            <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1, flexWrap: 'wrap'}}> 
+          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
+            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+              {/* <StyledProductImg alt={name} src={cover} /> */}
+            </Box>
+            <Stack spacing={2} sx={{ p: 3 }}>
+              <Link color="inherit" underline="hover">
+                <Typography variant="subtitle2"
+                >
+                  Total Forms:
+                </Typography>
+              </Link>
+            
+            </Stack>
+          </Card>
+
+          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
+            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
+              {/* <StyledProductImg alt={name} src={cover} /> */}
+            </Box>
+            <Stack spacing={2} sx={{ p: 3 }}>
+              <Link color="inherit" underline="hover">
+                <Typography variant="subtitle2"
+                >
+                  Total Archived Forms:
+                </Typography>
+              </Link>
+              
+            </Stack>
+          </Card>
+
+        </Stack>
+>>>>>>> 9f2032d009ac0f72d8ef503b72f3ced93be37958
       </Container>
       </Container>
     </>

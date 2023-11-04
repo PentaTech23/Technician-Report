@@ -115,28 +115,7 @@ export default function FormsIRF() {
     },
   ]);
 
-  // const customStyles = {
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  //   transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '100%', // Set your custom width
-  //   height: '100%',
-  //   backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
-  // const customStylesContent = {
-  //   // position: 'absolute',
-  //   // top: '50%',
-  //   // left: '50%',
-  //   // transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '1800px', // Set your custom width
-  //   height: '100%',
-  //   // backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
+ 
 
   const handleChangeInput = (index, event) => {
     console.log(index, event.target.name);
@@ -939,13 +918,16 @@ export default function FormsIRF() {
                         marginTop: '10px',
                       }}
                     >
-                      Items
+                      Office Equipment 
                     </Typography>
 
                     <br />
                     {inputField.map((inputField, index) => (
                       <div key={index}>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={0}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center">
                           {/* First Column */}
                           <Grid item xs={1}>
                             <TextField
@@ -1079,6 +1061,165 @@ export default function FormsIRF() {
                       </div>
                     ))}
                   </div>
+
+                  <div>
+                    <Typography
+                      variant="h4"
+                      sx={{ mb: 5 }}
+                      style={{
+                        alignSelf: 'center',
+                        color: '#ff5500',
+                        margin: 'auto',
+                        fontSize: '40px',
+                        fontWeight: 'bold',
+                        marginTop: '10px',
+                      }}
+                    >
+                        CICT Equipment 
+                    </Typography>
+
+                    <br />
+                    {inputField.map((inputField, index) => (
+                      <div key={index}>
+                        <Grid container spacing={0}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center">
+                          {/* First Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Quantity"
+                              label="Quantity"
+                              sx={{ width: '100px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Quantity}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                          </Grid>
+
+                          {/* Second Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              name="unitOfMeasure"
+                              label="Unit/s"
+                              variant="outlined"
+                              sx={{ width: '100px' }}
+                              size="small"
+                              value={inputField.unitOfMeasure}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the second column */}
+                          </Grid>
+
+                          {/* Third Column */}
+                          <Grid item xs={2.6}>
+                            <TextField
+                              name="Description"
+                              label="Description"
+                              multiline
+                              sx={{ width: '285px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Description}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the third column */}
+                          </Grid>
+
+                          {/* Fourth Column */}
+                          <Grid item xs={1.8}>
+                            <TextField
+                              name="propertyNumber"
+                              label="Property Number"
+                              variant="outlined"
+                              sx={{ width: '190px' }}
+                              size="small"
+                              value={inputField.propertyNumber}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the fourth column */}
+                          </Grid>
+
+                          {/* Fifth Column */}
+                          <Grid item xs={1.6}>
+                            <TextField 
+                              type="date"
+                              name="dateAquired"
+                              // label="Date Aquired"
+                              variant="outlined"
+                              size="small"
+                              value={inputField.dateAquired}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
+                              <DemoContainer components={['DatePicker']}>
+                                <DatePicker label="Basic date picker"
+                                style={{ width: '200px', height: '40px' }}
+                                />
+                              </DemoContainer>
+                            </LocalizationProvider> */}
+                            {/* Content for the fifth column */}
+                          </Grid>
+
+                          {/* Sixth Column */}
+                          <Grid item xs={1.4}>
+                            <TextField
+                              name="unitCost"
+                              label="Unit Cost"
+                              variant="outlined"
+                              sx={{ width: '150px' }}
+                              size="small"
+                              value={inputField.unitCost}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            
+                            {/* Content for the sixth column */}
+                          </Grid>
+
+                          {/* Seventh Column */}
+                          <Grid item xs={2}>
+                            <TextField
+                              name="remarks"
+                              label="Remarks"
+                              variant="outlined"
+                              size="small"
+                              value={inputField.remarks}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the seventh column */}
+                          </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1.5}>
+                            <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                handleRemoveField(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                          <br/>
+                          <div>
+                            <br/>
+                            <br/>
+                          </div>
+                        </Grid>
+                      </div>
+                    ))}
+                  </div>
+
+
 
                   <div>
                             <br/>

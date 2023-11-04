@@ -64,19 +64,16 @@ const navConfig = [
       },
 
       {
-        title: 'Inventory Transfer Report',
+        title: 'Inventory Laboratory Form',
         path: '/dashboard/reports_itr',
       },
-
+      
       {
-        title: 'Monthly Assessment Report',
-        path: '/dashboard/reports_mar',
+        title: 'Monthly Assessment Report & Inventory Laboratory Form',
+        path: '/dashboard/reports_marilf',
       },
 
-      {
-        title: 'Inventory Laboratory Form',
-        path: '/dashboard/reports_ilf',
-      },
+    
     ],
   },
 

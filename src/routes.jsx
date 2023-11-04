@@ -27,8 +27,7 @@ import Profiling from './pages/Profiling';
 import Reports from './pages/Report';
     import ReportsPTR from './pages/ReportsPTR';
     import ReportsITR from './pages/ReportsITR';
-    import ReportsMAR from './pages/ReportsMAR';
-    import ReportsILF from './pages/ReportsILF';
+    import ReportsMARILF from './pages/ReportsMARILF';
 //  Archives Section
 import Archives from './pages/Archive';
 //  Users Section
@@ -111,8 +110,7 @@ export default function Router() {
         { path: 'reports', element: <Reports/> },
           { path: 'reports_ptr', element: <ReportsPTR/> },
           { path: 'reports_itr', element: <ReportsITR/> },
-          { path: 'reports_mar', element: <ReportsMAR/> },
-          { path: 'reports_ilf', element: <ReportsILF/> },
+          { path: 'reports_marilf', element: <ReportsMARILF/> },
         //  Archives Section
         { path: 'archives', element: <Archives/> },
         //  User Section
