@@ -22,8 +22,6 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 
-
-
 // @mui
 import {
   Card,
@@ -55,7 +53,6 @@ import {
   TextField,
   Select,
 } from '@mui/material';
-
 
 // components
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -822,7 +819,7 @@ export default function UserPage() {
                           onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
                           // sx={{ width: '100%', marginBottom: '10px' }}
                         />
-                        <br/>
+                        <br />
                       </Grid>
                       <Grid>
                         <TextField
@@ -838,7 +835,7 @@ export default function UserPage() {
                           maxRows={80}
                           // marginBottom="10px"
                         />
-                        <br/>
+                        <br />
                       </Grid>
                       <Grid>
                         {/* <Typography variant="subtitle1">Document:</Typography> */}
@@ -850,7 +847,6 @@ export default function UserPage() {
                           sx={{ width: '100%' }}
                         />
                       </Grid>
-                      
                     </Grid>
                   </Grid>
 
@@ -990,120 +986,152 @@ export default function UserPage() {
               <DialogContent>
                 <form onSubmit={handleEditSubmit}>
                   {/* Fields to edit */}
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="ControlNum"
-                    placeholder="Control Number"
-                    value={editData ? editData.ControlNum : ''}
-                    onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="FullName"
-                    placeholder="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="Requisitioner"
-                    placeholder="Requisitioner"
-                    value={editData ? editData.Requisitioner : ''}
-                    onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-
-                  <fieldset>
-                    <legend name="Services">SERVICES:</legend>
-                    <Checkbox
-                      value=" Application Installation,"
-                      checked={formData.Services.includes(' Application Installation,')}
-                      onChange={handleServiceChange}
-                    />
-                    Application Installation
-                    <br />
-                    <Checkbox
-                      value=" Network,"
-                      checked={formData.Services.includes(' Network,')}
-                      onChange={handleServiceChange}
-                    />
-                    Network
-                    <br />
-                    <Checkbox
-                      value=" Inventory,"
-                      checked={formData.Services.includes(' Inventory,')}
-                      onChange={handleServiceChange}
-                    />
-                    Inventory
-                    <br />
-                    <Checkbox
-                      value=" Reformat,"
-                      checked={formData.Services.includes(' Reformat,')}
-                      onChange={handleServiceChange}
-                    />
-                    Reformat
-                    <br />
-                    <Checkbox
-                      value=" Repair,"
-                      checked={formData.Services.includes(' Repair,')}
-                      onChange={handleServiceChange}
-                    />
-                    Repair
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                      Others:
-                      <input
+                  <Grid
+                    container
+                    spacing={2}
+                    columns={16}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                      <TextField
                         type="text"
-                        value={editData ? editData.otherServices : ''}
-                        onChange={(e) => setEditData({ ...editData, otherServices: e.target.value })}
+                        name="ControlNum"
+                        label="Control Number"
+                        value={editData ? editData.ControlNum : ''}
+                        onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
-                    </div>
-                  </fieldset>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        label="Date"
+                        value={editData ? editData.Date : ''}
+                        onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        label="Faculty Name"
+                        value={editData ? editData.FullName : ''}
+                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="Requisitioner"
+                        label="Requisitioner"
+                        value={editData ? editData.Requisitioner : ''}
+                        onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <fieldset>
+                        <legend name="Services">SERVICES:</legend>
+                        <Checkbox
+                          value=" Application Installation,"
+                          checked={formData.Services.includes(' Application Installation,')}
+                          onChange={handleServiceChange}
+                        />
+                        Application Installation
+                        <br />
+                        <Checkbox
+                          value=" Network,"
+                          checked={formData.Services.includes(' Network,')}
+                          onChange={handleServiceChange}
+                        />
+                        Network
+                        <br />
+                        <Checkbox
+                          value=" Inventory,"
+                          checked={formData.Services.includes(' Inventory,')}
+                          onChange={handleServiceChange}
+                        />
+                        Inventory
+                        <br />
+                        <Checkbox
+                          value=" Reformat,"
+                          checked={formData.Services.includes(' Reformat,')}
+                          onChange={handleServiceChange}
+                        />
+                        Reformat
+                        <br />
+                        <Checkbox
+                          value=" Repair,"
+                          checked={formData.Services.includes(' Repair,')}
+                          onChange={handleServiceChange}
+                        />
+                        Repair
+                        <br />
+                        <div style={{ marginLeft: '42px' }}>
+                          Others:
+                          <input
+                            type="text"
+                            value={editData ? editData.otherServices : ''}
+                            onChange={(e) => setEditData({ ...editData, otherServices: e.target.value })}
+                          />
+                        </div>
+                      </fieldset>
+                      <br />
+                    </Grid>
+
+                    <Grid item xs={8} spacing={1}>
+                      <Grid>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          label="Location/Room"
+                          value={editData ? editData.LocationRoom : ''}
+                          onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
+                      </Grid>
+                      <Grid>
+                        <Typography variant="subtitle1">Remarks:</Typography>
+                        <TextField
+                          type="text"
+                          name="Remarks"
+                          label="Remarks"
+                          value={editData ? editData.Remarks : ''}
+                          onChange={(e) => setEditData({ ...editData, Remarks: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
+                      </Grid>
+                      <Grid>
+                        <Typography variant="subtitle1">File:</Typography>
+                        <TextField
+                          type="file"
+                          name="fileInput"
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          inputProps={{
+                            className:
+                              'w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input',
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
                   <br />
-                  <Typography variant="subtitle1">Remarks:</Typography>
-                  <TextareaAutosize
-                    type="text"
-                    name="Remarks"
-                    placeholder="Remarks"
-                    value={editData ? editData.Remarks : ''}
-                    onChange={(e) => setEditData({ ...editData, Remarks: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    inputProps={{
-                      className:
-                        'w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input',
-                    }}
-                  />
                 </form>
               </DialogContent>
               <DialogActions>
@@ -1180,109 +1208,146 @@ export default function UserPage() {
                 SERVICE REQUEST
               </Typography>
               <DialogContent>
-                <Typography variant="subtitle1">Date:</Typography>
-                <TextField
-                  type="date"
-                  name="Date"
-                  placeholder="Date"
-                  value={viewItem ? viewItem.Date : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Control Number:</Typography>
-                <TextField
-                  type="text"
-                  name="ControlNum"
-                  placeholder="Control Number"
-                  value={viewItem ? viewItem.ControlNum : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Faculty Name:</Typography>
-                <TextField
-                  type="text"
-                  name="FullName"
-                  placeholder="Faculty Name"
-                  value={viewItem ? viewItem.FullName : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Location/Room:</Typography>
-                <TextField
-                  type="text"
-                  name="LocationRoom"
-                  placeholder="Location/Room"
-                  value={viewItem ? viewItem.LocationRoom : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Requisitioner:</Typography>
-                <TextField
-                  type="text"
-                  name="Requisitioner"
-                  placeholder="Requisitioner"
-                  value={viewItem ? viewItem.Requisitioner : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
+                <Grid
+                  container
+                  spacing={2}
+                  columns={16}
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Control Number:</Typography>
+                    <TextField
+                      type="text"
+                      name="ControlNum"
+                      
+                      value={viewItem ? viewItem.ControlNum : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
 
-                <fieldset>
-                  <legend name="Services">SERVICES:</legend>
-                  <Checkbox
-                    value=" Application Installation,"
-                    checked={viewItem && viewItem.Services.includes(' Application Installation,')}
-                    disabled
-                  />
-                  Application Installation
-                  <br />
-                  <Checkbox value=" Network," checked={viewItem && viewItem.Services.includes(' Network,')} disabled />
-                  Network
-                  <br />
-                  <Checkbox
-                    value=" Inventory,"
-                    checked={viewItem && viewItem.Services.includes(' Inventory,')}
-                    disabled
-                  />
-                  Inventory
-                  <br />
-                  <Checkbox
-                    value=" Reformat,"
-                    checked={viewItem && viewItem.Services.includes(' Reformat,')}
-                    disabled
-                  />
-                  Reformat
-                  <br />
-                  <Checkbox value=" Repair," checked={viewItem && viewItem.Services.includes(' Repair,')} disabled />
-                  Repair
-                  <br />
-                  <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input type="text" value={viewItem ? viewItem.otherServices : ''} disabled />
-                  </div>
-                </fieldset>
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Date:</Typography>
+                    <TextField
+                      type="date"
+                      name="Date"
+                      
+                      value={viewItem ? viewItem.Date : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Faculty Name:</Typography>
+                    <TextField
+                      type="text"
+                      name="FullName"
+                      
+                      value={viewItem ? viewItem.FullName : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Requisitioner:</Typography>
+                    <TextField
+                      type="text"
+                      name="Requisitioner"
+                    
+                      value={viewItem ? viewItem.Requisitioner : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <fieldset>
+                      <legend name="Services">SERVICES:</legend>
+                      <Checkbox
+                        value=" Application Installation,"
+                        checked={viewItem && viewItem.Services.includes(' Application Installation,')}
+                        disabled
+                      />
+                      Application Installation
+                      <br />
+                      <Checkbox
+                        value=" Network,"
+                        checked={viewItem && viewItem.Services.includes(' Network,')}
+                        disabled
+                      />
+                      Network
+                      <br />
+                      <Checkbox
+                        value=" Inventory,"
+                        checked={viewItem && viewItem.Services.includes(' Inventory,')}
+                        disabled
+                      />
+                      Inventory
+                      <br />
+                      <Checkbox
+                        value=" Reformat,"
+                        checked={viewItem && viewItem.Services.includes(' Reformat,')}
+                        disabled
+                      />
+                      Reformat
+                      <br />
+                      <Checkbox
+                        value=" Repair,"
+                        checked={viewItem && viewItem.Services.includes(' Repair,')}
+                        disabled
+                      />
+                      Repair
+                      <br />
+                      <div style={{ marginLeft: '42px' }}>
+                        Others:
+                        <input type="text" value={viewItem ? viewItem.otherServices : ''} disabled />
+                      </div>
+                    </fieldset>
+                  </Grid>
+
+                  <Grid item xs={8} spacing={1}>
+                    <Grid>
+                      <Typography variant="subtitle1">Location/Room:</Typography>
+                      <TextField
+                        type="text"
+                        name="LocationRoom"
+                        
+                        value={viewItem ? viewItem.LocationRoom : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                    <Grid>
+                      <Typography variant="subtitle1">Remarks:</Typography>
+                      <TextField
+                        type="text"
+                        name="Remarks"
+                        
+                        value={viewItem ? viewItem.Remarks : ''}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                    <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
+                      {viewItem && viewItem.fileURL ? (
+                        <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                          View / Download File
+                        </a>
+                      ) : (
+                        'No File'
+                      )}
+                    </Grid>
+                  </Grid>
+                </Grid>
+
                 <br />
-                <Typography variant="subtitle1">Remarks:</Typography>
-                <TextareaAutosize
-                  type="text"
-                  name="Remarks"
-                  placeholder="Remarks"
-                  value={viewItem ? viewItem.Remarks : ''}
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
                 <br />
-                <Typography variant="subtitle1">File:</Typography>
-                {viewItem && viewItem.fileURL ? (
-                  <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                    View / Download File
-                  </a>
-                ) : (
-                  'No File'
-                )}
               </DialogContent>
             </div>
           </div>
