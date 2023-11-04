@@ -1000,15 +1000,16 @@ export default function FormsIRF() {
                   <div>
                     {inputFieldOffice.map((inputField, index) => (
                       <div key={index}>
-                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.2}>
                             <TextField
                               type="text"
                               name="Quantity"
                               label="Quantity"
-                              sx={{ width: '100px' }}
+                              // sx={{ width: '100px' }}
                               variant="outlined"
+                              fullWidth
                               size="small"
                               value={inputField.Quantity}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1016,12 +1017,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Second Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.8}>
                             <TextField
                               name="unitOfMeasure"
                               label="Unit/s"
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              fullWidth
                               size="small"
                               value={inputField.unitOfMeasure}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1030,12 +1031,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Third Column */}
-                          <Grid item xs={2.6}>
+                          <Grid item xs={4}>
                             <TextField
                               name="Description"
                               label="Description"
                               multiline
-                              sx={{ width: '265px' }}
+                              fullWidth
                               variant="outlined"
                               size="small"
                               value={inputField.Description}
@@ -1045,12 +1046,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fourth Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={2}>
                             <TextField
                               name="propertyNumber"
                               label="Property Number"
                               variant="outlined"
-                              sx={{ width: '183px' }}
+                              fullWidth
                               size="small"
                               value={inputField.propertyNumber}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1059,13 +1060,14 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fifth Column */}
-                          <Grid item xs={1.7}>
+                          <Grid item xs={2}>
                             <TextField
                               type="date"
                               name="dateAquired"
                               // label="Date Aquired"
                               variant="outlined"
                               size="small"
+                              fullWidth
                               value={inputField.dateAquired}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
@@ -1080,12 +1082,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Sixth Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={2}>
                             <TextField
                               name="unitCost"
                               label="Unit Cost"
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              fullWidth
                               size="small"
                               value={inputField.unitCost}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1095,12 +1097,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Seventh Column */}
-                          <Grid item xs={1.5}>
+                          <Grid item xs={2}>
                             <TextField
                               name="remarks"
                               label="Remarks"
                               variant="outlined"
                               size="small"
+                              fullWidth
                               multiline
                               value={inputField.remarks}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1170,15 +1173,16 @@ export default function FormsIRF() {
                   <div>
                     {inputFieldCict.map((inputFieldCict, index) => (
                       <div key={index}>
-                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.2}>
                             <TextField
                               type="text"
                               name="Quantity"
                               label="Quantity"
-                              sx={{ width: '100px' }}
+                              // sx={{ width: '100px' }}
                               variant="outlined"
+                              fullWidth
                               size="small"
                               value={inputFieldCict.Quantity}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1186,12 +1190,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Second Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.8}>
                             <TextField
                               name="unitOfMeasure"
                               label="Unit/s"
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              // sx={{ width: '100px' }}
+                              fullWidth
                               size="small"
                               value={inputFieldCict.unitOfMeasure}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1200,12 +1205,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Third Column */}
-                          <Grid item xs={2.6}>
+                          <Grid item xs={4}>
                             <TextField
                               name="Description"
                               label="Description"
                               multiline
-                              sx={{ width: '265px' }}
+                              // sx={{ width: '265px' }}
+                              fullWidth
                               variant="outlined"
                               size="small"
                               value={inputFieldCict.Description}
@@ -1215,12 +1221,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fourth Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={2}>
                             <TextField
                               name="propertyNumber"
                               label="Property Number"
                               variant="outlined"
-                              sx={{ width: '183px' }}
+                              fullWidth
+                              // sx={{ width: '183px' }}
                               size="small"
                               value={inputFieldCict.propertyNumber}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1229,12 +1236,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fifth Column */}
-                          <Grid item xs={1.7}>
+                          <Grid item xs={2}>
                             <TextField
                               type="date"
                               name="dateAquired"
                               // label="Date Aquired"
                               variant="outlined"
+                              fullWidth
                               size="small"
                               value={inputFieldCict.dateAquired}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1250,12 +1258,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Sixth Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={2}>
                             <TextField
                               name="unitCost"
                               label="Unit Cost"
+                              fullWidth
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              // sx={{ width: '100px' }}
                               size="small"
                               value={inputFieldCict.unitCost}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1265,12 +1274,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Seventh Column */}
-                          <Grid item xs={1.5}>
+                          <Grid item xs={2}>
                             <TextField
                               name="remarks"
                               label="Remarks"
                               variant="outlined"
                               size="small"
+                              fullWidth
                               multiline
                               value={inputFieldCict.remarks}
                               onChange={(event) => handleChangeInputCict(index, event)}
@@ -1338,14 +1348,14 @@ export default function FormsIRF() {
                   <div>
                     {inputFieldOther.map((inputFieldOther, index) => (
                       <div key={index}>
-                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.2}>
                             <TextField
                               type="text"
                               name="Quantity"
                               label="Quantity"
-                              sx={{ width: '100px' }}
+                              fullWidth
                               variant="outlined"
                               size="small"
                               value={inputFieldOther.Quantity}
@@ -1354,12 +1364,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Second Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={1.8}>
                             <TextField
                               name="unitOfMeasure"
                               label="Unit/s"
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              fullWidth
                               size="small"
                               value={inputFieldOther.unitOfMeasure}
                               onChange={(event) => handleChangeInputOther(index, event)}
@@ -1368,12 +1378,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Third Column */}
-                          <Grid item xs={2.6}>
+                          <Grid item xs={4}>
                             <TextField
                               name="Description"
                               label="Description"
                               multiline
-                              sx={{ width: '265px' }}
+                              fullWidth
                               variant="outlined"
                               size="small"
                               value={inputFieldOther.Description}
@@ -1383,12 +1393,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fourth Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={2}>
                             <TextField
                               name="propertyNumber"
                               label="Property Number"
                               variant="outlined"
-                              sx={{ width: '183px' }}
+                              fullWidth
                               size="small"
                               value={inputFieldOther.propertyNumber}
                               onChange={(event) => handleChangeInputOther(index, event)}
@@ -1397,11 +1407,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fifth Column */}
-                          <Grid item xs={1.7}>
+                          <Grid item xs={2}>
                             <TextField
                               type="date"
                               name="dateAquired"
                               // label="Date Aquired"
+                              fullWidth
                               variant="outlined"
                               size="small"
                               value={inputFieldOther.dateAquired}
@@ -1418,12 +1429,12 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Sixth Column */}
-                          <Grid item xs={1}>
+                          <Grid item xs={2}>
                             <TextField
                               name="unitCost"
                               label="Unit Cost"
                               variant="outlined"
-                              sx={{ width: '100px' }}
+                              fullWidth
                               size="small"
                               value={inputFieldOther.unitCost}
                               onChange={(event) => handleChangeInputOther(index, event)}
@@ -1433,12 +1444,13 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Seventh Column */}
-                          <Grid item xs={1.5}>
+                          <Grid item xs={2}>
                             <TextField
                               name="remarks"
                               label="Remarks"
                               variant="outlined"
                               size="small"
+                              fullWidth
                               multiline
                               value={inputFieldOther.remarks}
                               onChange={(event) => handleChangeInputOther(index, event)}
