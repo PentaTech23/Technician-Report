@@ -59,7 +59,12 @@ function NavItem({ item }) {
                 key={subItem.title}
                 component={RouterLink}
                 to={subItem.path}
-                sx={{ pl: 4 }}
+                sx={{ '&.active': {
+                  color: 'text.primary',
+                  bgcolor: 'action.selected',
+                  fontWeight: 'fontWeightBold',
+                }, pl: 4
+                }}
               >
                 <ListItemText primary={subItem.title} />
               </StyledNavItem>
