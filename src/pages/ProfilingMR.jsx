@@ -105,54 +105,49 @@ const storage = getStorage(firebaseApp);
 export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
-  const [inputField, setInputField] = useState([
+  const [inputFieldOffice, setInputFieldOffice] = useState([
     {
-        ItemDescription: '',
-        Quantity: '',
-        IcsNo: '',
-        EndUser: '',
-        remarks: '',
+      ItemDescription: '',
+      Quantity: '',
+      IcsNo: '',
+      EndUser: '',
+      remarks: '',
+    },
+  ]);
+  const [inputFieldCict, setInputFieldCict] = useState([
+    {
+      ItemDescription: '',
+      Quantity: '',
+      IcsNo: '',
+      EndUser: '',
+      remarks: '',
+    },
+  ]);
+  const [inputFieldOther, setInputFieldOther] = useState([
+    {
+      ItemDescription: '',
+      Quantity: '',
+      IcsNo: '',
+      EndUser: '',
+      remarks: '',
     },
   ]);
 
-  // const customStyles = {
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  //   transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '100%', // Set your custom width
-  //   height: '100%',
-  //   backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
-  // const customStylesContent = {
-  //   // position: 'absolute',
-  //   // top: '50%',
-  //   // left: '50%',
-  //   // transform: 'translate(-50%, -50%)', // Center the modal horizontally and vertically
-  //   width: '1800px', // Set your custom width
-  //   height: '100%',
-  //   // backgroundColor: 'white', // Optional background color
-  //   padding: '16px', // Optional padding
-  //   border: '#000000'
-  // };
-
   const handleChangeInput = (index, event) => {
     console.log(index, event.target.name);
-    const values = [...inputField];
+    const values = [...inputFieldOffice];
     values[index][event.target.name] = event.target.value;
-    setInputField(values);
+    setInputFieldOffice(values);
   };
 
   const handleSubmitForm = (e) => {
     e.preventDefault();
-    console.log('InputFields', inputField);
+    console.log('InputFields', inputFieldOffice);
   };
 
   const handleAddField = () => {
-    setInputField([
-      ...inputField,
+    setInputFieldOffice([
+      ...inputFieldOffice, 
       {
         ItemDescription: '',
         Quantity: '',
@@ -164,9 +159,62 @@ export default function FormsIRF() {
   };
 
   const handleRemoveField = (index) => {
-    const values = [...inputField];
+    const values = [...inputFieldOffice];
     values.splice(index, 1);
-    setInputField(values);
+    setInputFieldOffice(values);
+  };
+
+
+  const handleChangeInputCict = (index, event) => {
+    console.log(index, event.target.name);
+    const values = [...inputFieldCict];
+    values[index][event.target.name] = event.target.value;
+    setInputFieldCict(values);
+  };
+
+  const handleAddFieldCict = () => {
+    setInputFieldCict([
+      ...inputFieldCict, 
+      {
+        ItemDescription: '',
+        Quantity: '',
+        IcsNo: '',
+        EndUser: '',
+        remarks: '',
+      },
+    ]);
+  };
+
+  const handleRemoveFieldCict = (index) => {
+    const values = [...inputFieldCict];
+    values.splice(index, 1);
+    setInputFieldCict(values);
+  };
+
+  const handleChangeInputOther = (index, event) => {
+    console.log(index, event.target.name);
+    const values = [...inputFieldOther];
+    values[index][event.target.name] = event.target.value;
+    setInputFieldOther(values);
+  };
+
+  const handleAddFieldOther = () => {
+    setInputFieldOther([
+      ...inputFieldOther, 
+      {
+        ItemDescription: '',
+        Quantity: '',
+        IcsNo: '',
+        EndUser: '',
+        remarks: '',
+      },
+    ]);
+  };
+
+  const handleRemoveFieldOther = (index) => {
+    const values = [...inputFieldOther];
+    values.splice(index, 1);
+    setInputFieldOther(values);
   };
   // ----------------------------------------------------------------------
 
@@ -538,7 +586,7 @@ export default function FormsIRF() {
       InspectedBy,
       NotedBy,
       fileURL: fileURL || '', // Set a default value or handle it based on your use case
-      inputField,
+      inputFieldOffice,
     };
 
     try {
@@ -800,12 +848,7 @@ export default function FormsIRF() {
               </Button>
             </div>
 
-            <Dialog
-              open={open}
-              onClose={handleClose}
-              maxWidth="xl"
-              
-            >
+            <Dialog open={open} onClose={handleClose} maxWidth="xl">
               {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width:'1000px'}}> */}
               <Typography
@@ -822,9 +865,7 @@ export default function FormsIRF() {
               >
                 Memorandum Receipt
               </Typography>
-              <DialogContent
-              
-              >
+              <DialogContent>
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={1}>
                     <Grid item xs={6} md={7}>
@@ -838,7 +879,7 @@ export default function FormsIRF() {
                       sx={{ width: '100%', marginBottom: '10px' }}
                     /> */}
                     </Grid>
-                  <Grid item xs={8} md={2}>
+                    <Grid item xs={8} md={2}>
                       <TextField
                         type="date"
                         name="Date"
@@ -926,26 +967,38 @@ export default function FormsIRF() {
                   </Grid>
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Office Equipment
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddField();
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Grid>
+                  </Grid>
                   <div>
-                    <Typography
-                      variant="h4"
-                      sx={{ mb: 5 }}
-                      style={{
-                        alignSelf: 'center',
-                        color: '#ff5500',
-                        margin: 'auto',
-                        fontSize: '40px',
-                        fontWeight: 'bold',
-                        marginTop: '10px',
-                      }}
-                    >
-                      Items
-                    </Typography>
-
-                    <br />
-                    {inputField.map((inputField, index) => (
+                    {inputFieldOffice.map((inputField, index) => (
                       <div key={index}>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
                           <Grid item xs={1}>
                             <TextField
@@ -980,7 +1033,7 @@ export default function FormsIRF() {
                               name="Description"
                               label="Description"
                               multiline
-                              sx={{ width: '285px' }}
+                              sx={{ width: '265px' }}
                               variant="outlined"
                               size="small"
                               value={inputField.Description}
@@ -995,7 +1048,7 @@ export default function FormsIRF() {
                               name="propertyNumber"
                               label="Property Number"
                               variant="outlined"
-                              sx={{ width: '190px' }}
+                              sx={{ width: '183px' }}
                               size="small"
                               value={inputField.propertyNumber}
                               onChange={(event) => handleChangeInput(index, event)}
@@ -1004,8 +1057,8 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Fifth Column */}
-                          <Grid item xs={1.6}>
-                            <TextField 
+                          <Grid item xs={1.7}>
+                            <TextField
                               type="date"
                               name="dateAquired"
                               // label="Date Aquired"
@@ -1025,27 +1078,28 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Sixth Column */}
-                          <Grid item xs={1.4}>
+                          <Grid item xs={1}>
                             <TextField
                               name="unitCost"
                               label="Unit Cost"
                               variant="outlined"
-                              sx={{ width: '150px' }}
+                              sx={{ width: '100px' }}
                               size="small"
                               value={inputField.unitCost}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
-                            
+
                             {/* Content for the sixth column */}
                           </Grid>
 
                           {/* Seventh Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1.5}>
                             <TextField
                               name="remarks"
                               label="Remarks"
                               variant="outlined"
                               size="small"
+                              multiline
                               value={inputField.remarks}
                               onChange={(event) => handleChangeInput(index, event)}
                             />
@@ -1053,14 +1107,14 @@ export default function FormsIRF() {
                           </Grid>
 
                           {/* Eighth Column */}
-                          <Grid item xs={1.5}>
-                            <Button
+                          <Grid item xs={1}>
+                            {/* <Button
                               onClick={() => {
                                 handleAddField();
                               }}
                             >
                               Add
-                            </Button>
+                            </Button> */}
                             <Button
                               onClick={() => {
                                 handleRemoveField(index);
@@ -1070,10 +1124,344 @@ export default function FormsIRF() {
                             </Button>
                             {/* Content for the eighth column */}
                           </Grid>
-                          <br/>
+                          <br />
                           <div>
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
+                          </div>
+                        </Grid>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        CICT Equipment
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddFieldCict();
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <div>
+                    {inputFieldCict.map((inputFieldCict, index) => (
+                      <div key={index}>
+                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                          {/* First Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Quantity"
+                              label="Quantity"
+                              sx={{ width: '100px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldCict.Quantity}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                          </Grid>
+
+                          {/* Second Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              name="unitOfMeasure"
+                              label="Unit/s"
+                              variant="outlined"
+                              sx={{ width: '100px' }}
+                              size="small"
+                              value={inputFieldCict.unitOfMeasure}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                            {/* Content for the second column */}
+                          </Grid>
+
+                          {/* Third Column */}
+                          <Grid item xs={2.6}>
+                            <TextField
+                              name="Description"
+                              label="Description"
+                              multiline
+                              sx={{ width: '265px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldCict.Description}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                            {/* Content for the third column */}
+                          </Grid>
+
+                          {/* Fourth Column */}
+                          <Grid item xs={1.8}>
+                            <TextField
+                              name="propertyNumber"
+                              label="Property Number"
+                              variant="outlined"
+                              sx={{ width: '183px' }}
+                              size="small"
+                              value={inputFieldCict.propertyNumber}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                            {/* Content for the fourth column */}
+                          </Grid>
+
+                          {/* Fifth Column */}
+                          <Grid item xs={1.7}>
+                            <TextField
+                              type="date"
+                              name="dateAquired"
+                              // label="Date Aquired"
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldCict.dateAquired}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
+                              <DemoContainer components={['DatePicker']}>
+                                <DatePicker label="Basic date picker"
+                                style={{ width: '200px', height: '40px' }}
+                                />
+                              </DemoContainer>
+                            </LocalizationProvider> */}
+                            {/* Content for the fifth column */}
+                          </Grid>
+
+                          {/* Sixth Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              name="unitCost"
+                              label="Unit Cost"
+                              variant="outlined"
+                              sx={{ width: '100px' }}
+                              size="small"
+                              value={inputFieldCict.unitCost}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+
+                            {/* Content for the sixth column */}
+                          </Grid>
+
+                          {/* Seventh Column */}
+                          <Grid item xs={1.5}>
+                            <TextField
+                              name="remarks"
+                              label="Remarks"
+                              variant="outlined"
+                              size="small"
+                              multiline
+                              value={inputFieldCict.remarks}
+                              onChange={(event) => handleChangeInputCict(index, event)}
+                            />
+                            {/* Content for the seventh column */}
+                          </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleRemoveFieldCict(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                          <br />
+                          <div>
+                            <br />
+                            <br />
+                          </div>
+                        </Grid>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Other Equipment
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddFieldOther();
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <div>
+                    {inputFieldOther.map((inputFieldOther, index) => (
+                      <div key={index}>
+                        <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                          {/* First Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Quantity"
+                              label="Quantity"
+                              sx={{ width: '100px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldOther.Quantity}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                          </Grid>
+
+                          {/* Second Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              name="unitOfMeasure"
+                              label="Unit/s"
+                              variant="outlined"
+                              sx={{ width: '100px' }}
+                              size="small"
+                              value={inputFieldOther.unitOfMeasure}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                            {/* Content for the second column */}
+                          </Grid>
+
+                          {/* Third Column */}
+                          <Grid item xs={2.6}>
+                            <TextField
+                              name="Description"
+                              label="Description"
+                              multiline
+                              sx={{ width: '265px' }}
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldOther.Description}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                            {/* Content for the third column */}
+                          </Grid>
+
+                          {/* Fourth Column */}
+                          <Grid item xs={1.8}>
+                            <TextField
+                              name="propertyNumber"
+                              label="Property Number"
+                              variant="outlined"
+                              sx={{ width: '183px' }}
+                              size="small"
+                              value={inputFieldOther.propertyNumber}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                            {/* Content for the fourth column */}
+                          </Grid>
+
+                          {/* Fifth Column */}
+                          <Grid item xs={1.7}>
+                            <TextField
+                              type="date"
+                              name="dateAquired"
+                              // label="Date Aquired"
+                              variant="outlined"
+                              size="small"
+                              value={inputFieldOther.dateAquired}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
+                              <DemoContainer components={['DatePicker']}>
+                                <DatePicker label="Basic date picker"
+                                style={{ width: '200px', height: '40px' }}
+                                />
+                              </DemoContainer>
+                            </LocalizationProvider> */}
+                            {/* Content for the fifth column */}
+                          </Grid>
+
+                          {/* Sixth Column */}
+                          <Grid item xs={1}>
+                            <TextField
+                              name="unitCost"
+                              label="Unit Cost"
+                              variant="outlined"
+                              sx={{ width: '100px' }}
+                              size="small"
+                              value={inputFieldOther.unitCost}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+
+                            {/* Content for the sixth column */}
+                          </Grid>
+
+                          {/* Seventh Column */}
+                          <Grid item xs={1.5}>
+                            <TextField
+                              name="remarks"
+                              label="Remarks"
+                              variant="outlined"
+                              size="small"
+                              multiline
+                              value={inputFieldOther.remarks}
+                              onChange={(event) => handleChangeInputOther(index, event)}
+                            />
+                            {/* Content for the seventh column */}
+                          </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleRemoveFieldOther(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                          <br />
+                          <div>
+                            <br />
+                            <br />
                           </div>
                         </Grid>
                       </div>
@@ -1081,46 +1469,46 @@ export default function FormsIRF() {
                   </div>
 
                   <div>
-                            <br/>
-                            <br/>
-                          </div>
+                    <br />
+                    <br />
+                  </div>
 
                   <Grid container spacing={1}>
                     <Grid item xs={6}>
-                        <TextField
-                          type="text"
-                          name="AcknowledgedBy"
-                          variant="outlined"
-                          label="Acknowledged By"
-                          size="small"
-                          value={formData.AcknowledgedBy || ''}
-                          onChange={(e) => setFormData({ ...formData, AcknowledgedBy: e.target.value })}
-                          sx={{ width: '100%', marginBottom: '10px' }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <TextField
-                          type="text"
-                          name="InspectedBy"
-                          variant="outlined"
-                          label="Inspected By"
-                          size="small"
-                          value={formData.InspectedBy || ''}
-                          onChange={(e) => setFormData({ ...formData, InspectedBy: e.target.value })}
-                          sx={{ width: '100%', marginBottom: '10px' }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          type="file"
-                          variant="outlined"
-                          size="small"
-                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                          onChange={(e) => handleFileUpload(e.target.files[0])}
-                          sx={{ width: '100%' }}
-                        />
-                      </Grid>
+                      <TextField
+                        type="text"
+                        name="AcknowledgedBy"
+                        variant="outlined"
+                        label="Acknowledged By"
+                        size="small"
+                        value={formData.AcknowledgedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, AcknowledgedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        type="text"
+                        name="InspectedBy"
+                        variant="outlined"
+                        label="Inspected By"
+                        size="small"
+                        value={formData.InspectedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, InspectedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        type="file"
+                        variant="outlined"
+                        size="small"
+                        accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                        onChange={(e) => handleFileUpload(e.target.files[0])}
+                        sx={{ width: '100%' }}
+                      />
+                    </Grid>
+                  </Grid>
                 </form>
               </DialogContent>
               <DialogActions>

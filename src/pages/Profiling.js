@@ -1,185 +1,152 @@
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react';
-import { styled } from '@mui/material/styles';
+import { faker } from '@faker-js/faker';
+
+import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 // @mui
-import { Container, Dialog, Button, Stack, Typography, Box, Card, Link  } from '@mui/material';
-// components
-import { ProductList } from '../sections/@dashboard/profiling';
-// mock
-import PRODUCTS from '../_mock/products';
-
-
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { useTheme } from '@mui/material/styles';
+import { Grid, Container, Typography } from '@mui/material';
+import Iconify from '../components/iconify';
+import {
+  AppTasks,
+  AppNewsUpdate,
+  AppOrderTimeline,
+  AppCurrentVisits,
+  AppWebsiteVisits,
+  AppTrafficBySite,
+  AppWidgetSummary,
+  AppCurrentSubject,
+  AppConversionRates,
+} from '../sections/@dashboard/app';
 
 // ----------------------------------------------------------------------
 
-export default function ProductsPage() {
+const firebaseConfig = {
+  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
+  authDomain: "wp4-technician-dms.firebaseapp.com",
+  projectId: "wp4-technician-dms",
+  storageBucket: "wp4-technician-dms.appspot.com",
+  messagingSenderId: "1065436189229",
+  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
+};
 
-  const [isDialogOpen1, setDialogOpen1] = useState(false);
-  const [isDialogOpen2, setDialogOpen2] = useState(false);
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
-  const dialogContent1 = (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-  <h4 style={{ marginLeft: '20px' }}>Control No. : 000-000-001</h4>
+export default function DashboardAppPage() {
+  const theme = useTheme();
+  const [mreceipts, setMreceipts] = useState([]);
+  const [totalMreceipts, setTotalMreceipts] = useState([]);
+  const [citems, setCitems] = useState([]);
+  const [totalCitems, setTotalCitems] = useState([]);
+  const [totalProfiling, setTotalProfiling] = useState([]);
+  const [areceipts, setAreceipts] = useState([]);
+  const [totalAreceipts, setTotalAreceipts] = useState([]);
+  const [aitems, setAitems] = useState([]);
+  const [totalAitems, setTotalAitems] = useState([]);
+  const [totalArchives, setTotalArchives] = useState([]);
 
-  <input type="date" id="date" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Faculty Name" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Location/Room" style={{ marginLeft: '20px' }} />
-  <br />
-  
-  <h4 style={{ marginLeft: '20px' }}>Select Services:</h4>
-  <div style={{ marginLeft: '20px' }}>
-   
-      <input type="checkbox" value="Application Installation" /> Application Installation
-    <br />
-      <input type="checkbox" value="Network" /> Network
-    <br />
-      <input type="checkbox" value="Inventory" /> Inventory
-    <br />
-      <input type="checkbox" value="Reformat" /> Reformat
-    <br />
-      <input type="checkbox" value="Repair" /> Repair
-       <br />
-      <input type="checkbox" value="Others" /> Others 
-    <br />
-  
-  </div>
-  <br />
-  <input type="text" placeholder="Enter Remarks" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Requisitioner" style={{ marginLeft: '20px' }} />
-  <br />
-  <div>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <Button variant="contained" color="primary">
-      Save
-    </Button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-    <Button variant="contained" color="secondary">
-      Clear
-    </Button>
-  </div>
-</div>
-  );
 
-  const dialogContent2 = (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-  <h4 style={{ marginLeft: '20px' }}>Control No. : 000-000-001</h4>
 
-  <input type="date" id="date" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Faculty Name" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Location/Room" style={{ marginLeft: '20px' }} />
-  <br />
-  
-  <h4 style={{ marginLeft: '20px' }}>Select Services:</h4>
-  <div style={{ marginLeft: '20px' }}>
-   
-      <input type="checkbox" value="Application Installation" /> Application Installation
-    <br />
-      <input type="checkbox" value="Network" /> Network
-    <br />
-      <input type="checkbox" value="Inventory" /> Inventory
-    <br />
-      <input type="checkbox" value="Reformat" /> Reformat
-    <br />
-      <input type="checkbox" value="Repair" /> Repair
-       <br />
-      <input type="checkbox" value="Others" /> Others 
-    <br />
-  
-  </div>
-  <br />
-  <input type="text" placeholder="Enter Remarks" style={{ marginLeft: '20px' }} />
-  <br />
-  <input type="text" placeholder="Enter Requisitioner" style={{ marginLeft: '20px' }} />
-  <br />
-  <div>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <Button variant="contained" color="primary">
-      Save
-    </Button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-    <Button variant="contained" color="secondary">
-      Clear
-    </Button>
-  </div>
-</div>
-  );
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const openDialog1 = () => {
-    setDialogOpen1(true);
-  };
+  const fetchData = async () => {
+    try {
 
-  const closeDialog1 = () => {
-    setDialogOpen1(false);
-  };
-  
-  const openDialog2 = () => {
-    setDialogOpen2(true);
-  };
+      const mreceiptsQuery = collectionGroup(db, 'MEMORANDUM-OF-RECEIPTS');
+      const citemsQuery = collectionGroup(db, 'CONDEMNED-ITEMS');
+      const areceiptsQuery = collectionGroup(db, 'ARCHIVES-PROFILING-MR');
+      const aitemsQuery = collectionGroup(db, 'ARCHIVES-PROFILING-CI');
+    
 
-  const closeDialog2 = () => {
-    setDialogOpen2(false);
-  };
+      const mreceiptsSnapshot = await getDocs(mreceiptsQuery);
+      const citemsSnapshot = await getDocs(citemsQuery);
+      const areceiptsSnapshot = await getDocs(areceiptsQuery);
+      const aitemsSnapshot = await getDocs(aitemsQuery);
 
-  const handleTypographyClick1 = () => {
-    openDialog1();
-  };
 
-  const handleTypographyClick2 = () => {
-    openDialog2();
+
+
+      const mreceiptsData = mreceiptsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const citemsData = citemsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const areceiptsData = areceiptsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const aitemsData = aitemsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+
+      setMreceipts(mreceiptsData);
+      setCitems(citemsData);
+      setAreceipts(areceiptsData);
+      setAitems(aitemsData);
+
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
 
-  const [openFilter, setOpenFilter] = useState(false);
+        useEffect(() => {
+          // Count all the MR
+          const countSaiparNo = () => {
+              const total = mreceipts.length;
+              setTotalMreceipts(total);
+          };
+          countSaiparNo();
+        }, [mreceipts]);
 
-  const handleOpenFilter = () => {
-    setOpenFilter(true);
-  };
+        useEffect(() => {
+          // Count all the CI
+          const countEntityName = () => {
+              const total = citems.length;
+              setTotalCitems(total);
+          };
+          countEntityName();
+        }, [citems]);
 
-  const handleCloseFilter = () => {
-    setOpenFilter(false);
-  };
+        useEffect(() => {
+          // Count the total profiling
+          const countDate = () => {
+            const total = totalCitems + totalMreceipts;
+              setTotalProfiling(total);
+          };
+          countDate();
+        });
 
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
-  };
+        useEffect(() => {
+          // Count all the archives MR
+          const countSaiparNo = () => {
+              const total = areceipts.length;
+              setTotalAreceipts(total);
+          };
+          countSaiparNo();
+        }, [areceipts]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+        useEffect(() => {
+          // Count all the CI
+          const countEntityName = () => {
+              const total = aitems.length;
+              setTotalAitems(total);
+          };
+          countEntityName();
+        }, [aitems]);
+
+        useEffect(() => {
+          // Count the total profiling
+          const countDate = () => {
+            const total = totalAitems + totalAreceipts;
+              setTotalArchives(total);
+          };
+          countDate();
+        });
+        
 
 
-  const [open, setOpen] = useState(null);
-
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-
-  const StyledProductImg = styled('img')({
-    top: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    position: 'absolute',
-  });
-
-  const { name, cover} = PRODUCTS;
-  
 
   return (
     <>
@@ -191,108 +158,28 @@ export default function ProductsPage() {
         <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
           Profiling
         </Typography>
+     
+      <Container sx={{ backgroundColor: '#F0EFF6', borderRadius: '10px', paddingBottom: '20px' }}>
+      <Grid container spacing={3}>
+          <Grid item xs={6} sm={6} md={6}>
+            { <AppWidgetSummary title="TOTAL MEMORANDUM RECEIPTS" total={totalMreceipts} color="error" />}
+          </Grid>
 
+          <Grid item xs={6} sm={6} md={6}>
+            { <AppWidgetSummary title="TOTAL CONDEMNED ITEMS" total={totalCitems} color="error" /> }
+          </Grid>
 
+          <Grid item xs={9} sm={9} md={9}>
+            { <AppWidgetSummary title="TOTAL PROFILING" total={totalProfiling} color="error" /> }
+          </Grid>
 
+          <Grid item xs={3} sm={3} md={3}>
+            { <AppWidgetSummary title="TOTAL ARCHIVED PROFILING" total={totalArchives} color="error"/> }
+          </Grid>
 
-
-
-        <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            {/* { <ProductFilterSidebar
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
-            /> }
-            { <ProductSort /> } */}
-          </Stack>
-        </Stack>
-
-        {/* <ProductList products={PRODUCTS} /> */}
-        <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
-            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
-              {/* <StyledProductImg alt={name} src={cover} /> */}
-            </Box>
-            <Stack spacing={2} sx={{ p: 3 }}>
-              <Link color="inherit" underline="hover">
-              <Typography
-            variant="subtitle2"
-            onClick={handleTypographyClick1}
-            sx={{ cursor: 'pointer' }}
-          >
-            Total MR:
-          </Typography>
-        <Dialog open={isDialogOpen1} onClose={closeDialog1}>
-          {dialogContent1}
-        </Dialog>
-              </Link>
-            </Stack>
-          </Card>
-
-          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
-            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
-              {/* <StyledProductImg alt={name} src={cover} /> */}
-            </Box>
-            <Stack spacing={2} sx={{ p: 3 }}>
-              <Link color="inherit" underline="hover">
-              <Typography
-            variant="subtitle2"
-            onClick={handleTypographyClick2}
-            sx={{ cursor: 'pointer' }}
-          >
-            Total CI:
-          </Typography>
-        
-        <Dialog open={isDialogOpen2} onClose={closeDialog2}>
-          {dialogContent2}
-        </Dialog>
-              </Link>
-            </Stack>
-          </Card>
-
-          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
-            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
-              {/* <StyledProductImg alt={name} src={cover} /> */}
-            </Box>
-            <Stack spacing={2} sx={{ p: 3 }}>
-              <Link color="inherit" underline="hover">
-              <Typography
-            variant="subtitle2"
-            onClick={handleTypographyClick1}
-            sx={{ cursor: 'pointer' }}
-          >
-            Total Profiling:
-          </Typography>
-        <Dialog open={isDialogOpen1} onClose={closeDialog1}>
-          {dialogContent1}
-        </Dialog>
-              </Link>
-            </Stack>
-          </Card>
-
-          <Card sx={{ pt: '10%', height: '300px', width: '250px', position: 'relative'}}>
-            <Box sx={{ pt: '10%', height: '100px', width: '100px', position: 'relative' }}>
-              {/* <StyledProductImg alt={name} src={cover} /> */}
-            </Box>
-            <Stack spacing={2} sx={{ p: 3 }}>
-              <Link color="inherit" underline="hover">
-              <Typography
-            variant="subtitle2"
-            onClick={handleTypographyClick1}
-            sx={{ cursor: 'pointer' }}
-          >
-            Total Archived Profiling:
-          </Typography>
-        <Dialog open={isDialogOpen1} onClose={closeDialog1}>
-          {dialogContent1}
-        </Dialog>
-              </Link>
-            </Stack>
-          </Card>
-
-        </Stack>
+            
+           </Grid>
+      </Container>
       </Container>
     </>
   );
