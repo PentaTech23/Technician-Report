@@ -16,7 +16,7 @@ const navConfig = [
   {
     title: 'Forms',
     path: '/dashboard/form',
-    icon: icon('ic_cart'),
+    icon: icon('forms'),
     children: [
       {
         title: 'Service Request Form',
@@ -40,7 +40,7 @@ const navConfig = [
   {
     title: 'Profiling',
     path: '/dashboard/profiling',
-    icon: icon('ic_blog'),
+    icon: icon('profiling'),
     children: [
       {
         title: 'Memorandum of Receipts',
@@ -56,7 +56,7 @@ const navConfig = [
   {
     title: 'Reports',
     path: '/dashboard/reports',
-    icon: icon('ic_lock'),
+    icon: icon('report'),
     children: [
       {
         title: 'Property Transfer Report',
@@ -80,12 +80,12 @@ const navConfig = [
   {
     title: 'Archives',
     path: '/dashboard/archives',
-    icon: icon('ic_blog'),
+    icon: icon('archives'),
   },
   {
     title: 'Users',
     path: '/dashboard/user',
-    icon: icon('ic_user'),
+    icon: icon('userxd'),
   },
   {
     title: 'Error',

@@ -9,6 +9,7 @@ import Logo from '../components/logo';
 import Iconify from '../components/iconify';
 // sections
 import { LoginForm } from '../sections/auth/login';
+import Pimentel1 from '../img/Pimentel.jpg';
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +17,10 @@ const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     display: 'flex',
   },
-  backgroundColor: '#F0F0F0',
+  
+  backgroundImage: `url('${Pimentel1}')`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
 }));
 
 const StyledSection = styled('div')(({ theme }) => ({
