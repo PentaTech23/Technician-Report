@@ -745,6 +745,7 @@ export default function FormsIRF() {
           <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
             Condemned Item
           </Typography>
+          
         </Stack>
 
         <Stack
@@ -822,6 +823,20 @@ export default function FormsIRF() {
               >
                 Condemned Item
               </Typography>
+              <Typography
+                        variant="h6"
+                        // sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          // color: '#ff5500',
+                          // margin: 'auto',
+                          // fontSize: '40px',
+                          // fontWeight: 'bold',
+                          // marginTop: '10px',
+                        }}
+                      >
+                      This is to acknowledged receipt of returned Semi-Expandable Property 
+                        </Typography>
               <DialogContent
 
               >
@@ -927,39 +942,42 @@ export default function FormsIRF() {
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
                   <div>
-                    <Typography
-                      variant="h4"
-                      sx={{ mb: 5 }}
-                      style={{
-                        alignSelf: 'center',
-                        color: '#ff5500',
-                        margin: 'auto',
-                        fontSize: '40px',
-                        fontWeight: 'bold',
-                        marginTop: '10px',
-                      }}
-                    >
-                      Items
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      // sx={{ mb: 5 }}
-                      style={{
-                        alignSelf: 'center',
-                        // color: '#ff5500',
-                        // margin: 'auto',
-                        // fontSize: '40px',
-                        // fontWeight: 'bold',
-                        // marginTop: '10px',
-                      }}
-                    >
-                    This is to acknowledged receipt of returned Semi-Expandable Property 
-                    </Typography>
+                    
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Items
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add Row
+                      </Button>
+                    </Grid>
+                  </Grid>
+                    
                     
 
                     {inputField.map((inputField, index) => (
                       <div key={index}>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={3} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
 
                           <Grid item xs={2.7}>
@@ -1052,13 +1070,13 @@ export default function FormsIRF() {
 
                           {/* Eighth Column */}
                           <Grid item xs={1.5}>
-                            <Button
+                            {/* <Button
                               onClick={() => {
                                 handleAddField();
                               }}
                             >
                               Add
-                            </Button>
+                            </Button> */}
                             <Button
                               onClick={() => {
                                 handleRemoveField(index);

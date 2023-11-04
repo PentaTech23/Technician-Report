@@ -990,6 +990,7 @@ export default function FormsIRF() {
                         onClick={() => {
                           handleAddField();
                         }}
+                        variant="contained"
                       >
                         Add
                       </Button>
@@ -1119,6 +1120,8 @@ export default function FormsIRF() {
                               onClick={() => {
                                 handleRemoveField(index);
                               }}
+                              // variant="warning"
+
                             >
                               Remove
                             </Button>
@@ -1157,6 +1160,7 @@ export default function FormsIRF() {
                         onClick={() => {
                           handleAddFieldCict();
                         }}
+                        variant="contained"
                       >
                         Add
                       </Button>
@@ -1324,6 +1328,7 @@ export default function FormsIRF() {
                         onClick={() => {
                           handleAddFieldOther();
                         }}
+                        variant="contained"
                       >
                         Add
                       </Button>
