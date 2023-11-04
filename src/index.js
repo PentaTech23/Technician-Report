@@ -14,3 +14,4 @@ appRoot.render(
     </AuthContextProvider>
   </React.StrictMode>
 );
+
