@@ -802,7 +802,7 @@ export default function FormsIRF() {
               // style={{ width: '1800px' }}
               >
                 <form onSubmit={handleSubmit}>
-                  <Grid container spacing={2}>
+                  <Grid container spacing={1}>
                     <Grid item xs={6} md={4}>
                       {/* <TextField
                       type="date"
@@ -818,7 +818,7 @@ export default function FormsIRF() {
                       <TextField
                         type="date"
                         name="Date"
-                        variant="filled"
+                        variant="outlined"
                         size="small"
                         value={formData.Date || ''}
                         onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
@@ -828,7 +828,7 @@ export default function FormsIRF() {
                     <Grid item xs={6} md={4}>
                       <TextField
                         name="ControlNum"
-                        variant="filled"
+                        variant="outlined"
                         label="Control Number"
                         size="small"
                         value={formData.ControlNum || ''}
@@ -840,7 +840,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="FullName"
-                        variant="filled"
+                        variant="outlined"
                         label="Full Name"
                         size="small"
                         value={formData.FullName || ''}
@@ -853,7 +853,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="LocationRoom"
-                        variant="filled"
+                        variant="outlined"
                         size="small"
                         label="Location/Room"
                         value={formData.LocationRoom || ''}
@@ -866,7 +866,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="Inspection"
-                        variant="filled"
+                        variant="outlined"
                         label="Inspection"
                         size="small"
                         value={formData.Inspection || ''}
@@ -879,7 +879,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="InspectedBy"
-                        variant="filled"
+                        variant="outlined"
                         label="Inspection By"
                         size="small"
                         value={formData.InspectedBy || ''}
@@ -891,7 +891,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="NotedBy"
-                        variant="filled"
+                        variant="outlined"
                         label="Noted By"
                         size="small"
                         value={formData.NotedBy || ''}
@@ -901,42 +901,40 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
 
-                  <br />
-                  <TextField
-                    type="file"
-                    variant="filled"
-                    size="small"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    sx={{ width: '100%' }}
-                  />
-                  <br />
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
                   <div>
-                    <Typography
-                      variant="h3"
-                      sx={{ mb: 5 }}
-                      style={{
-                        alignSelf: 'center',
-                        color: '#ff5500',
-                        margin: 'auto',
-                        fontSize: '40px',
-                        fontWeight: 'bold',
-                        marginTop: '10px',
-                      }}
-                    >
-                      Items
-                    </Typography>
-                    <Button
-                              onClick={() => {
-                                handleAddField();
-                              }}
-                            >
-                              Add
-                            </Button>
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Item/s
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add
+                      </Button>
+                    </Grid>
+                  </Grid>
 
-                    <br />
+                    
                     {inputField.map((inputField, index) => (
                       <div key={index}>
                         <Grid container spacing={1} columns={16} 
@@ -1019,11 +1017,27 @@ export default function FormsIRF() {
                             >
                               Remove
                             </Button>
+                            <br/>
                             {/* Content for the eighth column */}
                           </Grid>
+                          
+                        
+                          
                         </Grid>
+                        
+                        <br/>
                       </div>
                     ))}
+                    <Grid>
+                            <TextField
+                              type="file"
+                              variant="outlined"
+                              size="small"
+                              accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                              onChange={(e) => handleFileUpload(e.target.files[0])}
+                              sx={{ width: '100%' }}
+                            />
+                          </Grid>
                   </div>
                 </form>
               </DialogContent>
