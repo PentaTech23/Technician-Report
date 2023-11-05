@@ -106,7 +106,7 @@ export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
   const [inputField, setInputField] = useState([
-    
+  
     {
       Issue: '',
       Description: '',
@@ -122,7 +122,6 @@ export default function FormsIRF() {
     setInputField(values);
   };
 
-
   const handleAddField = () => {
     setInputField([
       ...inputField,
@@ -134,6 +133,13 @@ export default function FormsIRF() {
       },
     ]);
   };
+
+  const handleRemoveField = (index) => {
+    const values = [...inputField];
+    values.splice(index, 1);
+    setInputField(values);
+  };
+
 
   const handleEditChangeInput = (index, event, fieldName) => {
     setEditData((prevData) => {
@@ -187,11 +193,7 @@ export default function FormsIRF() {
     }
   };
   
-  const handleRemoveField = (index) => {
-    const values = [...inputField];
-    values.splice(index, 1);
-    setInputField(values);
-  };
+ 
 
   const handleRemoveAllField = () => {
     const values = [...inputField];
@@ -1137,7 +1139,7 @@ export default function FormsIRF() {
               open={snackbarOpen}
               autoHideDuration={6000}
               onClose={() => setSnackbarOpen(false)}
-              message="The Service Request Document was created successfully!"
+              message="The Document was created successfully!"
             />
           </div>
         </Stack>
@@ -1512,20 +1514,20 @@ export default function FormsIRF() {
           open={snackbarOpen1}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpen1(false)}
-          message="The Inspection Report Document was edited successfully!"
+          message="The Document was edited successfully!"
         />
         <Snackbar
           open={snackbarOpenDelete}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpenDelete(false)}
-          message="The Inspection Report Document was deleted successfully!"
+          message="The Document was deleted successfully!"
         />
 
         <Snackbar
           open={snackbarOpenArchive}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpenArchive(false)}
-          message="The Inspection Report Document was archived successfully!"
+          message="The Document was archived successfully!"
         />
         <Popover
           open={Boolean(menuAnchorEl)}
@@ -1546,7 +1548,7 @@ export default function FormsIRF() {
         </Popover>
 
         {/* Dialog for View button */}
-        <Dialog open={viewOpen} onClose={handleViewClose}>
+        <Dialog open={viewOpen} onClose={handleViewClose} maxWidth="xl">
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography
@@ -1563,105 +1565,248 @@ export default function FormsIRF() {
               >
                 INSPECTION REPORT
               </Typography>
-              <DialogContent>
-                <Grid
-                  container
-                  spacing={2}
-                  columns={16}
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Grid item xs={8}>
-                    <Typography variant="subtitle1">Control Number:</Typography>
-                    <TextField
-                      type="text"
-                      name="ControlNum"
-                      
-                      value={viewItem ? viewItem.ControlNum : ''}
-                      disabled
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                  </Grid>
 
-                  <Grid item xs={8}>
-                    <Typography variant="subtitle1">Date:</Typography>
-                    <TextField
+              <DialogContent>
+            <form onSubmit={handleEditSubmit}>
+              {/* Fields to edit */}
+              <Grid container spacing={1} columns={8}>
+                <Grid item xs={2}>
+                  <TextField
+                    type="date"
+                    name="Date"
+                    variant="outlined"
+                    size="small"
+                    label="Date"
+                    value={viewItem ? viewItem.Date : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+
+                <Grid item xs={4}>
+                  {/* <TextField
                       type="date"
                       name="Date"
-                      
-                      value={viewItem ? viewItem.Date : ''}
-                      disabled
+                      variant="filled"
+                      size="small"
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
                       sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                  </Grid>
+                    /> */}
+                </Grid>
 
-                  <Grid item xs={16}>
-                    <Typography variant="subtitle1">Faculty Name:</Typography>
-                    <TextField
-                      type="text"
-                      name="FullName"
-                      
-                      value={viewItem ? viewItem.FullName : ''}
+                <Grid item xs={2}>
+                  <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.ControlNum : ''}
                       disabled
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                  </Grid>
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
 
-                  <Grid item xs={16}>
-                    <Typography variant="subtitle1">Inspected By:</Typography>
-                    <TextField
-                      type="text"
-                      name="InspectedBy"
-                    
-                      value={viewItem ? viewItem.InspectedBy : ''}
+                <Grid item xs={5}>
+                  <TextField
+                    type="text"
+                    name="FullName"
+                    label="Faculty Name"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.FullName : ''}
                       disabled
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={16}>
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
 
-                    <Typography variant="subtitle1">Noted By:</Typography>
-                    <TextField
-                      type="text"
-                      name="NotedBy"
-                    
-                      value={viewItem ? viewItem.NotedBy : ''}
-                      disabled
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                  </Grid>
-
-  
-                  <Grid item xs={8} spacing={1}>
-                    <Grid>
-                      <Typography variant="subtitle1">Location/Room:</Typography>
-                      <TextField
-                        type="text"
-                        name="LocationRoom"
-                        
-                        value={viewItem ? viewItem.LocationRoom : ''}
+                <Grid item xs={3}>
+                  <TextField
+                    type="text"
+                    name="LocationRoom"
+                    label="Location/Room"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.LocationRoom : ''}
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      <br />
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <br />
+                  <br />
+                </Grid>
+
+                <Grid item xs={6} md={4}>
+                  <TextField
+                    type="text"
+                    name="InspectedBy"
+                    label="Inspected By"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.InspectedBy : ''}
+                      disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <br />
+                </Grid>
+
+                <Grid item xs={6} md={4}>
+                  <TextField
+                    type="text"
+                    name="NotedBy"
+                    label="Noted By"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.NotedBy : ''}
+                      disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <br />
+                </Grid>
+              </Grid>
+              {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+              <div>
+                <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                  <Grid>
+                    <Typography
+                      variant="h6"
+                      sx={{ mb: 5 }}
+                      style={{
+                        alignSelf: 'center',
+                        color: '#ff5500',
+                        margin: 'auto',
+                        // fontSize: '40px',
+                        fontWeight: 'bold',
+                        marginTop: '10px',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      Inspection
+                    </Typography>
+                  </Grid>
+                  {/* <Grid>
+                    <Button
+                      onClick={() => {
+                        handleEditAddField();
+                      }}
+                      variant="contained"
+                    >
+                      Add Row
+                    </Button>
+                  </Grid> */}
+                </Grid>
+
+                {formData.inputField.map((input, index) => (
+                  <div key={index}>
+                    <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between">
+                      {/* First Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          type="text"
+                          name="Issue"
+                          label="Issue"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={
+                            viewItem ? viewItem.inputField[index]?.Issue : input?.Issue // Use optional chaining to handle potential undefined values
+                          }
+                          disabled
+                        />
+                      </Grid>
+
+                      {/* Second Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="Description"
+                          label="Description"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={viewItem ? viewItem.inputField[index]?.Description : input?.Description}
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'Description')}
+                        />
+                        {/* Content for the second column */}
+                      </Grid>
+
+                      {/* Third Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="ActionTakenSolution"
+                          label="Action Taken/Solution"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={
+                            viewItem ? viewItem.inputField[index]?.ActionTakenSolution : input?.ActionTakenSolution
+                          }
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
+                        />
+                        {/* Content for the third column */}
+                      </Grid>
+
+                      {/* Fourth Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="Recommendation"
+                          label="Recommendation"
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          size="small"
+                          value={viewItem ? viewItem.inputField[index]?.Recommendation : input?.Recommendation}
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
+                        />
+                        {/* Content for the fourth column */}
+                      </Grid>
+
+                      {/* Eighth Column */}
+                      <Grid item xs={1}>
+                        {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                        {/* <Button
+                          onClick={() => {
+                            handleEditRemoveField(index);
+                          }}
+                        >
+                          Remove
+                        </Button> */}
+                        
+                      </Grid>
                     </Grid>
-                    <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                      {viewItem && viewItem.fileURL ? (
+                    <br />
+                  </div>
+                ))}
+              </div>
+
+              {/*  END OF DYNAMIC FORM  END OF DYNAMIC FORM END OF DYANMIC FORM */}
+              <Grid>
+                <Typography variant="subtitle1">File:</Typography>
+                {viewItem && viewItem.fileURL ? (
                         <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
                           View / Download File
                         </a>
                       ) : (
                         'No File'
                       )}
-                    </Grid>
-                  </Grid>
-                </Grid>
+              </Grid>
 
-                <br />
-                <br />
-              </DialogContent>
+              <br />
+            </form>
+          </DialogContent>
+
+              
             </div>
           </div>
           <DialogActions>
@@ -1673,6 +1818,7 @@ export default function FormsIRF() {
           </DialogActions>
         </Dialog>
 
+        
         <Dialog open={deleteConfirmationDialogOpen} onClose={() => setDeleteConfirmationDialogOpen(false)}>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>Are you sure you want to delete {selectedItems.length} items?</DialogContent>
