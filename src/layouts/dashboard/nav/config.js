@@ -87,11 +87,11 @@ const navConfig = [
     path: '/dashboard/user',
     icon: icon('userxd'),
   },
-  {
-    title: 'Error',
-    path: '/404',
-    icon: icon('ic_disabled'),
-  },
+  // {
+  //   title: 'Error',
+  //   path: '/404',
+  //   icon: icon('ic_disabled'),
+  // },
 ];
 
 export default navConfig;

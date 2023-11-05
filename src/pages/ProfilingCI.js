@@ -20,7 +20,6 @@ import {
 } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
-
 // @mui
 import {
   Card,
@@ -56,6 +55,7 @@ import Grid from '@mui/material/Grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
+
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
@@ -859,6 +859,7 @@ export default function FormsIRF() {
                         type="date"
                         name="Date"
                         variant="outlined"
+                        required
                         size="small"
                         value={formData.Date || ''}
                         onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
@@ -871,6 +872,7 @@ export default function FormsIRF() {
                         variant="outlined"
                         label="Rrsp Number"
                         size="small"
+                        required
                         value={formData.RrspNo || ''}
                         onChange={(e) => setFormData({ ...formData, RrspNo: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
@@ -882,6 +884,7 @@ export default function FormsIRF() {
                         name="EntityName"
                         variant="outlined"
                         label="Entity Name"
+                        required
                         size="small"
                         value={formData.EntityName || ''}
                         onChange={(e) => setFormData({ ...formData, EntityName: e.target.value })}
@@ -894,6 +897,7 @@ export default function FormsIRF() {
                         type="text"
                         name="College"
                         variant="outlined"
+                        required
                         size="small"
                         label="College/Campus/Office"
                         value={formData.College || ''}
@@ -987,6 +991,7 @@ export default function FormsIRF() {
                               label="Item Description"
                               variant="outlined"
                               fullWidth
+                              
                               size="small"
                               value={inputField.ItemDescription}
                               onChange={(event) => handleChangeInput(index, event)}

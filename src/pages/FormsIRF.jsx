@@ -879,6 +879,7 @@ export default function FormsIRF() {
                         type="date"
                         name="Date"
                         variant="outlined"
+                        required
                         size="small"
                         value={formData.Date || ''}
                         onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
@@ -902,6 +903,7 @@ export default function FormsIRF() {
                         name="ControlNum"
                         variant="outlined"
                         label="Control Number"
+                        required
                         size="small"
                         value={formData.ControlNum || ''}
                         onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
@@ -927,6 +929,7 @@ export default function FormsIRF() {
                         name="LocationRoom"
                         variant="outlined"
                         size="small"
+                        required
                         label="Location/Room"
                         value={formData.LocationRoom || ''}
                         onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
@@ -951,6 +954,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="InspectedBy"
+                        required
                         variant="outlined"
                         label="Inspection By"
                         size="small"
@@ -963,6 +967,7 @@ export default function FormsIRF() {
                       <TextField
                         type="text"
                         name="NotedBy"
+                        required
                         variant="outlined"
                         label="Noted By"
                         size="small"

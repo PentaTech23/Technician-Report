@@ -106,6 +106,7 @@ export default function LoginForm() {
         <TextField
           name="email"
           label="Email address"
+          placeholder="Username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
@@ -113,6 +114,7 @@ export default function LoginForm() {
         <TextField
           name="password"
           label="Password"
+          placeholder="Password"
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
