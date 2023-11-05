@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
+import PropTypes from 'prop-types';
 import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -21,12 +22,12 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
-
 // @mui
 import {
   Card,
   Table,
   Stack,
+  Box,
   Paper,
   Avatar,
   Popover,
@@ -35,6 +36,7 @@ import {
   MenuItem,
   TableBody,
   TableCell,
+  LinearProgress,
   Container,
   Typography,
   IconButton,
@@ -58,6 +60,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
+import LoadingSpinner from './LoadingSpinner';
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
@@ -98,8 +101,78 @@ const archivesCollectionRef = collection(archivesRef, 'ARCHIVES-FORMS');
 // Second declaration
 const storage = getStorage(firebaseApp);
 
+function CircularProgressWithLabel(props) {
+  return (
+    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+      <CircularProgress variant="determinate" {...props} />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography variant="caption" component="div" color="text.secondary">
+          {`${Math.round(props.value)}%`}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+CircularProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate variant.
+   * Value between 0 and 100.
+   * @default 0
+   */
+  value: PropTypes.number.isRequired,
+};
+
+function LinearProgressWithLabel(props) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ width: '100%', mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(
+          props.value,
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+LinearProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate and buffer variants.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired,
+};
+
 //  Clear the whole Form function
 export default function UserPage() {
+
+    const [progress, setProgress] = React.useState(10);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((prevProgress) => (prevProgress >= 100 ? 0 : prevProgress + 10));
+    }, 800);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+
+
   const [fetchedData, setFetchedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -660,6 +733,7 @@ export default function UserPage() {
                    // Remove the box shadow
                 }}
               >
+                 {/* {isLoading ? <LoadingSpinner /> : 'Refresh'} */}
                 Refresh
               </Button>
             </div>
@@ -892,7 +966,13 @@ export default function UserPage() {
 
       <Container>
         {isLoading ? (
-          <CircularProgress />
+          // <CircularProgress />
+
+           <Box  sx={{ width: '100%' }}>
+            {/* <CircularProgressWithLabel value={progress} /> */}
+            <LinearProgressWithLabel value={progress} />
+            {/* <LinearProgress variant="buffer" value={progress} valueBuffer={buffer} /> */}
+         </Box>
         ) : (
           <TableContainer component={Paper}>
             <Table>
