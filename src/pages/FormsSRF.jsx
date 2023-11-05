@@ -692,12 +692,12 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> Service Request Form | Minimal UI </title>
+        <title> Service Request Form </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
+          <Typography variant="h2"  style={{ color: '#ff5500' }}>
             Service Request Form
           </Typography>
         </Stack>
