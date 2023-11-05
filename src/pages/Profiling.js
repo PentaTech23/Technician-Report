@@ -93,56 +93,56 @@ export default function DashboardAppPage() {
 
         useEffect(() => {
           // Count all the MR
-          const countSaiparNo = () => {
+          const count = () => {
               const total = mreceipts.length;
               setTotalMreceipts(total);
           };
-          countSaiparNo();
+          count();
         }, [mreceipts]);
 
         useEffect(() => {
           // Count all the CI
-          const countEntityName = () => {
+          const count = () => {
               const total = citems.length;
               setTotalCitems(total);
           };
-          countEntityName();
+          count();
         }, [citems]);
 
         useEffect(() => {
           // Count the total profiling
-          const countDate = () => {
+          const count = () => {
             const total = totalCitems + totalMreceipts;
               setTotalProfiling(total);
           };
-          countDate();
+          count();
         });
 
         useEffect(() => {
           // Count all the archives MR
-          const countSaiparNo = () => {
+          const count = () => {
               const total = areceipts.length;
               setTotalAreceipts(total);
           };
-          countSaiparNo();
+          count();
         }, [areceipts]);
 
         useEffect(() => {
           // Count all the CI
-          const countEntityName = () => {
+          const count = () => {
               const total = aitems.length;
               setTotalAitems(total);
           };
-          countEntityName();
+          count();
         }, [aitems]);
 
         useEffect(() => {
           // Count the total profiling
-          const countDate = () => {
+          const count = () => {
             const total = totalAitems + totalAreceipts;
               setTotalArchives(total);
           };
-          countDate();
+          count();
         });
         
 
