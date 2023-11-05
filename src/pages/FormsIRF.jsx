@@ -121,16 +121,6 @@ export default function FormsIRF() {
     setInputField(values);
   };
 
-  const handleEditChangeInput = (index, event, fieldName) => {
-    setFormData((prevData) => {
-      const newInputField = [...prevData.inputField];
-      newInputField[index][fieldName] = event.target.value;
-      return {
-        ...prevData,
-        inputField: newInputField,
-      };
-    });
-  };
 
   const handleAddField = () => {
     setInputField([
@@ -142,6 +132,17 @@ export default function FormsIRF() {
         Recommendation: '',
       },
     ]);
+  };
+
+  const handleEditChangeInput = (index, event, fieldName) => {
+    setEditData((prevData) => {
+      const newInputField = [...prevData.inputField];
+      newInputField[index][fieldName] = event.target.value;
+      return {
+        ...prevData,
+        inputField: newInputField,
+      };
+    });
   };
 
   const handleEditAddField = () => {
@@ -169,11 +170,13 @@ export default function FormsIRF() {
       newInputField.splice(index, 1);
       return {
         ...prevData,
-        inputField: newInputField,
-      };
-    });
+        inputField: editDataCopy.inputField,
+      }));
+    } catch (error) {
+      console.error('Error updating data in Firestore: ', error);
+    }
   };
-
+  
   const handleRemoveField = (index) => {
     const values = [...inputField];
     values.splice(index, 1);
@@ -360,7 +363,7 @@ export default function FormsIRF() {
         Date: data.Date || '',
         FullName: data.FullName || '',
         LocationRoom: data.LocationRoom || '',
-        inputField: data.inputField || [],
+        inputField: data.inputField || '',
         InspectedBy: data.InspectedBy || '',
         Notedby: data.Notedby || '',
         fileURL: data.fileURL || '',
