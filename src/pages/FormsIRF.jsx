@@ -122,16 +122,6 @@ export default function FormsIRF() {
     setInputField(values);
   };
 
-  const handleEditChangeInput = (index, event, fieldName) => {
-    setFormData((prevData) => {
-      const newInputField = [...prevData.inputField];
-      newInputField[index][fieldName] = event.target.value;
-      return {
-        ...prevData,
-        inputField: newInputField,
-      };
-    });
-  };
 
   const handleAddField = () => {
     setInputField([
@@ -145,6 +135,17 @@ export default function FormsIRF() {
     ]);
   };
 
+  const handleEditChangeInput = (index, event, fieldName) => {
+    setEditData((prevData) => {
+      const newInputField = [...prevData.inputField];
+      newInputField[index][fieldName] = event.target.value;
+      return {
+        ...prevData,
+        inputField: newInputField,
+      };
+    });
+  };
+
   const handleEditAddField = () => {
     const newField = {
       Issue: '',
@@ -153,28 +154,39 @@ export default function FormsIRF() {
       Recommendation: '',
     };
   
-    // Update formData.inputField
-    setFormData((prevData) => ({
-      ...prevData,
-      inputField: [...prevData.inputField, newField],
+    // Modify editData to add a new field
+    setEditData((prevEditData) => ({
+      ...prevEditData,
+      inputField: [...prevEditData.inputField, newField],
     }));
+  
+    console.log('After adding field:', editData);
   };
 
-  const handleEditTest = () => {
-    console.log (inputField)
+
+  const handleEditRemoveField = async (index) => {
+    try {
+      const docRef = doc(InspectionReportCollectionRef, formData.id); // Use the document ID for updating
+  
+      // Create a copy of the editData
+      const editDataCopy = { ...editData };
+  
+      // Remove the specific item from the inputField array in Firestore
+      editDataCopy.inputField.splice(index, 1);
+  
+      // Update Firestore document with the modified inputField
+      await updateDoc(docRef, editDataCopy); // Update the document in Firestore
+  
+      // Update the local state (formData) with the modified inputField
+      setFormData((prevData) => ({
+        ...prevData,
+        inputField: editDataCopy.inputField,
+      }));
+    } catch (error) {
+      console.error('Error updating data in Firestore: ', error);
+    }
   };
   
-  const handleEditRemoveField = (index) => {
-    setFormData((prevData) => {
-      const newInputField = [...prevData.inputField];
-      newInputField.splice(index, 1);
-      return {
-        ...prevData,
-        inputField: newInputField,
-      };
-    });
-  };
-
   const handleRemoveField = (index) => {
     const values = [...inputField];
     values.splice(index, 1);
@@ -370,7 +382,7 @@ export default function FormsIRF() {
         Date: data.Date || '',
         FullName: data.FullName || '',
         LocationRoom: data.LocationRoom || '',
-        inputField: data.inputField || [],
+        inputField: data.inputField || '',
         InspectedBy: data.InspectedBy || '',
         Notedby: data.Notedby || '',
         fileURL: data.fileURL || '',
@@ -391,28 +403,17 @@ export default function FormsIRF() {
   const handleEditSubmit = async () => {
     try {
       const docRef = doc(InspectionReportCollectionRef, formData.id); // Use the document ID for updating
-  
       // Update the editData object with the new file URL
       editData.fileURL = formData.fileURL;
-  
-      if (editData.id) {
-        // If an ID exists, update an existing document
-        await updateDoc(docRef, editData); // Use editData to update the document
-      } else {
-        // If no ID exists, add a new document with all fields from formData
-        const newDocData = {
-          ControlNum: formData.ControlNum,
-          Date: formData.Date,
-          FullName: formData.FullName,
-          LocationRoom: formData.LocationRoom,
-          inputField: [...formData.inputField, ...[editData]],
-          InspectedBy: formData.InspectedBy,
-          Notedby: formData.Notedby,
-          fileURL: formData.fileURL,
-        };
-  
-        await setDoc(docRef, newDocData); // Set a new document
-      }
+      console.log('Data to be sent to Firestore:', formData);
+
+    if (formData.id) {
+      // Update the existing document with editData
+      await updateDoc(docRef, editData);
+    } else {
+      // Create a new document with all fields from editData
+      await setDoc(docRef, editData);
+    }
   
       handleEditClose();
       setSnackbarOpen1(true);
@@ -1366,20 +1367,10 @@ export default function FormsIRF() {
                       >
                         Add Row
                       </Button>
-
-                      <Button
-                        onClick={() => {
-                          handleEditTest();
-                        }}
-                        variant="contained"
-                      >
-                        test button
-                      </Button>
-
                     </Grid>
                   </Grid>
                     
-                  {formData.inputField.map((input, index) => (
+                  {editData && editData.inputField.map((input, index) => (
   <div key={index}>
     <Grid container spacing={1} columns={13} 
       direction="row"
