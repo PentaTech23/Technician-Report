@@ -811,44 +811,48 @@ export default function UserPage() {
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
-                      <Grid>
-                        <TextField
-                          type="text"
-                          name="LocationRoom"
-                          label="Location/Room"
-                          fullWidth
-                          value={formData.LocationRoom || ''}
-                          onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                          // sx={{ width: '100%', marginBottom: '10px' }}
-                        />
-                        <br />
-                      </Grid>
-                      <Grid>
-                        <TextField
-                          type="text"
-                          name="Remarks"
-                          variant="outlined"
-                          label="Remarks"
-                          multiline
-                          value={formData.Remarks || ''}
-                          onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
-                          minRows={5}
-                          fullWidth
-                          maxRows={80}
-                          // marginBottom="10px"
-                        />
-                        <br />
-                      </Grid>
-                      <Grid>
-                        { <Typography variant="subtitle1">File:</Typography> }
+                      <Grid container spacing={3} column={6}>
+                        <Grid item xs={12}>
+                          <TextField
+                            type="text"
+                            name="LocationRoom"
+                            label="Location/Room"
+                            fullWidth
+                            value={formData.LocationRoom || ''}
+                            onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                            // sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                          <br />
+                        </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
+                              variant="outlined"
+                              label="Remarks"
+                              multiline
+                              value={formData.Remarks || ''}
+                              onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
+                              // minRows={5}
+                              fullWidth
+                              // maxRows={80}
+                              // marginBottom="10px"
+                            />
+                            <br />
+                          </Grid>
+                        
+                      <Grid item xs={12}>
+                        { <Typography variant="subtitle1">Document Upload:</Typography> }
                       <TextField
                           type="file"
                           fullWidth
                           accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
                           onChange={(e) => handleFileUpload(e.target.files[0])}
                           sx={{ width: '100%' }}
+                          
                         />
                       </Grid>
+                    </Grid>
                     </Grid>
                   </Grid>
 
