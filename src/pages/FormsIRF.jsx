@@ -1688,7 +1688,7 @@ export default function FormsIRF() {
 
                 {formData.inputField.map((input, index) => (
                   <div key={index}>
-                    <Grid container spacing={1} columns={13} direction="row" justifyContent="space-between">
+                    <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between">
                       {/* First Column */}
                       <Grid item xs={3}>
                         <TextField
@@ -1765,14 +1765,14 @@ export default function FormsIRF() {
                             >
                               Add
                             </Button> */}
-                        <Button
+                        {/* <Button
                           onClick={() => {
                             handleEditRemoveField(index);
                           }}
                         >
                           Remove
-                        </Button>
-                        {/* Content for the eighth column */}
+                        </Button> */}
+                        
                       </Grid>
                     </Grid>
                     <br />
