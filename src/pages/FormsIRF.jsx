@@ -288,7 +288,6 @@ export default function FormsIRF() {
       Date,
       FullName,
       LocationRoom,
-      inputField = [],
       InspectedBy,
       NotedBy,
       fileURL,
@@ -1385,7 +1384,6 @@ export default function FormsIRF() {
     <Grid container spacing={1} columns={13} 
       direction="row"
       justifyContent="space-between"
-      alignItems="center"
     >
       {/* First Column */}
       <Grid item xs={3}>
