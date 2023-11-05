@@ -105,42 +105,75 @@ const storage = getStorage(firebaseApp);
 export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
-  const [inputField, setInputField] = useState({
-    Inspection: {
-      ActionTakenSolution: [
+  const [inputField, setInputField] = useState([
+    
+    {
+      Issue: '',
+      Description: '',
+      ActionTakenSolution: '',
+      Recommendation: '',
+    },
+  ]);
+
+  const handleChangeInput = (index, event) => {
+    console.log(index, event.target.name);
+    const values = [...inputField];
+    values[index][event.target.name] = event.target.value;
+    setInputField(values);
+  };
+
+  const handleEditChangeInput = (index, event, fieldName) => {
+    setEditData((prevEditData) => {
+      const newInputField = [...prevEditData.inputField];
+      newInputField[index][fieldName] = event.target.value;
+      return {
+        ...prevEditData,
+        inputField: newInputField,
+      };
+    });
+  };
+  const handleAddField = () => {
+    setInputField([
+      ...inputField,
+      {
+        Issue: '',
+        Description: '',
+        ActionTakenSolution: '',
+        Recommendation: '',
+      },
+    ]);
+  };
+
+  const handleEditAddField = () => {
+    setEditData((prevEditData) => ({
+      ...prevEditData,
+      inputField: [
+        ...prevEditData.inputField,
         {
-          actionTakenSolution: '',
-          Description: '',
           Issue: '',
+          Description: '',
+          ActionTakenSolution: '',
           Recommendation: '',
         },
       ],
-    },
-  });
-
-  const handleSubmitForm = (e) => {
-    e.preventDefault();
-    console.log('Form Data', formData);
+    }));
+  };
+  
+  const handleRemoveField = (index) => {
+    const values = [...inputField];
+    values.splice(index, 1);
+    setInputField(values);
   };
 
-  const handleChangeInput = (index, value, field) => {
-    setFormData((prevData) => {
-      const newData = { ...prevData };
-      newData.Inspection[field][index] = value;
-      return newData;
-    });
+  const handleRemoveAllField = () => {
+    const values = [...inputField];
+        // Remove all fields by splicing from the end of the array to the beginning
+    for (let i = values.length - 1; i >= 0; i-=1) {
+      values.splice(i, 1);
+    }
+    // Update the inputField state with the modified array
+    setInputField(values);
   };
-  const [numRows, setNumRows] = useState(1); // Start with one row
-
-const handleAddField = () => {
-  setNumRows(numRows + 1); // Increase the number of rows by 1
-};
-
-const handleRemoveField = () => {
-  if (numRows > 1) {
-    setNumRows(numRows - 1); // Decrease the number of rows by 1 (but not below 1)
-  }
-};
   // ----------------------------------------------------------------------
 
   const [fetchedData, setFetchedData] = useState([]);
@@ -156,7 +189,6 @@ const handleRemoveField = () => {
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Inspection: '',
     InspectedBy: '',
     NotedBy: '',
     fileInput: '',
@@ -164,24 +196,22 @@ const handleRemoveField = () => {
   };
 
   const clearForm = () => {
+    // Remove all fields by calling handleRemoveField for each field in inputField
+    handleRemoveAllField();
+    // After removing all fields, set the entire form data to its initial state
     setFormData(initialFormData);
   };
 
-  // Add Form Input Fields function
+  // Handle change function
   const [formData, setFormData] = useState({
     ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Inspection: {
-      ActionTakenSolution: [''],
-      Description: [''],
-      Issue: [''],
-      Recommendation: [''],
-    },
     InspectedBy: '',
     NotedBy: '',
     fileURL: '',
+    inputField: '',
   });
 
   // Show Query or the table, fetch data from firestore
@@ -234,53 +264,49 @@ const handleRemoveField = () => {
   // function for Adding new documents
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const {
       ControlNum,
       Date,
       FullName,
       LocationRoom,
-      Inspection,
       InspectedBy,
       NotedBy,
       fileURL,
-      inputField = [],
     } = formData;
-
+  
     try {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
-
+  
       const docRef = doc(InspectionReportCollectionRef, documentName);
-
+  
       const docData = {
         ControlNum,
         Date,
         FullName,
         LocationRoom,
-        Inspection,
         InspectedBy,
         NotedBy,
         fileURL: fileURL || '',
-        inputField,
-        archived: false, // Include the 'archived' field and set it to false for new documents
-        originalLocation: 'INSPECTION-REPORT', // Include the 'originalLocation' field
+        inputField, // Add the dynamic input fields here
+        archived: false,
+        originalLocation: 'INSPECTION-REPORT',
       };
-
+  
       await setDoc(docRef, docData);
-
-      // Create a new data object that includes the custom ID
+  
       const newData = { ...docData, id: documentName };
-
-      // Update the state with the new data, adding it to the table
+  
       setFetchedData([...fetchedData, newData]);
-
+  
       setOpen(false);
       setSnackbarOpen(true);
     } catch (error) {
       console.error(error);
       alert('Input cannot be incomplete');
     }
+    clearForm();
   };
 
   //  This one is for Search bar
@@ -292,7 +318,7 @@ const handleRemoveField = () => {
   };
 
   const filteredData = fetchedData.filter((item) => {
-    const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'Inspection', 'InspectedBy', 'NotedBy'];
+    const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'InspectedBy', 'NotedBy'];
 
     const servicesMatch = (item, searchQuery) => {
       return (
@@ -326,14 +352,19 @@ const handleRemoveField = () => {
         Date: data.Date || '',
         FullName: data.FullName || '',
         LocationRoom: data.LocationRoom || '',
-        Inspection: data.Inspection || '',
         InspectedBy: data.InspectedBy || '',
         Notedby: data.Notedby || '',
         fileURL: data.fileURL || '',
-        inputField: data.inputField || '',
         id: data.id, // Set the document ID here
       });
-      setEditData(data);
+  
+      const formattedInputField = data.inputField || []; // Initialize with an empty array
+
+      setEditData({
+        ...data, // Make sure to spread the existing data first
+        inputField: formattedInputField, // Use the default inputField structure if it's not provided
+      });
+  
       setEditOpen(true);
       handleMenuClose();
     }
@@ -747,15 +778,16 @@ const handleRemoveField = () => {
               <Button
                 onClick={fetchAllDocuments}
                 variant="contained"
+                size="large"
                 style={{
                   margin: '0 8px', // Add margin for spacing
                   display: 'flex',
                   justifyContent: 'center',
-                  backgroundColor: 'transparent', // Set the background color to transparent
-                  boxShadow: 'none', // Remove the box shadow
+                   // Set the background color to transparent
+                   // Remove the box shadow
                 }}
               >
-                <Iconify icon="zondicons:refresh" color="#2065D1" width={55} height={55} />
+                Refresh
               </Button>
             </div>
           </div>
@@ -773,7 +805,7 @@ const handleRemoveField = () => {
             )}
 
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-              <Button onClick={handleClickOpen} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+              <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
                 New User
               </Button>
             </div>
@@ -807,8 +839,19 @@ const handleRemoveField = () => {
               // style={{ width: '1800px' }}
               >
                 <form onSubmit={handleSubmit}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6} md={4}>
+                  <Grid container spacing={1} columns={8}>
+                  <Grid item xs={2}>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        variant="outlined"
+                        size="small"
+                        value={formData.Date || ''}
+                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={4} >
                       {/* <TextField
                       type="date"
                       name="Date"
@@ -819,21 +862,11 @@ const handleRemoveField = () => {
                       sx={{ width: '100%', marginBottom: '10px' }}
                     /> */}
                     </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="Date"
-                        variant="filled"
-                        size="small"
-                        value={formData.Date || ''}
-                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
+                    
+                    <Grid item xs={2} >
                       <TextField
                         name="ControlNum"
-                        variant="filled"
+                        variant="outlined"
                         label="Control Number"
                         size="small"
                         value={formData.ControlNum || ''}
@@ -841,11 +874,11 @@ const handleRemoveField = () => {
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                    <Grid item xs={6} md={8}>
+                    <Grid item xs={5}>
                       <TextField
                         type="text"
                         name="FullName"
-                        variant="filled"
+                        variant="outlined"
                         label="Full Name"
                         size="small"
                         value={formData.FullName || ''}
@@ -854,11 +887,11 @@ const handleRemoveField = () => {
                       />
                       {/* <Item>xs=6 md=4</Item> */}
                     </Grid>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={3} >
                       <TextField
                         type="text"
                         name="LocationRoom"
-                        variant="filled"
+                        variant="outlined"
                         size="small"
                         label="Location/Room"
                         value={formData.LocationRoom || ''}
@@ -867,12 +900,24 @@ const handleRemoveField = () => {
                       />
                       {/* <Item>xs=6 md=8</Item> */}
                     </Grid>
-                    
+                    {/* <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="Inspection"
+                        variant="filled"
+                        label="Inspection"
+                        size="small"
+                        value={formData.Inspection || ''}
+                        onChange={(e) => setFormData({ ...formData, Inspection: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      
+                    </Grid> */}
                     <Grid item xs={6} md={4}>
                       <TextField
                         type="text"
                         name="InspectedBy"
-                        variant="filled"
+                        variant="outlined"
                         label="Inspection By"
                         size="small"
                         value={formData.InspectedBy || ''}
@@ -884,7 +929,7 @@ const handleRemoveField = () => {
                       <TextField
                         type="text"
                         name="NotedBy"
-                        variant="filled"
+                        variant="outlined"
                         label="Noted By"
                         size="small"
                         value={formData.NotedBy || ''}
@@ -894,80 +939,144 @@ const handleRemoveField = () => {
                     </Grid>
                   </Grid>
 
-                  <br />
-                  <TextField
-                    type="file"
-                    variant="filled"
-                    size="small"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    sx={{ width: '100%' }}
-                  />
-                  <br />
-
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
                   <div>
-                    <Typography
-                      variant="h3"
-                      sx={{ mb: 5 }}
-                      style={{
-                        alignSelf: 'center',
-                        color: '#ff5500',
-                        margin: 'auto',
-                        fontSize: '40px',
-                        fontWeight: 'bold',
-                        marginTop: '10px',
-                      }}
-                    >
-                      Items
-                    </Typography>
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Inspection
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add Row
+                      </Button>
+                    </Grid>
+                  </Grid>
+                    
+                    {inputField.map((inputField, index) => (
+                      <div key={index}>
+                        <Grid container spacing={1} columns={13} 
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center">
+                          {/* First Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              type="text"
+                              name="Issue"
+                              label="Issue"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Issue}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                          </Grid>
 
-                    <br />
-                   {/* Individual input fields for ActionTakenSolution, Description, Issue, and Recommendation */}
-                   <div>
-  {[...Array(numRows)].map((_, rowIndex) => (
-    <Grid container spacing={2} key={rowIndex}>
-      {['ActionTakenSolution', 'Description', 'Issue', 'Recommendation'].map((field, index) => (
-        <Grid item xs={3} key={index}>
-          <TextField
-            label={field}
-            variant="outlined"
-            size="small"
-            value={formData.Inspection[field][rowIndex] || ''}
-            onChange={(event) => handleChangeInput(rowIndex, event.target.value, field)}
-          />
-        </Grid>
-      ))}
-    </Grid>
-  ))}
-</div>
+                          {/* Second Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="Description"
+                              label="Description"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Description}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the second column */}
+                          </Grid>
 
-{/* Add and Remove buttons for all four arrays */}
-<Grid container spacing={2}>
-  <Grid item xs={3}>
-    <Button
-      onClick={() => {
-        handleAddField();
-      }}
-    >
-      Add
-    </Button>
-    <Button
-      onClick={() => {
-        handleRemoveField();
-      }}
-    >
-      Remove
-    </Button>
-  </Grid>
-</Grid>
+                          {/* Third Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="ActionTakenSolution"
+                              label="Action Taken/Solution"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.ActionTakenSolution}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the third column */}
+                          </Grid>
+
+                          {/* Fourth Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="Recommendation"
+                              label="Recommendation"
+                              variant="outlined"
+                              multiline
+                              fullWidth
+                              size="small"
+                              value={inputField.Recommendation}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the fourth column */}
+                          </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleRemoveField(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                        </Grid>
+                        <br/>
+                      </div>
+                    ))}
                   </div>
+                  <br/>
+                  <Grid>
+                    <TextField
+                      type="file"
+                      variant="outlined"
+                      size="small"
+                      accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                      onChange={(e) => handleFileUpload(e.target.files[0])}
+                      sx={{ width: '100%' }}
+                    />
+                  </Grid>
                 </form>
               </DialogContent>
               <DialogActions>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-                  <Button variant="contained" onClick={handleSubmitForm} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-                    Save Form
+                  <Button variant="contained" onClick={clearForm} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+                    Clear
                   </Button>
                   <Button variant="contained" onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
                     Cancel
@@ -1010,7 +1119,6 @@ const handleRemoveField = () => {
                   <TableCell>Date</TableCell>
                   <TableCell>Full Name</TableCell>
                   <TableCell>Location/Room</TableCell>
-                  <TableCell>Inspection</TableCell>
                   <TableCell>Inspected by</TableCell>
                   <TableCell>Noted by</TableCell>
                   <TableCell>File</TableCell>
@@ -1028,7 +1136,6 @@ const handleRemoveField = () => {
                     <TableCell>{item.Date}</TableCell>
                     <TableCell>{item.FullName}</TableCell>
                     <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Inspection}</TableCell>
                     <TableCell>{item.InspectedBy}</TableCell>
                     <TableCell>{item.NotedBy}</TableCell>
                     <TableCell>
@@ -1076,10 +1183,9 @@ const handleRemoveField = () => {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
 
-        {/* This is the dialog for the Edit button */}
-        <Dialog open={editOpen} onClose={handleEditClose}>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* This is the dialog for the Edit button */}
+      <Dialog open={editOpen} onClose={handleEditClose} maxWidth="xl"> 
+         
               <Typography
                 variant="h3"
                 sx={{ mb: 5 }}
@@ -1097,79 +1203,241 @@ const handleRemoveField = () => {
               <DialogContent>
                 <form onSubmit={handleEditSubmit}>
                   {/* Fields to edit */}
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                  <Grid container spacing={1} columns={8}>
+
+                    <Grid item xs={2}>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        variant="outlined"
+                        size="small"
+                        label="Date"
+                        value={editData ? editData.Date : ''}
+                        onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={4} >
+                      {/* <TextField
+                      type="date"
+                      name="Date"
+                      variant="filled"
+                      size="small"
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> */}
+                    </Grid>
+
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="ControlNum"
+                        label="Control Number"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.ControlNum : ''}
+                        onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={5}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        label="Faculty Name"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.FullName : ''}
+                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={3}>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          label="Location/Room"
+                          variant="outlined"
+                          size="small"
+                          value={editData ? editData.LocationRoom : ''}
+                          onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
+                      </Grid>
+
+                      <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="InspectedBy"
+                        label="Inspected By"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.InspectedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, InspectedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="NotedBy"
+                        label="Noted By"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.NotedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, NotedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                </Grid>
+                      {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+                  <div>
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Inspection
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleEditAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add Row
+                      </Button>
+                    </Grid>
+                  </Grid>
+                    
+                  {inputField.map((input, index) => (
+  <div key={index}>
+    <Grid container spacing={1} columns={13} 
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+    >
+      {/* First Column */}
+      <Grid item xs={3}>
+        <TextField
+          type="text"
+          name="Issue"
+          label="Issue"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={editData ? editData.inputField[index].Issue : input.Issue}
+          onChange={(event) => handleEditChangeInput(index, event, 'Issue')}
+        />
+      </Grid>
+
+      {/* Second Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="Description"
+          label="Description"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={editData ? editData.inputField[index].Description : input.Description}
+          onChange={(event) => handleEditChangeInput(index, event, 'Description')}
+        />
+        {/* Content for the second column */}
+      </Grid>
+
+      {/* Third Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="ActionTakenSolution"
+          label="Action Taken/Solution"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={editData ? editData.inputField[index].ActionTakenSolution : input.ActionTakenSolution}
+          onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
+        />
+        {/* Content for the third column */}
+      </Grid>
+
+      {/* Fourth Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="Recommendation"
+          label="Recommendation"
+          variant="outlined"
+          multiline
+          fullWidth
+          size="small"
+          value={editData ? editData.inputField[index].Recommendation : input.Recommendation}
+          onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
+        />
+        {/* Content for the fourth column */}
+      </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleRemoveField(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                        </Grid>
+                        <br/>
+                      </div>
+                    ))}
+                  </div>
+
+                
+
+                {/*  END OF DYNAMIC FORM  END OF DYNAMIC FORM END OF DYANMIC FORM */}
+                      <Grid>
+                        <Typography variant="subtitle1">File:</Typography>
+                        <TextField
+                          type="file"
+                          variant="outlined"
+                          size="small"
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          sx={{ width: '100%' }}
+                        />
+                      </Grid>
+    
                   <br />
-                  <TextField
-                    type="text"
-                    name="ControlNum"
-                    placeholder="Control Number"
-                    value={editData ? editData.ControlNum : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="FullName"
-                    placeholder="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="Inspection"
-                    placeholder="Inspection"
-                    value={editData ? editData.Inspection : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="InspectedBy"
-                    placeholder="Inspected by"
-                    value={editData ? editData.InspectedBy : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="text"
-                    name="NotedBy"
-                    placeholder="Noted by"
-                    value={editData ? editData.NotedBy : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <br />
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileEditUpload(e.target.files[0])}
-                    inputProps={{
-                      className:
-                        'w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input',
-                    }}
-                  />
                 </form>
               </DialogContent>
               <DialogActions>
@@ -1187,8 +1455,7 @@ const handleRemoveField = () => {
                   </Button>
                 </div>
               </DialogActions>
-            </div>
-          </div>
+            
         </Dialog>
         <Snackbar
           open={snackbarOpen1}
@@ -1246,85 +1513,103 @@ const handleRemoveField = () => {
                 INSPECTION REPORT
               </Typography>
               <DialogContent>
-                <Typography variant="subtitle1">Date:</Typography>
-                <TextField
-                  type="date"
-                  name="Date"
-                  placeholder="Date"
-                  value={viewItem ? viewItem.Date : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Control Number:</Typography>
-                <TextField
-                  type="text"
-                  name="ControlNum"
-                  placeholder="Control Number"
-                  value={viewItem ? viewItem.ControlNum : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Faculty Name:</Typography>
-                <TextField
-                  type="text"
-                  name="FullName"
-                  placeholder="Faculty Name"
-                  value={viewItem ? viewItem.FullName : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Location/Room:</Typography>
-                <TextField
-                  type="text"
-                  name="LocationRoom"
-                  placeholder="Location/Room"
-                  value={viewItem ? viewItem.LocationRoom : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Inspection:</Typography>
-                <TextField
-                  type="text"
-                  name="Inspection"
-                  placeholder="Inspection"
-                  value={viewItem ? viewItem.Inspection : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Inspected by:</Typography>
-                <TextField
-                  type="text"
-                  name="InspectedBy"
-                  placeholder="Inspected by"
-                  value={viewItem ? viewItem.InspectedBy : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
-                <Typography variant="subtitle1">Noted by:</Typography>
-                <TextField
-                  type="text"
-                  name="NotedBy"
-                  placeholder="Noted by"
-                  value={viewItem ? viewItem.NotedBy : ''}
-                  disabled
-                  sx={{ width: '100%', marginBottom: '10px' }}
-                />
-                <br />
+                <Grid
+                  container
+                  spacing={2}
+                  columns={16}
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Control Number:</Typography>
+                    <TextField
+                      type="text"
+                      name="ControlNum"
+                      
+                      value={viewItem ? viewItem.ControlNum : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
 
-                <Typography variant="subtitle1">File:</Typography>
-                {viewItem && viewItem.fileURL ? (
-                  <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                    View / Download File
-                  </a>
-                ) : (
-                  'No File'
-                )}
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Date:</Typography>
+                    <TextField
+                      type="date"
+                      name="Date"
+                      
+                      value={viewItem ? viewItem.Date : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Faculty Name:</Typography>
+                    <TextField
+                      type="text"
+                      name="FullName"
+                      
+                      value={viewItem ? viewItem.FullName : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Inspected By:</Typography>
+                    <TextField
+                      type="text"
+                      name="InspectedBy"
+                    
+                      value={viewItem ? viewItem.InspectedBy : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+                  <Grid item xs={16}>
+
+                    <Typography variant="subtitle1">Noted By:</Typography>
+                    <TextField
+                      type="text"
+                      name="NotedBy"
+                    
+                      value={viewItem ? viewItem.NotedBy : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+  
+                  <Grid item xs={8} spacing={1}>
+                    <Grid>
+                      <Typography variant="subtitle1">Location/Room:</Typography>
+                      <TextField
+                        type="text"
+                        name="LocationRoom"
+                        
+                        value={viewItem ? viewItem.LocationRoom : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                    <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
+                      {viewItem && viewItem.fileURL ? (
+                        <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                          View / Download File
+                        </a>
+                      ) : (
+                        'No File'
+                      )}
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                <br />
+                <br />
               </DialogContent>
             </div>
           </div>
