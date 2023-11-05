@@ -164,11 +164,21 @@ export default function FormsIRF() {
     console.log(inputField);
   };
 
-  const handleEditRemoveField = (index) => {
-    setFormData((prevData) => {
-      const newInputField = [...prevData.inputField];
-      newInputField.splice(index, 1);
-      return {
+  const handleEditRemoveField = async (index) => {
+    try {
+      const docRef = doc(InspectionReportCollectionRef, formData.id); // Use the document ID for updating
+  
+      // Create a copy of the editData
+      const editDataCopy = { ...editData };
+  
+      // Remove the specific item from the inputField array in Firestore
+      editDataCopy.inputField.splice(index, 1);
+  
+      // Update Firestore document with the modified inputField
+      await updateDoc(docRef, editDataCopy); // Update the document in Firestore
+  
+      // Update the local state (formData) with the modified inputField
+      setFormData((prevData) => ({
         ...prevData,
         inputField: editDataCopy.inputField,
       }));
@@ -1706,6 +1716,7 @@ export default function FormsIRF() {
                           variant="outlined"
                           size="small"
                           value={viewItem ? viewItem.inputField[index]?.Description : input?.Description}
+                          disabled
                           onChange={(event) => handleEditChangeInput(index, event, 'Description')}
                         />
                         {/* Content for the second column */}
@@ -1723,6 +1734,7 @@ export default function FormsIRF() {
                           value={
                             viewItem ? viewItem.inputField[index]?.ActionTakenSolution : input?.ActionTakenSolution
                           }
+                          disabled
                           onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
                         />
                         {/* Content for the third column */}
@@ -1738,6 +1750,7 @@ export default function FormsIRF() {
                           fullWidth
                           size="small"
                           value={viewItem ? viewItem.inputField[index]?.Recommendation : input?.Recommendation}
+                          disabled
                           onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
                         />
                         {/* Content for the fourth column */}
@@ -1808,4 +1821,4 @@ export default function FormsIRF() {
       </Container>
     </>
   );
-}
+                      }
