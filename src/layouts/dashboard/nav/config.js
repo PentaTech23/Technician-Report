@@ -19,16 +19,16 @@ const navConfig = [
     icon: icon('forms'),
     children: [
       {
-        title: 'Service Request Form',
-        path: '/dashboard/service_request',
-      },
-      {
         title: "Borrower's Form",
         path: '/dashboard/borrowers_item',
       },
       {
         title: 'Request Item Form',
         path: '/dashboard/request_item',
+      },
+      {
+        title: 'Service Request Form',
+        path: '/dashboard/service_request',
       },
       {
         title: 'Inspection Report Form',
@@ -43,13 +43,14 @@ const navConfig = [
     icon: icon('profiling'),
     children: [
       {
-        title: 'Memorandum of Receipts',
-        path: '/dashboard/profiling_mr', // Replace with the actual path
-      },
-      {
         title: 'Condemned Items',
         path: '/dashboard/profiling_ci', // Replace with the actual path
       },
+      {
+        title: 'Memorandum of Receipts',
+        path: '/dashboard/profiling_mr', // Replace with the actual path
+      },
+      
     ],
   },
 //               REPORTS

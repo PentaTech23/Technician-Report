@@ -697,7 +697,11 @@ export default function UserPage() {
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+<<<<<<< HEAD
           <Typography variant="h2"  style={{ color: '#ff5500' }}>
+=======
+          <Typography variant="h2" style={{ color: '#ff5500' }}>
+>>>>>>> 20544a1f8c4b0428ffaa299486ab39ceab3c5280
             Service Request Form
           </Typography>
         </Stack>

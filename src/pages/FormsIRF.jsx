@@ -106,6 +106,10 @@ export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
   const [inputField, setInputField] = useState([
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 20544a1f8c4b0428ffaa299486ab39ceab3c5280
     {
       Issue: '',
       Description: '',
@@ -121,7 +125,6 @@ export default function FormsIRF() {
     setInputField(values);
   };
 
-
   const handleAddField = () => {
     setInputField([
       ...inputField,
@@ -133,6 +136,13 @@ export default function FormsIRF() {
       },
     ]);
   };
+
+  const handleRemoveField = (index) => {
+    const values = [...inputField];
+    values.splice(index, 1);
+    setInputField(values);
+  };
+
 
   const handleEditChangeInput = (index, event, fieldName) => {
     setEditData((prevData) => {
@@ -187,11 +197,7 @@ export default function FormsIRF() {
     }
   };
   
-  const handleRemoveField = (index) => {
-    const values = [...inputField];
-    values.splice(index, 1);
-    setInputField(values);
-  };
+ 
 
   const handleRemoveAllField = () => {
     const values = [...inputField];
@@ -1146,7 +1152,7 @@ export default function FormsIRF() {
               open={snackbarOpen}
               autoHideDuration={6000}
               onClose={() => setSnackbarOpen(false)}
-              message="The Service Request Document was created successfully!"
+              message="The Document was created successfully!"
             />
           </div>
         </Stack>
@@ -1504,20 +1510,20 @@ export default function FormsIRF() {
           open={snackbarOpen1}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpen1(false)}
-          message="The Inspection Report Document was edited successfully!"
+          message="The Document was edited successfully!"
         />
         <Snackbar
           open={snackbarOpenDelete}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpenDelete(false)}
-          message="The Inspection Report Document was deleted successfully!"
+          message="The Document was deleted successfully!"
         />
 
         <Snackbar
           open={snackbarOpenArchive}
           autoHideDuration={6000}
           onClose={() => setSnackbarOpenArchive(false)}
-          message="The Inspection Report Document was archived successfully!"
+          message="The Document was archived successfully!"
         />
         <Popover
           open={Boolean(menuAnchorEl)}
@@ -1808,6 +1814,7 @@ export default function FormsIRF() {
           </DialogActions>
         </Dialog>
 
+        
         <Dialog open={deleteConfirmationDialogOpen} onClose={() => setDeleteConfirmationDialogOpen(false)}>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>Are you sure you want to delete {selectedItems.length} items?</DialogContent>
