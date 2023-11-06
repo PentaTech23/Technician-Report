@@ -643,7 +643,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                ITEM BORROWER
+                BORROWER ITEM
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -738,10 +738,10 @@ const handleViewClose = () => {
                       <Grid>
                       <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                    name="LocationRoom"
+                    label="Location/Room"
+                    value={editData ? editData.LocationRoom : ''}
+                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                         <br/>
@@ -886,7 +886,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                ITEM BORROWER
+                BORROWER ITEM
               </Typography>
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
@@ -1061,7 +1061,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               ITEM BORROWER
+               BORROWER ITEM
             </Typography>
             <DialogContent>
             <Grid

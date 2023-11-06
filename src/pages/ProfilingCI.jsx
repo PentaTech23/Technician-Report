@@ -711,13 +711,13 @@ export default function FormsIRF() {
   return (
     <>
       <Helmet>
-        <title> Condemned Item </title>
+        <title> Condemned Items </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
-            Condemned Item
+            Condemned Items
           </Typography>
           
         </Stack>
@@ -1543,7 +1543,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                INSPECTION REPORT
+                CONDEMNED ITEMS REPORT
               </Typography>
               <DialogContent>
               <Grid container spacing={1}>

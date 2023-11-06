@@ -1055,7 +1055,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                Memorandum of Receipts
+                MEMORANDUM OF RECEIPTS
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -1840,7 +1840,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                Memorandum of Receipts
+                MEMORANDUM OF RECEIPTS
               </Typography>
               <DialogContent>
                 <form onSubmit={handleEditSubmit}>
@@ -2607,7 +2607,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                INSPECTION REPORT
+                MEMORANDUM OF RECEIPTS
               </Typography>
               <DialogContent>
               <Typography variant="subtitle1">Name:</Typography>
