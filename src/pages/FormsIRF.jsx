@@ -106,10 +106,7 @@ export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
   const [inputField, setInputField] = useState([
-<<<<<<< HEAD
-=======
-  
->>>>>>> 20544a1f8c4b0428ffaa299486ab39ceab3c5280
+
     {
       Issue: '',
       Description: '',

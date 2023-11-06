@@ -10,6 +10,7 @@ import {
   Divider,
   Checkbox,
   FormGroup,
+  TextField,
   IconButton,
   Typography,
   RadioGroup,
@@ -23,13 +24,18 @@ import { ColorMultiPicker } from '../../../components/color-utils';
 // ----------------------------------------------------------------------
 
 export const SORT_BY_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
+  { value: 'oldest', label: 'Oldest' },
   { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High-Low' },
-  { value: 'priceAsc', label: 'Price: Low-High' },
 ];
 export const FILTER_GENDER_OPTIONS = ['Men', 'Women', 'Kids'];
-export const FILTER_CATEGORY_OPTIONS = ['All', 'Shose', 'Apparel', 'Accessories'];
+export const FILTER_CATEGORY_OPTIONS = [
+  'Application Installation',
+  'Network',
+  'Inventory',
+  'Reformat',
+  'Repair',
+  'Others',
+];
 export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
 export const FILTER_PRICE_OPTIONS = [
   { value: 'below', label: 'Below $25' },
@@ -83,7 +89,36 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
 
         <Scrollbar>
           <Stack spacing={3} sx={{ p: 3 }}>
-            <div>
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date From:
+            </Typography>
+            <TextField
+              id="dateFrom"
+              size="small"
+              // label="Date From"
+              type="date"
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date To:
+            </Typography>
+            <TextField
+              id="dateTo"
+              size="small"
+              // label="Date From"
+              type="date"
+            />
+
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Location/Room:
+            </Typography>
+            <TextField
+              id="location"
+              size="small"
+              // label="Date From"
+              type="text"
+            />
+
+            {/* <div>
               <Typography variant="subtitle1" gutterBottom>
                 Gender
               </Typography>
@@ -92,11 +127,11 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
                   <FormControlLabel key={item} control={<Checkbox />} label={item} />
                 ))}
               </FormGroup>
-            </div>
+            </div> */}
 
             <div>
               <Typography variant="subtitle1" gutterBottom>
-                Category
+                Service
               </Typography>
               <RadioGroup>
                 {FILTER_CATEGORY_OPTIONS.map((item) => (
@@ -105,7 +140,7 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
               </RadioGroup>
             </div>
 
-            <div>
+            {/* <div>
               <Typography variant="subtitle1" gutterBottom>
                 Colors
               </Typography>
@@ -116,9 +151,9 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
                 onChangeColor={(color) => [].includes(color)}
                 sx={{ maxWidth: 38 * 4 }}
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Typography variant="subtitle1" gutterBottom>
                 Price
               </Typography>
@@ -127,9 +162,9 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
                   <FormControlLabel key={item.value} value={item.value} control={<Radio />} label={item.label} />
                 ))}
               </RadioGroup>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Typography variant="subtitle1" gutterBottom>
                 Rating
               </Typography>
@@ -158,7 +193,7 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
                   />
                 ))}
               </RadioGroup>
-            </div>
+            </div> */}
           </Stack>
         </Scrollbar>
 

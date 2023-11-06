@@ -11,8 +11,7 @@ import POSTS from '../_mock/blog';
 
 const SORT_OPTIONS = [
   { value: 'latest', label: 'Latest' },
-  { value: 'popular', label: 'Popular' },
-  { value: 'oldest', label: 'Oldest' },
+  { value: 'oldest', label: 'Oldest' }
 ];
 
 // ----------------------------------------------------------------------

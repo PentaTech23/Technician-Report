@@ -68,6 +68,12 @@ import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
+import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
+import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
+// mock
+import POSTS from '../_mock/blog';
+import PRODUCTS from '../_mock/products';
+
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
@@ -100,6 +106,12 @@ const archivesCollectionRef = collection(archivesRef, 'ARCHIVES-FORMS');
 
 // Second declaration
 const storage = getStorage(firebaseApp);
+
+const SORT_OPTIONS = [
+  { value: 'latest', label: 'Latest' },
+  { value: 'popular', label: 'Popular' },
+  { value: 'oldest', label: 'Oldest' },
+];
 
 function CircularProgressWithLabel(props) {
   return (
@@ -643,6 +655,17 @@ export default function UserPage() {
     setViewItem(null);
     setViewOpen(false);
   };
+    const [openFilter, setOpenFilter] = useState(false);
+  
+    const handleOpenFilter = () => {
+      setOpenFilter(true);
+    };
+  
+    const handleCloseFilter = () => {
+      setOpenFilter(false);
+    };
+  
+  
 
   // This one is for idk lol
   const [open, setOpen] = useState(false);
@@ -697,11 +720,7 @@ export default function UserPage() {
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-<<<<<<< HEAD
-          <Typography variant="h2"  style={{ color: '#ff5500' }}>
-=======
           <Typography variant="h2" style={{ color: '#ff5500' }}>
->>>>>>> 20544a1f8c4b0428ffaa299486ab39ceab3c5280
             Service Request Form
           </Typography>
         </Stack>
@@ -755,7 +774,24 @@ export default function UserPage() {
               </div>
             )}
 
+{/* <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
+          <BlogPostsSearch posts={POSTS} />
+          <BlogPostsSort options={SORT_OPTIONS} />
+        </Stack> */}
+        <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
+          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+            <ProductFilterSidebar
+              openFilter={openFilter}
+              onOpenFilter={handleOpenFilter}
+              onCloseFilter={handleCloseFilter}
+            />
+            <ProductSort />
+          </Stack>
+        </Stack>
+
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+            {/* <BlogPostsSort options={SORT_OPTIONS}  style={{ marginLeft: 'auto'}}/>
+            <Filter  style={{ marginLeft: 'auto'}}/> */}
               <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
                 New Document
               </Button>
