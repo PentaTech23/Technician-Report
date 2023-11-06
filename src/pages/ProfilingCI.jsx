@@ -152,6 +152,7 @@ export default function FormsIRF() {
     });
   };
 
+   // -------------------EDIT DYNAMIC FIELD-------------------
   const handleEditAddField = () => {
     const newField = {
       ItemDescription: '',
@@ -1543,7 +1544,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                INSPECTION REPORT
+                CONDEMNED ITEMS
               </Typography>
               <DialogContent>
               <Grid container spacing={1}>

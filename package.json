@@ -84,6 +84,8 @@
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/eslint-parser": "^7.19.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "eslint": "^8.48.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -95,7 +97,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "jest": "^27.5.1",
+    "jest": "^28.1.3",
     "prettier": "^2.8.4"
   },
   "overrides": {

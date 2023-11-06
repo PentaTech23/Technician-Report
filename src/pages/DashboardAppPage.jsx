@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
-
 import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -10,18 +8,8 @@ import { useTheme } from '@mui/material/styles';
 import { Paper, Table, TableCell, TableHead, TableRow, Grid, Container, Typography, Pagination, TableBody, TableContainer } from '@mui/material';
 
 import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
   AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
 } from '../sections/@dashboard/app';
-
-import Logo from '../img/logo.png';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -34,8 +22,6 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-
-
 
 export default function DashboardAppPage() {
   const theme = useTheme();
@@ -634,26 +620,6 @@ export default function DashboardAppPage() {
           </div>
           </Grid>
 
-
-
-          {/* <Grid item xs={12} md={6} lg={6}>
-          <div className="fifth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
-            <Typography variant="h5" style={{ textAlign: 'center' }}>Number of Computer Units Per Room</Typography>
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart width={300} height={300} barSize={50} data={RoomNo}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-4} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: 'black' }} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="rooms" fill="#FF8042" name='RoomNo' />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-                  </Grid> */}
-
-
           <Grid item xs={12} md={12} lg={12}>
         <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
           <TableContainer component={Paper} style={{
@@ -743,16 +709,6 @@ export default function DashboardAppPage() {
           />
               </div>
             </Grid>
-
-
-
-
-
-
-
-          
-
-
         </Grid>
       </Container>
       </Container>

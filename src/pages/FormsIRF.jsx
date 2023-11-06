@@ -303,6 +303,7 @@ export default function FormsIRF() {
       FullName,
       LocationRoom,
       InspectedBy,
+      inputField = [],
       NotedBy,
       fileURL,
     } = formData;
@@ -720,9 +721,41 @@ export default function FormsIRF() {
   const [viewOpen, setViewOpen] = useState(false);
 
   const handleViewOpen = (item) => {
-    setViewItem(item);
-    setViewOpen(true);
+    if (item && item.id) {
+      // Fetch data from your data source (e.g., an API) based on the item ID
+      // Once the data is fetched, you can then set it in your view dialog state
+      // For example, set the viewItem state with the fetched data
+      setViewItem(item);
+  
+      // Open the view dialog
+      setViewOpen(true);
+      handleMenuClose(); // Close any other menus if needed
+    }
   };
+
+  // const handleViewOpen = (item) => {
+  //   if (item && item.id) {
+  //     // Populate the form fields with existing data
+  //     setFormData({
+  //       ...formData,
+  //       ControlNum: item.ControlNum || '',
+  //       Date: item.Date || '',
+  //       FullName: item.FullName || '',
+  //       LocationRoom: item.LocationRoom || '',
+  //       inputField: item.inputField || '',
+  //       InspectedBy: item.InspectedBy || '',
+  //       Notedby: item.Notedby || '',
+  //       fileURL: item.fileURL || '',
+  //       id: item.id, // Set the document ID here
+  //     });
+
+  //     setEditData(item);
+  //     setEditOpen(true);
+  //     handleMenuClose();
+  //   }
+  // };
+  
+
 
   const handleViewClose = () => {
     setViewItem(null);
@@ -1252,7 +1285,6 @@ export default function FormsIRF() {
                         name="Date"
                         variant="outlined"
                         size="small"
-                        label="Date"
                         value={editData ? editData.Date : ''}
                         onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
@@ -1548,7 +1580,8 @@ export default function FormsIRF() {
         </Popover>
 
         {/* Dialog for View button */}
-        <Dialog open={viewOpen} onClose={handleViewClose} maxWidth="xl">
+  {/* Dialog for View button */}
+  <Dialog open={viewOpen} onClose={handleViewClose} maxWidth="xl">
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography
@@ -1567,7 +1600,7 @@ export default function FormsIRF() {
               </Typography>
 
               <DialogContent>
-            <form onSubmit={handleEditSubmit}>
+      
               {/* Fields to edit */}
               <Grid container spacing={1} columns={8}>
                 <Grid item xs={2}>
@@ -1803,9 +1836,8 @@ export default function FormsIRF() {
               </Grid>
 
               <br />
-            </form>
+          
           </DialogContent>
-
               
             </div>
           </div>
