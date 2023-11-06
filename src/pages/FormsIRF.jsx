@@ -62,6 +62,7 @@ import Scrollbar from '../components/scrollbar';
 
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
 // mock
 import USERLIST from '../_mock/user';
 
@@ -780,6 +781,18 @@ export default function FormsIRF() {
     setFormData({ ...formData, otherServices: value });
   };
 
+
+  const [openFilter, setOpenFilter] = useState(false);
+ 
+ const handleOpenFilter = () => {
+      setOpenFilter(true);
+    };
+  
+    const handleCloseFilter = () => {
+      setOpenFilter(false);
+    };
+
+
   return (
     <>
       <Helmet>
@@ -788,7 +801,7 @@ export default function FormsIRF() {
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
+          <Typography variant="h2" style={{ color: '#ff5500' }}>
             Inspection Report Form
           </Typography>
         </Stack>
@@ -841,6 +854,17 @@ export default function FormsIRF() {
               </div>
             )}
 
+<Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
+          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+            <ProductFilterSidebar
+              openFilter={openFilter}
+              onOpenFilter={handleOpenFilter}
+              onCloseFilter={handleCloseFilter}
+            />
+            <ProductSort />
+          </Stack>
+        </Stack>
+
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <Button
                 onClick={handleClickOpen}
@@ -851,6 +875,8 @@ export default function FormsIRF() {
                 New User
               </Button>
             </div>
+
+           
 
             <Dialog
               open={open}

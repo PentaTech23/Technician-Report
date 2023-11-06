@@ -15,7 +15,14 @@ import {
   Checkbox,
   TableRow,
   MenuItem,
+  Select,
   TableBody,
+  Dialog,
+  Grid,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
   TableCell,
   Container,
   Typography,
@@ -141,6 +148,8 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
+  // const [open, setOpen] = useState(false);
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
@@ -149,9 +158,18 @@ export default function UserPage() {
 
   const navigate = useNavigate();
 
-  const handlebtnClick = () => {
-    navigate('/dashboard', { replace: true });
+  // const handlebtnClick = () => {
+  //   navigate('/dashboard', { replace: true });
+  // };
+
+  const handleClose = () => {
+    setOpen(false);
   };
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  
 
   return (
     <>
@@ -161,13 +179,139 @@ export default function UserPage() {
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
-            User
+        <Typography variant="h2"  style={{ color: '#ff5500' }}>
+            Users
           </Typography>
-          <Button onClick={handlebtnClick} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button onClick={handleClickOpen} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button>
         </Stack>
+        
+        <Dialog open={open} onClose={handleClose} maxWidth="md">
+              {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}> */}
+              <Typography
+                variant="h3"
+                sx={{ mb: 5 }}
+                style={{
+                  alignSelf: 'center',
+                  color: '#ff5500',
+                  margin: 'auto',
+                  fontSize: '40px',
+                  fontWeight: 'bold',
+                  marginTop: '10px',
+                }}
+              >
+                Add User Account
+              </Typography>
+              <DialogContent>
+                <form>
+                  <Grid
+                    container
+                    spacing={2}
+                    columns={16}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                      <TextField
+                        type="text"
+                        name="Full Name"
+                        variant="outlined"
+                        label="Full Name"
+                        // value={formData.ControlNum || ''}
+                        fullWidth
+                        // onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <TextField
+                        type="text"
+                        name="username"
+                        label="Username"
+                        fullWidth
+                        // value={formData.Date || ''}
+                        // onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="email"
+                        label="Email Address"
+                        fullWidth
+                        variant="outlined"
+                        
+                        // value={formData.FullName || ''}
+                        // onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="password"
+                        label="Password"
+                        fullWidth
+                        // value={formData.Requisitioner || ''}
+                        // onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="h6" style={{ color: '#ff5500' }}>
+                      Account Type
+                    </Typography>
+                    <Select
+                        type="text"
+                        name="password"
+                        fullWidth
+                        defaultValue={"Select"}
+                        // value={formData.Requisitioner || ''}
+                        // onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      >
+                        <MenuItem value={"Dean"}>Dean</MenuItem>
+                        <MenuItem value={"Technician"}>Technician</MenuItem>
+                        {/* <MenuItem value={30}>Thirty</MenuItem> */}
+                      </Select>
+                    </Grid>
+                    
+
+                    
+                  </Grid>
+
+                  <br />
+                </form>
+              </DialogContent>
+              <DialogActions>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
+                  <Button variant="contained"  sx={{ marginRight: '5px', marginLeft: '5px' }}>
+                    Clear
+                  </Button>
+                  <Button variant="contained" onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    // onClick={handleSubmit}
+                    type="submit"
+                    sx={{ marginRight: '5px', marginLeft: '5px' }}
+                  >
+                    Create
+                  </Button>
+                </div>
+              </DialogActions>
+              {/* </div>
+              </div> */}
+            </Dialog>
 
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
@@ -268,7 +412,7 @@ export default function UserPage() {
         </Card>
       </Container>
 
-      <Popover
+      {/* <Popover
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleCloseMenu}
@@ -295,7 +439,7 @@ export default function UserPage() {
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
-      </Popover>
+      </Popover> */}
     </>
   );
 }
