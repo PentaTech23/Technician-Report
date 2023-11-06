@@ -107,6 +107,7 @@ export default function LoginForm() {
           name="email"
           label="Email address"
           placeholder="Username"
+          size='small'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
@@ -115,6 +116,7 @@ export default function LoginForm() {
           name="password"
           label="Password"
           placeholder="Password"
+          size='small'
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
