@@ -11,6 +11,8 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import { Home } from '../../../sections/auth/login/Home';
+
 
 
 // ----------------------------------------------------------------------
@@ -69,7 +71,7 @@ export default function Header({ onOpenNav }) {
             sm: 1,
           }}
         >
-          {/* <LanguagePopover /> */}
+          <Home />
           <NotificationsPopover />
           <AccountPopover />
         </Stack>

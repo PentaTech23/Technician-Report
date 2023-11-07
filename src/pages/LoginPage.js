@@ -98,6 +98,7 @@ export default function LoginPage() {
         <Container maxWidth="sm"  >
           <ContentContainer> 
           <StyledContent >
+            <Logo />
           <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }} >
               Sign in
             </Typography>

@@ -66,6 +66,7 @@ import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } fro
 // mock
 import USERLIST from '../_mock/user';
 
+
 // ----------------------------------------------------------------------
 
 const firebaseConfig = {
@@ -87,10 +88,10 @@ const db = getFirestore(firebaseApp);
 const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
 
 // Access FORMS document under main collection
-const formsDocRef = doc(mainCollectionRef, 'PROFILING');
+const formsDocRef = doc(mainCollectionRef, 'REPORTS');
 
 // Add to subcollection
-const MemorandumCollectionRef = collection(formsDocRef, 'MEMORANDUM-OF-RECEIPTS');
+const MARILFCollectionRef = collection(formsDocRef, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
@@ -102,81 +103,92 @@ const storage = getStorage(firebaseApp);
 
 // ----------------------------------------------------------------------
 
-//  Clear the whole Form function
-export default function FormsIRF() {
+export default function ReportsMARILF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
-  // -------------------------OFFICE FIELDS ---------------------------------------------
-  const [inputFieldOffice, setInputFieldOffice] = useState([
+  // -------------------------OBSERVATIONS FIELDS ---------------------------------------------
+  const [inputFieldObservations, setInputFieldObservations] = useState([
     {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
+      PCNum: '',
+      Processor: '',
+      UnitSerialNum:'',
+      Monitor: '',
+      HDD: '',
+      Memory: '',
+      VGA: '',
+      Keyboard: '',
+      Mouse: '',
+      Status: '',
+      Remarks: '',
     },
   ]);
 
-  const handleAddFieldOffice = () => {
-    setInputFieldOffice([
-      ...inputFieldOffice, 
+  const handleAddFieldObservations = () => {
+    setInputFieldObservations([
+      ...inputFieldObservations, 
       {
-        Quantity: '',
-        UnitofMeasure:'',
-        Description: '',
-        propertyNumber: '',
-        dateAquired: '',
-        unitCost: '',
-        remarks: '',
+      PCNum: '',
+      Processor: '',
+      UnitSerialNum:'',
+      Monitor: '',
+      HDD: '',
+      Memory: '',
+      VGA: '',
+      Keyboard: '',
+      Mouse: '',
+      Status: '',
+      Remarks: '',
       },
     ]);
   };
 
-  const handleRemoveFieldOffice = (index) => {
-    const values = [...inputFieldOffice];
+  const handleRemoveFieldObservations = (index) => {
+    const values = [...inputFieldObservations];
     values.splice(index, 1);
-    setInputFieldOffice(values);
+    setInputFieldObservations(values);
   };
 
-  const handleChangeInputOffice = (index, event) => {
+  const handleChangeInputObservations = (index, event) => {
     console.log(index, event.target.name);
-    const values = [...inputFieldOffice];
+    const values = [...inputFieldObservations];
     values[index][event.target.name] = event.target.value;
-    setInputFieldOffice(values);
+    setInputFieldObservations(values);
   };
 
-  // -------------------------EDIT OFFICE FIELDS ---------------------------------------------
+  // -------------------------EDIT OBSERVATIONS FIELDS ---------------------------------------------
 
-  const handleEditAddFieldOffice = () => {
+  const handleEditAddFieldObservations = () => {
     const newField = {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
+      PCNum: '',
+      Processor: '',
+      UnitSerialNum:'',
+      Monitor: '',
+      HDD: '',
+      Memory: '',
+      VGA: '',
+      Keyboard: '',
+      Mouse: '',
+      Status: '',
+      Remarks: '',
     };
   
     setEditData((prevEditData) => ({
       ...prevEditData,
-      inputFieldOffice: [...prevEditData.inputFieldOffice, newField],
+      inputFieldObservations: [...prevEditData.inputFieldObservations, newField],
     }));
   
     console.log('After adding field:', editData);
   };
 
-  const handleEditRemoveFieldOffice = async (index) => {
+  const handleEditRemoveFieldObservations = async (index) => {
     try {
-      const docRef = doc(MemorandumCollectionRef, formData.id); // Use the document ID for updating
+      const docRef = doc(MARILFCollectionRef, formData.id); // Use the document ID for updating
   
       // Create a copy of the editData
       const editDataCopy = { ...editData };
   
       // Remove the specific item from the inputField array in Firestore
-      editDataCopy.inputFieldOffice.splice(index, 1);
+      editDataCopy.inputFieldObservations.splice(index, 1);
   
       // Update Firestore document with the modified inputField
       await updateDoc(docRef, editDataCopy); // Update the document in Firestore
@@ -184,106 +196,106 @@ export default function FormsIRF() {
       // Update the local state (formData) with the modified inputField
       setFormData((prevData) => ({
         ...prevData,
-        inputFieldOffice: editDataCopy.inputFieldOffice,
+        inputFieldObservations: editDataCopy.inputFieldObservations,
       }));
     } catch (error) {
       console.error('Error updating data in Firestore: ', error);
     }
   };
 
-  const handleRemoveAllFieldOffice = () => {
-    const values = [...inputFieldOffice];
+  const handleRemoveAllFieldObservations = () => {
+    const values = [...inputFieldObservations];
         // Remove all fields by splicing from the end of the array to the beginning
     for (let i = values.length - 1; i >= 0; i-=1) {
       values.splice(i, 1);
     }
     // Update the inputField state with the modified array
-    setInputFieldOffice(values);
+    setInputFieldObservations(values);
   };
 
-  const handleEditChangeInputOffice = (index, event, fieldName) => {
+  const handleEditChangeInputObservations = (index, event, fieldName) => {
     setEditData((prevData) => {
-      const newInputFieldOffice = [...prevData.inputFieldOffice];
-      newInputFieldOffice[index][fieldName] = event.target.value;
+      const newInputFieldObservations = [...prevData.inputFieldObservations];
+      newInputFieldObservations[index][fieldName] = event.target.value;
       return {
         ...prevData,
-        inputFieldOffice: newInputFieldOffice,
+        inputFieldObservations: newInputFieldObservations,
       };
     });
   };
 
 
-    // -------------------------CICT FIELDS ---------------------------------------------
-  const [inputFieldCict, setInputFieldCict] = useState([
+    // -------------------------Observations 1 FIELDS ---------------------------------------------
+  const [inputFieldObservations1, setInputFieldObservations1] = useState([
     {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
+      RoomEquipment: '',
+      BrandDescription: '',
+      Quantity:'',
+      SerialNum: '',
+      ModelNum: '',
+      Custodian: '',
+      Remarks: '',
     },
   ]);
 
-  const handleAddFieldCict = () => {
-    setInputFieldCict([
-      ...inputFieldCict, 
+  const handleAddFieldObservations1 = () => {
+    setInputFieldObservations1([
+      ...inputFieldObservations1, 
       {
-        Quantity: '',
-        UnitofMeasure:'',
-        Description: '',
-        propertyNumber: '',
-        dateAquired: '',
-        unitCost: '',
-        remarks: '',
+        RoomEquipment: '',
+        BrandDescription: '',
+        Quantity:'',
+        SerialNum: '',
+        ModelNum: '',
+        Custodian: '',
+        Remarks: '',
       },
     ]);
   };
 
-  const handleRemoveFieldCict = (index) => {
-    const values = [...inputFieldCict];
+  const handleRemoveFieldObservations1 = (index) => {
+    const values = [...inputFieldObservations1];
     values.splice(index, 1);
-    setInputFieldCict(values);
+    setInputFieldObservations1(values);
   };
 
-  const handleChangeInputCict = (index, event) => {
+  const handleChangeInputObservations1 = (index, event) => {
     console.log(index, event.target.name);
-    const values = [...inputFieldCict];
+    const values = [...inputFieldObservations1];
     values[index][event.target.name] = event.target.value;
-    setInputFieldCict(values);
+    setInputFieldObservations1(values);
   };
 
-   // -------------------------EDIT CICT FIELDS ---------------------------------------------
+   // -------------------------EDIT Observations1 FIELDS ---------------------------------------------
 
-   const handleEditAddFieldCict = () => {
+   const handleEditAddFieldObservations1 = () => {
     const newField = {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
+      RoomEquipment: '',
+      BrandDescription: '',
+      Quantity:'',
+      SerialNum: '',
+      ModelNum: '',
+      Custodian: '',
+      Remarks: '',
     };
   
     setEditData((prevEditData) => ({
       ...prevEditData,
-      inputFieldCict: [...prevEditData.inputFieldCict, newField],
+      inputFieldObservations1: [...prevEditData.inputFieldObservations1, newField],
     }));
   
     console.log('After adding field:', editData);
   };
 
-  const handleEditRemoveFieldCict = async (index) => {
+  const handleEditRemoveFieldObservations1 = async (index) => {
     try {
-      const docRef = doc(MemorandumCollectionRef, formData.id); // Use the document ID for updating
+      const docRef = doc(MARILFCollectionRef, formData.id); // Use the document ID for updating
   
       // Create a copy of the editData
       const editDataCopy = { ...editData };
   
       // Remove the specific item from the inputField array in Firestore
-      editDataCopy.inputFieldCict.splice(index, 1);
+      editDataCopy.inputFieldObservations1.splice(index, 1);
   
       // Update Firestore document with the modified inputField
       await updateDoc(docRef, editDataCopy); // Update the document in Firestore
@@ -291,142 +303,34 @@ export default function FormsIRF() {
       // Update the local state (formData) with the modified inputField
       setFormData((prevData) => ({
         ...prevData,
-        inputFieldCict: editDataCopy.inputFieldCict,
+        inputFieldObservations1: editDataCopy.inputFieldObservations1,
       }));
     } catch (error) {
       console.error('Error updating data in Firestore: ', error);
     }
   };
 
-  const handleRemoveAllFieldCict = () => {
-    const values = [...inputFieldCict];
+  const handleRemoveAllFieldObservations1 = () => {
+    const values = [...inputFieldObservations1];
         // Remove all fields by splicing from the end of the array to the beginning
     for (let i = values.length - 1; i >= 0; i-=1) {
       values.splice(i, 1);
     }
     // Update the inputField state with the modified array
-    setInputFieldCict(values);
+    setInputFieldObservations1(values);
   };
 
   
-  const handleEditChangeInputCict = (index, event, fieldName) => {
+  const handleEditChangeInputObservations1 = (index, event, fieldName) => {
     setEditData((prevData) => {
-      const newInputFieldCict = [...prevData.inputFieldCict];
-      newInputFieldCict[index][fieldName] = event.target.value;
+      const newInputFieldObservations1 = [...prevData.inputFieldObservations1];
+      newInputFieldObservations1[index][fieldName] = event.target.value;
       return {
         ...prevData,
-        inputFieldCict: newInputFieldCict,
+        inputFieldObservations1: newInputFieldObservations1,
       };
     });
   };
-
-
-    // -------------------------OTHER FIELDS ---------------------------------------------
-  const [inputFieldOther, setInputFieldOther] = useState([
-    {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
-    },
-  ]);
-  
-  const handleAddFieldOther = () => {
-    setInputFieldOther([
-      ...inputFieldOther, 
-      {
-        Quantity: '',
-        UnitofMeasure:'',
-        Description: '',
-        propertyNumber: '',
-        dateAquired: '',
-        unitCost: '',
-        remarks: '',
-      },
-    ]);
-  };
-
-  const handleRemoveFieldOther = (index) => {
-    const values = [...inputFieldOther];
-    values.splice(index, 1);
-    setInputFieldOther(values);
-  };
-
-  const handleChangeInputOther = (index, event) => {
-    console.log(index, event.target.name);
-    const values = [...inputFieldOther];
-    values[index][event.target.name] = event.target.value;
-    setInputFieldOther(values);
-  };
-
-   // -------------------------EDIT OTHER FIELDS ---------------------------------------------
-
-   const handleEditAddFieldOther= () => {
-    const newField = {
-      Quantity: '',
-      UnitofMeasure:'',
-      Description: '',
-      propertyNumber: '',
-      dateAquired: '',
-      unitCost: '',
-      remarks: '',
-    };
-  
-    setEditData((prevEditData) => ({
-      ...prevEditData,
-      inputFieldOther: [...prevEditData.inputFieldOther, newField],
-    }));
-  
-    console.log('After adding field:', editData);
-  };
-
-  const handleEditRemoveFieldOther = async (index) => {
-    try {
-      const docRef = doc(MemorandumCollectionRef, formData.id); // Use the document ID for updating
-  
-      // Create a copy of the editData
-      const editDataCopy = { ...editData };
-  
-      // Remove the specific item from the inputField array in Firestore
-      editDataCopy.inputFieldOther.splice(index, 1);
-  
-      // Update Firestore document with the modified inputField
-      await updateDoc(docRef, editDataCopy); // Update the document in Firestore
-  
-      // Update the local state (formData) with the modified inputField
-      setFormData((prevData) => ({
-        ...prevData,
-        inputFieldOther: editDataCopy.inputFieldOther,
-      }));
-    } catch (error) {
-      console.error('Error updating data in Firestore: ', error);
-    }
-  };
-
-  const handleRemoveAllFieldOther = () => {
-    const values = [...inputFieldOther];
-        // Remove all fields by splicing from the end of the array to the beginning
-    for (let i = values.length - 1; i >= 0; i-=1) {
-      values.splice(i, 1);
-    }
-    // Update the inputField state with the modified array
-    setInputFieldOther(values);
-  };
-
-  const handleEditChangeInputOther = (index, event, fieldName) => {
-    setEditData((prevData) => {
-      const newInputFieldOther= [...prevData.inputFieldOther];
-      newInputFieldOther[index][fieldName] = event.target.value;
-      return {
-        ...prevData,
-        inputFieldOther: newInputFieldOther,
-      };
-    });
-  };
-
 
   // ----------------------------------------------------------------------
 
@@ -439,21 +343,16 @@ export default function FormsIRF() {
   };
 
   const initialFormData = {
-    EntityName: '',
-    SAIPARNum: '',
-    CollegeCampusOffice: '',
+    ComputerRoom: '',
+    Date: '',
 
-    inputFieldOffice: [],
-    inputFieldCict: [],
-    inputFieldOther: [],
+    inputFieldObservations: [],
+    inputFieldObservations1: [],
 
-    AcknowledgedBy: '',
-    PositionAcknowledgedBy: '',
-    DateAcknowledgedBy:'',
-
-    InspectedBy: '',
-    PositionInspectedBy: '',
-    DateInspectedBy: '',
+    PreparedBy: '',
+    ApprovedBy: '',
+    CheckedBy:'',
+    Custodian:'',
 
     fileInput: '',
     fileURL: '',
@@ -461,28 +360,23 @@ export default function FormsIRF() {
 
 
   const clearForm = () => {
-    handleRemoveAllFieldOffice();
-    handleRemoveAllFieldCict();
-    handleRemoveAllFieldOther();
+    handleRemoveAllFieldObservations();
+    handleRemoveAllFieldObservations1();
     setFormData(initialFormData);
   };
 
   const [formData, setFormData] = useState({
-    EntityName: '',
-    SAIPARNum: '',
-    CollegeCampusOffice: '',
-    
-    inputFieldOffice: [],
-    inputFieldCict: [],
-    inputFieldOther: [],
+    ComputerRoom: '',
+    Date: '',
 
-    AcknowledgedBy: '',
-    PositionAcknowledgedBy: '',
-    DateAcknowledgedBy:'',
+    inputFieldObservations: [],
+    inputFieldObservations1: [],
 
-    InspectedBy: '',
-    PositionInspectedBy: '',
-    DateInspectedBy: '',
+    PreparedBy: '',
+    ApprovedBy: '',
+    CheckedBy:'',
+    Custodian:'',
+
     fileURL: '',
   });
 
@@ -493,7 +387,7 @@ export default function FormsIRF() {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(MemorandumCollectionRef);
+      const querySnapshot = await getDocs(MARILFCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -523,7 +417,7 @@ export default function FormsIRF() {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, '0')}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(MemorandumCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(MARILFCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -539,50 +433,41 @@ export default function FormsIRF() {
     e.preventDefault();
 
     const {
-      EntityName,
-      SAIPARNum,
-      CollegeCampusOffice,
-      
-      // inputFieldOffice= [],
-      // inputFieldCict= [],
-      // inputFieldOther= [],
-  
-      AcknowledgedBy,
-      PositionAcknowledgedBy,
-      DateAcknowledgedBy,
-  
-      InspectedBy,
-      PositionInspectedBy,
-      DateInspectedBy,
-      fileURL,
+    ComputerRoom,
+    Date,
+
+    // inputFieldObservations,
+    // inputFieldObservations1,
+
+    PreparedBy,
+    ApprovedBy,
+    CheckedBy,
+    Custodian,
+
+    fileURL,
       } = formData;
   
     try {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
 
-      const docRef = doc(MemorandumCollectionRef, documentName);
+      const docRef = doc(MARILFCollectionRef, documentName);
 
       const docData = {
-        EntityName,
-        SAIPARNum,
-        CollegeCampusOffice,
-        
-        inputFieldOffice,
-        inputFieldCict,
-        inputFieldOther,
+        ComputerRoom,
+        Date,
     
-        AcknowledgedBy,
-        PositionAcknowledgedBy,
-        DateAcknowledgedBy,
+        inputFieldObservations,
+        inputFieldObservations1,
     
-        InspectedBy,
-        PositionInspectedBy,
-        DateInspectedBy,
+        PreparedBy,
+        ApprovedBy,
+        CheckedBy,
+        Custodian,
 
         fileURL: fileURL || '',
         archived: false, 
-        originalLocation: 'MEMORANDUM-OF-RECEIPTS', 
+        originalLocation: 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM', 
       };
 
       await setDoc(docRef, docData);
@@ -610,7 +495,7 @@ export default function FormsIRF() {
   };
 
   const filteredData = fetchedData.filter((item) => {
-    const fieldsToSearchIn = ['SAIPARNum', 'EntityName', 'CollegeCampusOffice', 'AcknowledgedBy', 'InspectedBy'];
+    const fieldsToSearchIn = ['ComputerRoom', 'Date', 'Custodian'];
 
     const servicesMatch = (item, searchQuery) => {
       return (
@@ -640,21 +525,16 @@ export default function FormsIRF() {
       // Populate the form fields with existing data
       setFormData({
         ...formData,
-        EntityName: data.EntityName ||'',
-        SAIPARNum: data.SAIPARNum ||'',
-        CollegeCampusOffice: data.CollegeCampusOffice ||'',
-        
-        inputFieldOffice: data.inputFieldOffice ||'',
-        inputFieldCict: data.inputFieldCict ||'',
-        inputFieldOther: data.inputFieldOther ||'',
+        ComputerRoom: data.ComputerRoom || '',
+        Date: data.Date || '',
     
-        AcknowledgedBy: data.AcknowledgedBy ||'',
-        PositionAcknowledgedBy: data.PositionAcknowledgedBy ||'',
-        DateAcknowledgedBy: data.DateAcknowledgedBy ||'',
+        inputFieldObservations: data.inputFieldObservations || '',
+        inputFieldObservations1: data.inputFieldObservations1 || '',
     
-        InspectedBy: data.InspectedBy ||'',
-        PositionInspectedBy: data.PositionInspectedBy ||'',
-        DateInspectedBy: data.DateInspectedBy ||'',
+        PreparedBy: data.PreparedBy || '',
+        ApprovedBy: data.ApprovedBy || '',
+        CheckedBy: data.CheckedBy || '',
+        Custodian: data.Custodian || '',
 
         fileURL: data.fileURL || '',
         id: data.id,
@@ -672,7 +552,7 @@ export default function FormsIRF() {
 
   const handleEditSubmit = async () => {
     try {
-      const docRef = doc(MemorandumCollectionRef, formData.id); // Use the document ID for updating
+      const docRef = doc(MARILFCollectionRef, formData.id); // Use the document ID for updating
 
       // Update the editData object with the new file URL
       editData.fileURL = formData.fileURL;
@@ -690,34 +570,16 @@ export default function FormsIRF() {
     }
   };
 
-  // This one is still for Edit button but for the file upload part
-
-  const handleFileEditUpload = async (file) => {
-    const docRef = doc(MemorandumCollectionRef, formData.id); // Use the document ID for updating
-    try {
-      if (file) {
-        const storageRef = ref(storage, `documents/${file.name}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        // Update the Firestore document here using 'updateDoc' or another method
-        await updateDoc(docRef, { fileURL: downloadURL });
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-
   // This one is for the Delete button
   const [documentToDelete, setDocumentToDelete] = useState(null);
 
   const handleConfirmDeleteWithoutArchive = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(MemorandumCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(MARILFCollectionRef, documentToDelete);
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
-        await deleteDoc(doc(MemorandumCollectionRef, documentToDelete));
+        await deleteDoc(doc(MARILFCollectionRef, documentToDelete));
 
         // Update the UI by removing the deleted row
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -751,7 +613,7 @@ export default function FormsIRF() {
   const handleConfirmDelete = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(MemorandumCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(MARILFCollectionRef, documentToDelete);
         // Set the 'originalLocation' field to the current collection and update the Archive as true
         await updateDoc(sourceDocumentRef, { archived: true, originalLocation: 'MEMORANDUM-OF-RECEIPTS' });
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
@@ -779,7 +641,7 @@ export default function FormsIRF() {
         await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
         // Delete the original document from the Service Request collection
-        await deleteDoc(doc(MemorandumCollectionRef, documentToDelete));
+        await deleteDoc(doc(MARILFCollectionRef, documentToDelete));
 
         // Update the UI by removing the archived document
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -920,7 +782,7 @@ export default function FormsIRF() {
     try {
       // Create an array of promises to delete each selected item
       const deletePromises = selectedItems.map(async (itemId) => {
-        return deleteDoc(doc(MemorandumCollectionRef, itemId));
+        return deleteDoc(doc(MARILFCollectionRef, itemId));
       });
 
       // Use Promise.all to await all the delete operations
@@ -973,28 +835,28 @@ export default function FormsIRF() {
   const handleClose = () => {
     setOpen(false);
   };
- 
+
+
   const [openFilter, setOpenFilter] = useState(false);
  
-  const handleOpenFilter = () => {
-       setOpenFilter(true);
-     };
-   
-     const handleCloseFilter = () => {
-       setOpenFilter(false);
-     };
+ const handleOpenFilter = () => {
+      setOpenFilter(true);
+    };
+  
+    const handleCloseFilter = () => {
+      setOpenFilter(false);
+    };
  
-
   return (
     <>
       <Helmet>
-        <title> Memorandum of Receipts </title>
+        <title> Monthly Assessment Report Inventory Laboratory Form </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h2"  style={{ color: '#ff5500' }}>
-            Memorandum of Receipts
+          <Typography variant="h2" style={{ color: '#ff5500' }}>
+            Monthly Assessment Report <br/>Inventory Laboratory Form
           </Typography>
         </Stack>
 
@@ -1057,6 +919,8 @@ export default function FormsIRF() {
           </Stack>
         </Stack>
 
+
+
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
                 New User
@@ -1078,131 +942,87 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                MEMORANDUM OF RECEIPTS
+                Monthly Assessment Report <br/>Inventory Laboratory Form
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
-                <Typography variant="subtitle1">Name:</Typography>
+              
                 <br/>
                   <Grid container spacing={1}>
                     <Grid item xs={6} md={4}>
                       <TextField
                         type="text"
-                        name="EntityName"
+                        name="ComputerRoom"
                         variant="outlined"
-                        label="Entity Name"
+                        label="Computer Room"
                         size="small"
-                        value={formData.EntityName || ''}
-                        onChange={(e) => setFormData({ ...formData, EntityName: e.target.value })}
+                        value={formData.ComputerRoom || ''}
+                        onChange={(e) => setFormData({ ...formData, ComputerRoom: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                       </Grid>
                       <Grid item xs={6} md={4}>
                        <TextField
-                      type="text"
-                      name="CollegeCampusOffice"
+                      type="date"
+                      name="Date"
                       variant="outlined"
-                      label="College/Campus/Office"
                       size="small"
-                      value={formData.CollegeCampusOffice || ''}
-                      onChange={(e) => setFormData({ ...formData, CollegeCampusOffice: e.target.value })}
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
                       sx={{ width: '100%', marginBottom: '10px' }}
                     /> 
-                   
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        name="SAIPARNum"
-                        variant="outlined"
-                        label="SAIPAR Number"
-                        size="small"
-                        value={formData.SAIPARNum || ''}
-                        onChange={(e) => setFormData({ ...formData, SAIPARNum: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                  </Grid>
+                   </Grid>
+                   <Grid item xs={6} md={4}>
+                       <TextField
+                      type="text"
+                      name="PreparedBy"
+                      variant="outlined"
+                      label="Prepared By"
+                      size="small"
+                      value={formData.PreparedBy || ''}
+                      onChange={(e) => setFormData({ ...formData, PreparedBy: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> 
+                   </Grid>
 
-                  <Typography variant="subtitle1">Acknowledged By:</Typography>
-                <br/>
-                  <Grid container spacing={1}>
+                   <Grid item xs={6} md={4}>
+                       <TextField
+                      type="text"
+                      name="ApprovedBy"
+                      variant="outlined"
+                      label="Approved By"
+                      size="small"
+                      value={formData.ApprovedBy || ''}
+                      onChange={(e) => setFormData({ ...formData, ApprovedBy: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> 
+                   </Grid>
 
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="AcknowledgedBy"
-                        variant="outlined"
-                        label="Acknowledged By"
-                        size="small"
-                        value={formData.AcknowledgedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, AcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      {/* <Item>xs=6 md=4</Item> */}
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="PositionAcknowledgedBy"
-                        variant="outlined"
-                        size="small"
-                        label="Position/College/Campus/Office"
-                        value={formData.PositionAcknowledgedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, PositionAcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="DateAcknowledgedBy"
-                        variant="outlined"
-                        size="small"
-                        value={formData.DateAcknowledgedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, DateAcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                  </Grid>
-                    <Typography variant="subtitle1">Inspected By:</Typography>
-                <br/>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="InspectedBy"
-                        variant="outlined"
-                        label="Inspected By"
-                        size="small"
-                        value={formData.InspectedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, InspectedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      {/* <Item>xs=6 md=4</Item> */}
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="PositionInspectedBy"
-                        variant="outlined"
-                        size="small"
-                        label="Position/College/Campus/Office"
-                        value={formData.PositionInspectedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, PositionInspectedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="DateInspectedBy"
-                        variant="outlined"
-                        size="small"
-                        value={formData.DateInspectedBy || ''}
-                        onChange={(e) => setFormData({ ...formData, DateInspectedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
+                   <Grid item xs={6} md={4}>
+                       <TextField
+                      type="text"
+                      name="CheckedBy"
+                      variant="outlined"
+                      label="Checked By"
+                      size="small"
+                      value={formData.CheckedBy || ''}
+                      onChange={(e) => setFormData({ ...formData, CheckedBy: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> 
+                   </Grid>
+
+                   <Grid item xs={6} md={4}>
+                       <TextField
+                      type="text"
+                      name="Custodian"
+                      variant="outlined"
+                      label="Custodian/Co-Custodian"
+                      size="small"
+                      value={formData.Custodian || ''}
+                      onChange={(e) => setFormData({ ...formData, Custodian: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> 
+                   </Grid>
 
                   </Grid>
 
@@ -1222,13 +1042,13 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        Office Equipment
+                        PC OBSERVATIONS
                       </Typography>
                     </Grid>
                     <Grid>
                       <Button
                         onClick={() => {
-                          handleAddFieldOffice();
+                          handleAddFieldObservations();
                         }}
                         variant="contained"
                       >
@@ -1237,110 +1057,154 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
                   <div>
-                    {inputFieldOffice.map((inputFieldOffice, index) => (
+                    {inputFieldObservations.map((inputFieldObservations, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={11} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+                          <Grid item xs={1}>
                             <TextField
                               type="text"
-                              name="Quantity"
-                              label="Quantity"
+                              name="PCNum"
+                              label="PC No."
                               // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
-                              value={inputFieldOffice.Quantity}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
+                              value={inputFieldObservations.PCNum}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
+                              type="text"
+                              name="Processor"
+                              label="Processor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
-                              value={inputFieldOffice.unitOfMeasure}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
+                              value={inputFieldObservations.Processor}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
                             />
-                            {/* Content for the second column */}
                           </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={inputFieldOffice.Description}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
+                              type="text"
+                              name="UnitSerialNum"
+                              label="UnitSerialNum"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
-                              value={inputFieldOffice.propertyNumber}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={inputFieldOffice.dateAquired}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
+                              value={inputFieldObservations.UnitSerialNum}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
                             />
                           </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitCost"
-                              label="Unit Cost"
+                              type="text"
+                              name="Monitor"
+                              label="Monitor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
-                              value={inputFieldOffice.unitCost}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
+                              value={inputFieldObservations.Monitor}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="HDD"
+                              label="HDD"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.HDD}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Memory"
+                              label="Memory"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.Memory}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="VGA"
+                              label="VGA"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.VGA}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Keyboard"
+                              label="Keyboard"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.Keyboard}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Mouse"
+                              label="Mouse"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.Mouse}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Status"
+                              label="Status"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations.Status}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
-                              value={inputFieldOffice.remarks}
-                              onChange={(event) => handleChangeInputOffice(index, event)}
+                              size="small"
+                              value={inputFieldObservations.Remarks}
+                              onChange={(event) => handleChangeInputObservations(index, event)}
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
+
 
                           {/* Eighth Column */}
                           <Grid item xs={1}>
@@ -1353,7 +1217,7 @@ export default function FormsIRF() {
                             </Button> */}
                             <Button
                               onClick={() => {
-                                handleRemoveFieldOffice(index);
+                                handleRemoveFieldObservations(index);
                               }}
                               // variant="warning"
 
@@ -1385,13 +1249,13 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        CICT Equipment
+                        Equipments Observation
                       </Typography>
                     </Grid>
                     <Grid>
                       <Button
                         onClick={() => {
-                          handleAddFieldCict();
+                          handleAddFieldObservations1();
                         }}
                         variant="contained"
                       >
@@ -1400,11 +1264,38 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
                   <div>
-                    {inputFieldCict.map((inputFieldCict, index) => (
+                    {inputFieldObservations1.map((inputFieldObservations1, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="RoomEquipment"
+                              label="Room Equipment"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations1.RoomEquipment}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
+                            />
+                          </Grid>
+
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="BrandDescription"
+                              label="Brand/Description"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations1.BrandDescription}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
                             <TextField
                               type="text"
                               name="Quantity"
@@ -1413,110 +1304,64 @@ export default function FormsIRF() {
                               variant="outlined"
                               fullWidth
                               size="small"
-                              value={inputFieldCict.Quantity}
-                              onChange={(event) => handleChangeInputCict(index, event)}
+                              value={inputFieldObservations1.Quantity}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={2}>
                             <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
+                              type="text"
+                              name="SerialNum"
+                              label="Serial Number"
                               // sx={{ width: '100px' }}
-                              fullWidth
-                              size="small"
-                              value={inputFieldCict.unitOfMeasure}
-                              onChange={(event) => handleChangeInputCict(index, event)}
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              // sx={{ width: '265px' }}
-                              fullWidth
                               variant="outlined"
+                              fullWidth
                               size="small"
-                              value={inputFieldCict.Description}
-                              onChange={(event) => handleChangeInputCict(index, event)}
+                              value={inputFieldObservations1.SerialNum}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
                             />
-                            {/* Content for the third column */}
                           </Grid>
-
-                          {/* Fourth Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="propertyNumber"
-                              label="Property Number"
-                              variant="outlined"
-                              fullWidth
-                              // sx={{ width: '183px' }}
-                              size="small"
-                              value={inputFieldCict.propertyNumber}
-                              onChange={(event) => handleChangeInputCict(index, event)}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputFieldCict.dateAquired}
-                              onChange={(event) => handleChangeInputCict(index, event)}
-                            />
-                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker label="Basic date picker"
-                                style={{ width: '200px', height: '40px' }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider> */}
-                            {/* Content for the fifth column */}
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              label="Unit Cost"
-                              fullWidth
-                              variant="outlined"
+                              type="text"
+                              name="ModelNum"
+                              label="Model Number"
                               // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
                               size="small"
-                              value={inputFieldCict.unitCost}
-                              onChange={(event) => handleChangeInputCict(index, event)}
+                              value={inputFieldObservations1.ModelNum}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
 
-                          {/* Seventh Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="Custodian"
+                              label="Custodian"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={inputFieldObservations1.Custodian}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
+                            />
+                          </Grid>
+
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
-                              value={inputFieldCict.remarks}
-                              onChange={(event) => handleChangeInputCict(index, event)}
+                              size="small"
+                              value={inputFieldObservations1.Remarks}
+                              onChange={(event) => handleChangeInputObservations1(index, event)}
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
-
                           {/* Eighth Column */}
                           <Grid item xs={1}>
                             {/* <Button
@@ -1528,7 +1373,7 @@ export default function FormsIRF() {
                             </Button> */}
                             <Button
                               onClick={() => {
-                                handleRemoveFieldCict(index);
+                                handleRemoveFieldObservations1(index);
                               }}
                             >
                               Remove
@@ -1545,180 +1390,6 @@ export default function FormsIRF() {
                       </div>
                     ))}
                   </div>
-
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Other Equipment
-                      </Typography>
-                    </Grid>
-                    <Grid>
-                      <Button
-                        onClick={() => {
-                          handleAddFieldOther();
-                        }}
-                        variant="contained"
-                      >
-                        Add
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  <div>
-                    {inputFieldOther.map((inputFieldOther, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
-                          <Grid item xs={1.2}>
-                            <TextField
-                              type="text"
-                              name="Quantity"
-                              label="Quantity"
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={inputFieldOther.Quantity}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                          </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
-                            <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputFieldOther.unitOfMeasure}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={inputFieldOther.Description}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputFieldOther.propertyNumber}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={inputFieldOther.dateAquired}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker label="Basic date picker"
-                                style={{ width: '200px', height: '40px' }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider> */}
-                            {/* Content for the fifth column */}
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              label="Unit Cost"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={inputFieldOther.unitCost}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-
-                            {/* Content for the sixth column */}
-                          </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="remarks"
-                              label="Remarks"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              multiline
-                              value={inputFieldOther.remarks}
-                              onChange={(event) => handleChangeInputOther(index, event)}
-                            />
-                            {/* Content for the seventh column */}
-                          </Grid>
-
-                          {/* Eighth Column */}
-                          <Grid item xs={1}>
-                            {/* <Button
-                              onClick={() => {
-                                handleAddField();
-                              }}
-                            >
-                              Add
-                            </Button> */}
-                            <Button
-                              onClick={() => {
-                                handleRemoveFieldOther(index);
-                              }}
-                            >
-                              Remove
-                            </Button>
-                            {/* Content for the eighth column */}
-                          </Grid>
-                          <br />
-                          <div>
-                            <br />
-                            <br />
-                          </div>
-                        
-                        </Grid>
-                        <br/>
-                      </div>
-                     
-                    ))}
-                  </div>
-
                   <div>
                     <br />
                     <br />
@@ -1764,7 +1435,7 @@ export default function FormsIRF() {
               open={snackbarOpen}
               autoHideDuration={6000}
               onClose={() => setSnackbarOpen(false)}
-              message="The Service Request Document was created successfully!"
+              message="The Document was created successfully!"
             />
           </div>
         </Stack>
@@ -1781,11 +1452,9 @@ export default function FormsIRF() {
                   <TableCell>
                     <Checkbox checked={selectAll} onChange={handleSelectAll} color="primary" />
                   </TableCell>
-                  <TableCell>SAIPAR No.</TableCell>
-                  <TableCell>College/Campus/Office</TableCell>
-                  <TableCell>Entity Name</TableCell>
-                  <TableCell>Acknowledged By</TableCell>
-                  <TableCell>Inspected By</TableCell>
+                  <TableCell>Computer Room</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Custodian</TableCell>
                   <TableCell>File</TableCell>
                   <TableCell>Menu</TableCell>
                 </TableRow>
@@ -1797,11 +1466,9 @@ export default function FormsIRF() {
                     <TableCell>
                       <Checkbox checked={selectedItems.includes(item.id)} onChange={() => handleSelection(item.id)} />
                     </TableCell>
-                    <TableCell>{item.SAIPARNum}</TableCell>
-                    <TableCell>{item.CollegeCampusOffice}</TableCell>
-                    <TableCell>{item.EntityName}</TableCell>
-                    <TableCell>{item.AcknowledgedBy}</TableCell>
-                    <TableCell>{item.InspectedBy}</TableCell>
+                    <TableCell>{item.ComputerRoom}</TableCell>
+                    <TableCell>{item.Date}</TableCell>
+                    <TableCell>{item.Custodian}</TableCell>
                     <TableCell>
                       {item.fileURL ? (
                         // Render a clickable link to download the file
@@ -1863,132 +1530,85 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                MEMORANDUM OF RECEIPTS
+                Monthly Assessment Report <br/> Inventory Laboratory Form
               </Typography>
               <DialogContent>
                 <form onSubmit={handleEditSubmit}>
-                <Typography variant="subtitle1">Name:</Typography>
+                
                 <br/>
                   <Grid container spacing={1} columns={12}>
                     <Grid item xs={4}>
                       <TextField
                         type="text"
-                        name="EntityName"
+                        name="ComputerRoom"
                         variant="outlined"
-                        label="Entity Name"
+                        label="Computer Room"
                         size="small"
-                        value={editData ? editData.EntityName : ''}
-                        onChange={(e) => setEditData({ ...editData, EntityName: e.target.value })}
+                        value={editData ? editData.ComputerRoom : ''}
+                        onChange={(e) => setEditData({ ...editData, ComputerRoom: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                       </Grid>
                       <Grid item xs={4} >
                        <TextField
-                      type="text"
-                      name="CollegeCampusOffice"
+                      type="date"
+                      name="Date"
                       variant="outlined"
-                      label="College/Campus/Office"
                       size="small"
-                      value={editData ? editData.CollegeCampusOffice : ''}
-                      onChange={(e) => setEditData({ ...editData, CollegeCampusOffice: e.target.value })}
+                      value={editData ? editData.Date : ''}
+                      onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
                       sx={{ width: '100%', marginBottom: '10px' }}
                     /> 
                     </Grid>
                     <Grid item xs={4}>
                       <TextField
-                        name="SAIPARNum"
+                        name="PreparedBy"
                         variant="outlined"
-                        label="SAIPAR Number"
+                        label="Prepared By"
                         size="small"
-                        value={editData ? editData.SAIPARNum : ''}
-                        onChange={(e) => setEditData({ ...editData, SAIPARNum: e.target.value })}
+                        value={editData ? editData.PreparedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, PreparedBy: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                  </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        name="ApprovedBy"
+                        variant="outlined"
+                        label="Approved By"
+                        size="small"
+                        value={editData ? editData.ApprovedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, ApprovedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        name="CheckedBy"
+                        variant="outlined"
+                        label="Checked By"
+                        size="small"
+                        value={editData ? editData.CheckedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, CheckedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
 
-
-                  <Typography variant="subtitle1">Acknowledged By:</Typography>
-                  <br/>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={4}>
                       <TextField
-                        type="text"
-                        name="AcknowledgedBy"
+                        name="Custodian"
                         variant="outlined"
-                        label="Acknowledged By"
+                        label="Custodian/Co-Custodian"
                         size="small"
-                        value={editData ? editData.AcknowledgedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, AcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      {/* <Item>xs=6 md=4</Item> */}
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="PositionAcknowledgedBy"
-                        variant="outlined"
-                        size="small"
-                        label="Position/College/Campus/Office"
-                        value={editData ? editData.PositionAcknowledgedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, PositionAcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="DateAcknowledgedBy"
-                        variant="outlined"
-                        size="small"
-                        value={editData ? editData.DateAcknowledgedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, DateAcknowledgedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                  </Grid>
-                    <Typography variant="subtitle1">Inspected By:</Typography>
-                    <br/>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="InspectedBy"
-                        variant="outlined"
-                        label="Inspected By"
-                        size="small"
-                        value={editData ? editData.InspectedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, InspectedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      {/* <Item>xs=6 md=4</Item> */}
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="text"
-                        name="PositionInspectedBy"
-                        variant="outlined"
-                        size="small"
-                        label="Position/College/Campus/Office"
-                        value={editData ? editData.PositionInspectedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, PositionInspectedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="DateInspectedBy"
-                        variant="outlined"
-                        size="small"
-                        value={editData ? editData.DateInspectedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, DateInspectedBy: e.target.value })}
+                        value={editData ? editData.Custodian : ''}
+                        onChange={(e) => setEditData({ ...editData, Custodian: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
 
                   </Grid>
+
+
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
                   <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
@@ -2006,13 +1626,13 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        Office Equipment
+                        PC OBSERVATIONS
                       </Typography>
                     </Grid>
                     <Grid>
                       <Button
                         onClick={() => {
-                          handleEditAddFieldOffice();
+                          handleEditAddFieldObservations();
                         }}
                         variant="contained"
                       >
@@ -2021,131 +1641,187 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
                   <div>
-                  {editData && editData.inputFieldOffice.map((input, index) => (
+                  {editData && editData.inputFieldObservations.map((input, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+                          <Grid item xs={1}>
                             <TextField
                               type="text"
-                              name="Quantity"
-                              label="Quantity"
+                              name="PCNum"
+                              label="PC No."
                               // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldOffice[index]?.Quantity
-                              : input?.Quantity}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'Quantity')}
+                              ? editData.inputFieldObservations[index]?.PCNum
+                              : input?.PCNum}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'PCNum')}
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
+                              type="text"
+                              name="Processor"
+                              label="Processor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldOffice[index]?.unitOfMeasure
-                              : input?.unitOfMeasure}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'unitOfMeasure')}
+                              ? editData.inputFieldObservations[index]?.Processor
+                              : input?.Processor}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Processor')}
                             />
-                            {/* Content for the second column */}
                           </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOffice[index]?.Description
-                              : input?.Description}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'Description')}
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
+                              type="text"
+                              name="UnitSerialNum"
+                              label="UnitSerialNum"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldOffice[index]?.propertyNumber
-                              : input?.propertyNumber}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'propertyNumber')}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={
-                                editData
-                              ? editData.inputFieldOffice[index]?.dateAquired
-                              : input?.dateAquired}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'dateAquired')}
+                              ? editData.inputFieldObservations[index]?.UnitSerialNum
+                              : input?.UnitSerialNum}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'UnitSerialNum')}
                             />
                           </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitCost"
-                              label="Unit Cost"
+                              type="text"
+                              name="Monitor"
+                              label="Monitor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldOffice[index]?.unitCost
-                              : input?.unitCost}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'unitCost')}
+                              ? editData.inputFieldObservations[index]?.Monitor
+                              : input?.Monitor}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Monitor')}
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="HDD"
+                              label="HDD"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.HDD
+                              : input?.HDD}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'HDD')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Memory"
+                              label="Memory"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.Memory
+                              : input?.Memory}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Memory')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="VGA"
+                              label="VGA"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.VGA
+                              : input?.VGA}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'VGA')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Keyboard"
+                              label="Keyboard"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.Keyboard
+                              : input?.Keyboard}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Keyboard')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Mouse"
+                              label="Mouse"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.Mouse
+                              : input?.Mouse}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Mouse')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Status"
+                              label="Status"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations[index]?.Status
+                              : input?.Status}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Status')}
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
+                              size="small"
                               value={
                                 editData
-                              ? editData.inputFieldOffice[index]?.remarks
-                              : input?.remarks}
-                              onChange={(event) => handleEditChangeInputOffice(index, event, 'remarks')}
+                              ? editData.inputFieldObservations[index]?.Remarks
+                              : input?.Remarks}
+                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Remarks')}
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
+
 
                           {/* Eighth Column */}
                           <Grid item xs={1}>
@@ -2158,7 +1834,7 @@ export default function FormsIRF() {
                             </Button> */}
                             <Button
                               onClick={() => {
-                                handleEditRemoveFieldOffice(index);
+                                handleEditRemoveFieldObservations(index);
                               }}
                               // variant="warning"
 
@@ -2190,13 +1866,13 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        CICT Equipment
+                        Equipments Observation
                       </Typography>
                     </Grid>
                     <Grid>
                       <Button
                         onClick={() => {
-                          handleEditAddFieldCict();
+                          handleEditAddFieldObservations1();
                         }}
                         variant="contained"
                       >
@@ -2205,11 +1881,43 @@ export default function FormsIRF() {
                     </Grid>
                   </Grid>
                   <div>
-                  {editData && editData.inputFieldCict.map((input, index) => (
+                  {editData && editData.inputFieldObservations1.map((input, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="RoomEquipment"
+                              label="Room Equipment"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations1[index]?.RoomEquipment
+                              : input?.RoomEquipment}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'RoomEquipment')}
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="BrandDescription"
+                              label="Brand/Description"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations1[index]?.BrandDescription
+                              : input?.BrandDescription}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'BrandDescription')}
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
                             <TextField
                               type="text"
                               name="Quantity"
@@ -2220,115 +1928,74 @@ export default function FormsIRF() {
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldCict[index]?.Quantity
+                              ? editData.inputFieldObservations1[index]?.Quantity
                               : input?.Quantity}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'Quantity')}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Quantity')}
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
-                            <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldCict[index]?.unitOfMeasure
-                              : input?.unitOfMeasure}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'unitOfMeasure')}
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldCict[index]?.Description
-                              : input?.Description}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'Description')}
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="propertyNumber"
-                              label="Property Number"
+                              type="text"
+                              name="SerialNum"
+                              label="Serial Number"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldCict[index]?.propertyNumber
-                              : input?.propertyNumber}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'propertyNumber')}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={
-                                editData
-                              ? editData.inputFieldCict[index]?.dateAquired
-                              : input?.dateAquired}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'dateAquired')}
+                              ? editData.inputFieldObservations1[index]?.SerialNum
+                              : input?.SerialNum}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'SerialNum')}
                             />
                           </Grid>
-
-                          {/* Sixth Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="unitCost"
-                              label="Unit Cost"
+                              type="text"
+                              name="ModelNum"
+                              label="Model Number"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
                                 editData
-                              ? editData.inputFieldCict[index]?.unitCost
-                              : input?.unitCost}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'unitCost')}
+                              ? editData.inputFieldObservations1[index]?.ModelNum
+                              : input?.ModelNum}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'ModelNum')}
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
-
-                          {/* Seventh Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="Custodian"
+                              label="Custodian"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                editData
+                              ? editData.inputFieldObservations1[index]?.Custodian
+                              : input?.Custodian}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Custodian')}
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
+                              size="small"
                               value={
                                 editData
-                              ? editData.inputFieldCict[index]?.remarks
-                              : input?.remarks}
-                              onChange={(event) => handleEditChangeInputCict(index, event, 'remarks')}
+                              ? editData.inputFieldObservations1[index]?.Remarks
+                              : input?.Remarks}
+                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Remarks')}
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
 
                           {/* Eighth Column */}
@@ -2342,7 +2009,7 @@ export default function FormsIRF() {
                             </Button> */}
                             <Button
                               onClick={() => {
-                                handleEditRemoveFieldCict(index);
+                                handleEditRemoveFieldObservations1(index);
                               }}
                             >
                               Remove
@@ -2360,192 +2027,6 @@ export default function FormsIRF() {
                     ))}
                   </div>
 
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Other Equipment
-                      </Typography>
-                    </Grid>
-                    <Grid>
-                      <Button
-                        onClick={() => {
-                          handleEditAddFieldOther();
-                        }}
-                        variant="contained"
-                      >
-                        Add
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  <div>
-                  {editData && editData.inputFieldOther.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
-                         {/* First Column */}
-                         <Grid item xs={1.2}>
-                            <TextField
-                              type="text"
-                              name="Quantity"
-                              label="Quantity"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.Quantity
-                              : input?.Quantity}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'Quantity')}
-                            />
-                          </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
-                            <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.unitOfMeasure
-                              : input?.unitOfMeasure}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'unitOfMeasure')}
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.Description
-                              : input?.Description}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'Description')}
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.propertyNumber
-                              : input?.propertyNumber}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'propertyNumber')}
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.dateAquired
-                              : input?.dateAquired}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'dateAquired')}
-                            />
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              label="Unit Cost"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.unitCost
-                              : input?.unitCost}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'unitCost')}
-                            />
-
-                            {/* Content for the sixth column */}
-                          </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="remarks"
-                              label="Remarks"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              multiline
-                              value={
-                                editData
-                              ? editData.inputFieldOther[index]?.remarks
-                              : input?.remarks}
-                              onChange={(event) => handleEditChangeInputOther(index, event, 'remarks')}
-                            />
-                            {/* Content for the seventh column */}
-                          </Grid>
-
-                          {/* Eighth Column */}
-                          <Grid item xs={1}>
-                            {/* <Button
-                              onClick={() => {
-                                handleAddField();
-                              }}
-                            >
-                              Add
-                            </Button> */}
-                            <Button
-                              onClick={() => {
-                                handleEditRemoveFieldOther(index);
-                              }}
-                            >
-                              Remove
-                            </Button>
-                            {/* Content for the eighth column */}
-                          </Grid>
-                          <br />
-                          <div>
-                            <br />
-                            <br />
-                          </div>
-                        
-                        </Grid>
-                        <br/>
-                      </div>
-                     
-                    ))}
-                    </div>
                     <Typography variant="subtitle1">File:</Typography>
                     <Grid container spacing={1}>
                         <Grid item xs={10}>
@@ -2630,7 +2111,7 @@ export default function FormsIRF() {
                   marginTop: '10px',
                 }}
               >
-                MEMORANDUM OF RECEIPTS
+                INSPECTION REPORT
               </Typography>
               <DialogContent>
               <Typography variant="subtitle1">Name:</Typography>
@@ -2772,135 +2253,190 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        Office Equipment
+                        PC OBSERVATIONS
                       </Typography>
                     </Grid>
                   </Grid>
                   <div>
-                  {formData.inputFieldOffice.map((input, index) => (
+                  {formData.inputFieldObservations.map((input, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+                          <Grid item xs={1}>
                             <TextField
                               type="text"
-                              name="Quantity"
-                              label="Quantity"
+                              name="PCNum"
+                              label="PC No."
                               // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.Quantity : input?.Quantity // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.PCNum : input?.PCNum // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
+                              type="text"
+                              name="Processor"
+                              label="Processor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.unitOfMeasure : input?.unitOfMeasure // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Processor : input?.Processor // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-                            {/* Content for the second column */}
                           </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.Description : input?.Description // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
+                              type="text"
+                              name="UnitSerialNum"
+                              label="UnitSerialNum"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.propertyNumber : input?.propertyNumber // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.dateAquired : input?.dateAquired // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.UnitSerialNum : input?.UnitSerialNum // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
                           </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="unitCost"
-                              label="Unit Cost"
+                              type="text"
+                              name="Monitor"
+                              label="Monitor"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
                               fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.unitCost : input?.unitCost // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Monitor : input?.Monitor // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
+                          <Grid item xs={1}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="HDD"
+                              label="HDD"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.HDD : input?.HDD // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Memory"
+                              label="Memory"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Memory : input?.Memory // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="VGA"
+                              label="VGA"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.VGA : input?.VGA // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Keyboard"
+                              label="Keyboard"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Keyboard : input?.Keyboard // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Mouse"
+                              label="Mouse"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Mouse : input?.Mouse // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Status"
+                              label="Status"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Status : input?.Status // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={1}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
+                              size="small"
                               value={
-                                viewItem ? viewItem.inputFieldOffice[index]
-                                ?.remarks : input?.remarks // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations[index]
+                                ?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
 
                           {/* Eighth Column */}
@@ -2930,17 +2466,50 @@ export default function FormsIRF() {
                           marginBottom: '10px',
                         }}
                       >
-                        CICT Equipment
+                        Equipments Observation
                       </Typography>
                     </Grid>
                     
                   </Grid>
                   <div>
-                  {formData.inputFieldCict.map((input, index) => (
+                  {formData.inputFieldObservations1.map((input, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
                           {/* First Column */}
-                          <Grid item xs={1.2}>
+
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="RoomEquipment"
+                              label="Room Equipment"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.RoomEquipment : input?.RoomEquipment // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="BrandDescription"
+                              label="Brand/Description"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.BrandDescription : input?.BrandDescription // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+                          <Grid item xs={2}>
                             <TextField
                               type="text"
                               name="Quantity"
@@ -2950,130 +2519,78 @@ export default function FormsIRF() {
                               fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldCict[index]
+                                viewItem ? viewItem.inputFieldObservations1[index]
                                 ?.Quantity : input?.Quantity // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
                           </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
+                          <Grid item xs={2}>
                             <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
+                              type="text"
+                              name="SerialNum"
+                              label="Serial Number"
                               // sx={{ width: '100px' }}
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.unitOfMeasure : input?.unitOfMeasure // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              // sx={{ width: '265px' }}
-                              fullWidth
                               variant="outlined"
+                              fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.Description : input?.Description // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.SerialNum : input?.SerialNum // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-                            {/* Content for the third column */}
                           </Grid>
-
-                          {/* Fourth Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="propertyNumber"
-                              label="Property Number"
-                              variant="outlined"
-                              fullWidth
-                              // sx={{ width: '183px' }}
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.propertyNumber : input?.propertyNumber // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.dateAquired : input?.dateAquired // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker label="Basic date picker"
-                                style={{ width: '200px', height: '40px' }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider> */}
-                            {/* Content for the fifth column */}
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              label="Unit Cost"
-                              fullWidth
-                              variant="outlined"
+                              type="text"
+                              name="ModelNum"
+                              label="Model Number"
                               // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
                               size="small"
                               value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.unitCost : input?.unitCost // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.ModelNum : input?.ModelNum // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-
-                            {/* Content for the sixth column */}
                           </Grid>
 
-                          {/* Seventh Column */}
                           <Grid item xs={2}>
                             <TextField
-                              name="remarks"
+                              type="text"
+                              name="Custodian"
+                              label="Custodian"
+                              // sx={{ width: '100px' }}
+                              variant="outlined"
+                              fullWidth
+                              size="small"
+                              value={
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.Custodian : input?.Custodian // Use optional chaining to handle potential undefined values
+                              }
+                              disabled
+                            />
+                          </Grid>
+
+                          <Grid item xs={2}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
                               label="Remarks"
+                              // sx={{ width: '100px' }}
                               variant="outlined"
-                              size="small"
                               fullWidth
-                              multiline
+                              size="small"
                               value={
-                                viewItem ? viewItem.inputFieldCict[index]
-                                ?.remarks : input?.remarks // Use optional chaining to handle potential undefined values
+                                viewItem ? viewItem.inputFieldObservations1[index]
+                                ?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
                               }
                               disabled
                             />
-                            {/* Content for the seventh column */}
                           </Grid>
-
                           {/* Eighth Column */}
                          
                           <br />
@@ -3086,176 +2603,6 @@ export default function FormsIRF() {
                       </div>
                     ))}
                   </div>
-
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Other Equipment
-                      </Typography>
-                    </Grid>
-                  
-                  </Grid>
-                  <div>
-                  {formData.inputFieldOther.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={16} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
-                          <Grid item xs={1.2}>
-                            <TextField
-                              type="text"
-                              name="Quantity"
-                              label="Quantity"
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.Quantity : input?.Quantity // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-
-                          {/* Second Column */}
-                          <Grid item xs={1.8}>
-                            <TextField
-                              name="unitOfMeasure"
-                              label="Unit/s"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.unitOfMeasure : input?.unitOfMeasure // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the second column */}
-                          </Grid>
-
-                          {/* Third Column */}
-                          <Grid item xs={4}>
-                            <TextField
-                              name="Description"
-                              label="Description"
-                              multiline
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.Description : input?.Description // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the third column */}
-                          </Grid>
-
-                          {/* Fourth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="propertyNumber"
-                              label="Property Number"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.propertyNumber : input?.propertyNumber // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the fourth column */}
-                          </Grid>
-
-                          {/* Fifth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="date"
-                              name="dateAquired"
-                              // label="Date Aquired"
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.dateAquired : input?.dateAquired // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* <LocalizationProvider dateAdapter={AdapterDayjs} >
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker label="Basic date picker"
-                                style={{ width: '200px', height: '40px' }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider> */}
-                            {/* Content for the fifth column */}
-                          </Grid>
-
-                          {/* Sixth Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="unitCost"
-                              label="Unit Cost"
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.unitCost : input?.unitCost // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-
-                            {/* Content for the sixth column */}
-                          </Grid>
-
-                          {/* Seventh Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              name="remarks"
-                              label="Remarks"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              multiline
-                              value={
-                                viewItem ? viewItem.inputFieldOther[index]
-                                ?.remarks : input?.remarks // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                            {/* Content for the seventh column */}
-                          </Grid>
-
-                          {/* Eighth Column */}
-                         
-                          <br />
-                          <div>
-                            <br />
-                            <br />
-                          </div>
-                        
-                        </Grid>
-                        <br/>
-                      </div>
-                     
-                    ))}
-                  </div>
-
                   <div>
                     <br />
                     <br />

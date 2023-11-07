@@ -23,6 +23,8 @@ import Scrollbar from '../components/scrollbar';
 
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
+
 // mock
 import USERLIST from '../_mock/user';
 
@@ -571,6 +573,16 @@ const handleViewClose = () => {
     }
   };
 
+  const [openFilter, setOpenFilter] = useState(false);
+ 
+ const handleOpenFilter = () => {
+      setOpenFilter(true);
+    };
+  
+    const handleCloseFilter = () => {
+      setOpenFilter(false);
+    };
+
   return (
     <>
       <Helmet>
@@ -580,7 +592,7 @@ const handleViewClose = () => {
       <Container>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
+      <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower Item's Form
       </Typography>
     </Stack>
@@ -633,6 +645,17 @@ const handleViewClose = () => {
           </div>
         )}
 
+<Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
+          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+            <ProductFilterSidebar
+              openFilter={openFilter}
+              onOpenFilter={handleOpenFilter}
+              onCloseFilter={handleCloseFilter}
+            />
+            <ProductSort />
+          </Stack>
+        </Stack>
+
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
           <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Document
@@ -643,7 +666,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                ITEM BORROWER
+                BORROWER ITEM
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -738,10 +761,10 @@ const handleViewClose = () => {
                       <Grid>
                       <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                    name="LocationRoom"
+                    label="Location/Room"
+                    value={editData ? editData.LocationRoom : ''}
+                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                         <br/>
@@ -886,7 +909,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                ITEM BORROWER
+                BORROWER ITEM
               </Typography>
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
@@ -1061,7 +1084,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               ITEM BORROWER
+               BORROWER ITEM
             </Typography>
             <DialogContent>
             <Grid
