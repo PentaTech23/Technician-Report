@@ -480,6 +480,7 @@ export default function DashboardAppPage() {
     }
   });
 
+
   const pieChartData = Object.entries(serviceCounts).map(([name, value, fill]) => ({
     name,
     value,
