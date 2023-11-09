@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { getAuth, signInWithEmailAndPassword }  from 'firebase/auth'
 
 export const Login = () => {
@@ -20,8 +20,10 @@ export const Login = () => {
         <form onSubmit={handleSubmit}>
             <input name="email" placeholder="email" type="email" />
             <input name="password" placeholder="password" type="password" />
-            <button type="submit">Login</button>
+            <button data-testid="submitBtn" type="submit">Login</button>
         </form>
         </>
     )
 }
+
+export default Login;

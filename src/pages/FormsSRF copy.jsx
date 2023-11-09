@@ -2,9 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import PropTypes from 'prop-types';
-// import * as React from 'react';
 import React, { useState, useEffect, Fragment } from 'react';
-
 import { useNavigate, Link } from 'react-router-dom';
 import {
   getFirestore,
@@ -62,7 +60,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
-
+import LoadingSpinner from './LoadingSpinner';
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
@@ -93,13 +91,13 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 // Access main collection
-const mainCollectionRef = collection(db, 'SERVICE-REQUEST');
+const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
 
 // Access FORMS document under main collection
-// const formsDocRef = doc(mainCollectionRef, 'FORMS');
+const formsDocRef = doc(mainCollectionRef, 'FORMS');
 
-// //  to subcollection
-// const serviceRequestCollectionRef = collection(formsDocRef, 'SERVICE-REQUEST');
+// Add to subcollection
+const serviceRequestCollectionRef = collection(formsDocRef, 'SERVICE-REQUEST');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
@@ -231,13 +229,13 @@ export default function UserPage() {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(mainCollectionRef);
+      const querySnapshot = await getDocs(serviceRequestCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
         // Handle each document here
         const data = doc.data();
-        data.id = doc.id; //  the ID field
+        data.id = doc.id; // Add the ID field
         dataFromFirestore.push(data);
       });
 
@@ -261,7 +259,7 @@ export default function UserPage() {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, '0')}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(mainCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(serviceRequestCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -292,7 +290,7 @@ export default function UserPage() {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
 
-      const docRef = doc(mainCollectionRef, documentName);
+      const docRef = doc(serviceRequestCollectionRef, documentName);
 
       const docData = {
         ControlNum,
@@ -394,7 +392,7 @@ export default function UserPage() {
         // Include other properties here
       };
 
-      const docRef = doc(mainCollectionRef, formData.id);
+      const docRef = doc(serviceRequestCollectionRef, formData.id);
 
       // Update the editData object with the new file URL
       updatedEditData.fileURL = formData.fileURL;
@@ -413,10 +411,10 @@ export default function UserPage() {
   const handleConfirmDeleteWithoutArchive = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(mainCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(serviceRequestCollectionRef, documentToDelete);
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
-        await deleteDoc(doc(mainCollectionRef, documentToDelete));
+        await deleteDoc(doc(serviceRequestCollectionRef, documentToDelete));
 
         // Update the UI by removing the deleted row
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -450,7 +448,7 @@ export default function UserPage() {
   const handleConfirmDelete = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(mainCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(serviceRequestCollectionRef, documentToDelete);
         // Set the 'originalLocation' field to the current collection and update the Archive as true
         await updateDoc(sourceDocumentRef, { archived: true, originalLocation: 'SERVICE-REQUEST' });
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
@@ -474,11 +472,11 @@ export default function UserPage() {
         // Generate the new document name
         const newDocumentName = `SRF-${nextNumber.toString().padStart(2, '0')}`;
 
-        //  the document to the "Archives" collection with the new document name
+        // Add the document to the "Archives" collection with the new document name
         await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
         // Delete the original document from the Service Request collection
-        await deleteDoc(doc(mainCollectionRef, documentToDelete));
+        await deleteDoc(doc(serviceRequestCollectionRef, documentToDelete));
 
         // Update the UI by removing the archived document
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -508,7 +506,7 @@ export default function UserPage() {
         'application/msword', // MS Word (DOC)
         'application/vnd.ms-excel', // MS Excel (XLS)
         'text/plain', // Plain text
-        //  more MIME types for other file formats as needed
+        // Add more MIME types for other file formats as needed
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
@@ -521,7 +519,7 @@ export default function UserPage() {
       const downloadURL = await getDownloadURL(storageRef);
 
       // Now you have the downloadURL, you can store it in Firestore or your form data
-      // You can  it to the `formData` object or create a separate field for it
+      // You can add it to the `formData` object or create a separate field for it
       setFormData((prevFormData) => ({
         ...prevFormData,
         fileURL: downloadURL, // Change this field name to match your data structure
@@ -533,7 +531,7 @@ export default function UserPage() {
 
   // This one is for Pagination
 
-  const [page, setPage] = useState(0); //  these state variables for pagination
+  const [page, setPage] = useState(0); // Add these state variables for pagination
   const [rowsPerPage, setRowsPerPage] = useState(4);
 
   const startIndex = page * rowsPerPage;
@@ -610,7 +608,7 @@ export default function UserPage() {
     setDeleteConfirmationDialogOpen(true);
   };
 
-  //  a state variable for managing the confirmation dialog
+  // Add a state variable for managing the confirmation dialog
   // Function to handle the confirmation and actually delete the items
   const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] = useState(false);
 
@@ -619,7 +617,7 @@ export default function UserPage() {
     try {
       // Create an array of promises to delete each selected item
       const deletePromises = selectedItems.map(async (itemId) => {
-        return deleteDoc(doc(mainCollectionRef, itemId));
+        return deleteDoc(doc(serviceRequestCollectionRef, itemId));
       });
 
       // Use Promise.all to await all the delete operations
@@ -698,7 +696,7 @@ export default function UserPage() {
     const isChecked = e.target.checked;
 
     if (isChecked && value !== ' Others:') {
-      //  the new value to the array
+      // Add the new value to the array
       setFormData((prevData) => ({
         ...prevData,
         Services: [...prevData.Services, value],
@@ -751,7 +749,7 @@ export default function UserPage() {
                 variant="contained"
                 size="large"
                 style={{
-                  margin: '0 8px', //  margin for spacing
+                  margin: '0 8px', // Add margin for spacing
                   display: 'flex',
                   justifyContent: 'center',
                    // Set the background color to transparent
@@ -794,8 +792,8 @@ export default function UserPage() {
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
             {/* <BlogPostsSort options={SORT_OPTIONS}  style={{ marginLeft: 'auto'}}/>
             <Filter  style={{ marginLeft: 'auto'}}/> */}
-              <Button data-testid="newSFRform" onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-                New SFR Form
+              <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+                New Document
               </Button>
             </div>
 
@@ -831,7 +829,8 @@ export default function UserPage() {
                         type="text"
                         name="ControlNum"
                         variant="outlined"
-                        placeholder="ControlNum"
+                        label="Control Number"
+                        placeholder='ControlNum'
                         value={formData.ControlNum || ''}
                         fullWidth
                         onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
@@ -843,8 +842,8 @@ export default function UserPage() {
                       <TextField
                         type="date"
                         name="Date"
-                        fullWidth
                         placeholder='Date'
+                        fullWidth
                         value={formData.Date || ''}
                         onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
                         // sx={{ width: '100%', marginBottom: '10px' }}
@@ -856,8 +855,9 @@ export default function UserPage() {
                         type="text"
                         name="FullName"
                         fullWidth
+                        placeholder='FullName'
                         variant="outlined"
-                        placeholder="FullName"
+                        label="Faculty Name"
                         value={formData.FullName || ''}
                         onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
                         // sx={{ width: '100%', marginBottom: '10px' }}
@@ -868,7 +868,8 @@ export default function UserPage() {
                       <TextField
                         type="text"
                         name="Requisitioner"
-                        placeholder="Requisitioner"
+                        label="Requisitioner"
+                        placeholder='Requisitioner'
                         fullWidth
                         value={formData.Requisitioner || ''}
                         onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
@@ -927,14 +928,15 @@ export default function UserPage() {
                       </fieldset>
                     </Grid>
 
-                    <Grid item xs={8} >
+                    <Grid item xs={8} spacing={1}>
                       <Grid container spacing={3} column={6}>
                         <Grid item xs={12}>
                           <TextField
                             type="text"
                             name="LocationRoom"
-                            placeholder="LocationRoom"
+                            label="Location/Room"
                             fullWidth
+                            placeholder='LocationRoom'
                             value={formData.LocationRoom || ''}
                             onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
                             // sx={{ width: '100%', marginBottom: '10px' }}
@@ -946,7 +948,8 @@ export default function UserPage() {
                               type="text"
                               name="Remarks"
                               variant="outlined"
-                              placeholder="Remarks"
+                              label="Remarks"
+                              placeholder='Remarks'
                               multiline
                               value={formData.Remarks || ''}
                               onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
@@ -985,7 +988,6 @@ export default function UserPage() {
                     Cancel
                   </Button>
                   <Button
-                    data-testid="submit"
                     variant="contained"
                     onClick={handleSubmit}
                     type="submit"
