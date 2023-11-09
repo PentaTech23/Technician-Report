@@ -464,14 +464,21 @@ export default function DashboardAppPage() {
 
   // Count the services in the "Services" array
   services.forEach((service) => {
-    service.Services.forEach((serviceType) => {
-      if (serviceCounts[serviceType]) {
-        serviceCounts[serviceType]+= 1;
-      } else {
-        serviceCounts[serviceType] = 1;
-      }
-    });
+    if (services) {
+      services.forEach((service) => {
+        if (service && service.Services) {
+          service.Services.forEach((serviceType) => {
+            if (serviceCounts[serviceType]) {
+              serviceCounts[serviceType] += 1;
+            } else {
+              serviceCounts[serviceType] = 1;
+            }
+          });
+        }
+      });
+    }
   });
+
 
   const pieChartData = Object.entries(serviceCounts).map(([name, value, fill]) => ({
     name,
