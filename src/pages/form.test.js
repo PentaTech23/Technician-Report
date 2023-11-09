@@ -137,7 +137,7 @@ test('SFRinput component renders without errors', () => {
     // Add assertions to check the expected behavior after form submission
   });
   
-  test('SFRinput form edit', () => {
+  test('SFRinput form delete', () => {
     render(<SFRinput />);
     const deleteButton = screen.getByTestId('deleteButton');
   
@@ -146,4 +146,25 @@ test('SFRinput component renders without errors', () => {
   
     // Add assertions to check the expected behavior after form submission
   });
+
+  test('SFRinput form archive', () => {
+    render(<SFRinput />);
+    const archiveButton = screen.getByTestId('archiveButton');
+  
+    // Mock a form submission by firing a click event on the submit button
+    fireEvent.click(archiveButton);
+  
+    // Add assertions to check the expected behavior after form submission
+  });
+
+  test('SFRinput form edit', () => {
+    render(<SFRinput />);
+    const editBtn = screen.getByTestId('editBtn');
+  
+    // Mock a form submission by firing a click event on the submit button
+    fireEvent.click(editBtn);
+  
+    // Add assertions to check the expected behavior after form submission
+  });
+  
   

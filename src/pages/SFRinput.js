@@ -818,6 +818,15 @@ function SFRinput() {
             >
               Create
             </Button>
+            <Button
+                    variant="contained"
+                    onClick={handleEditSubmit}
+                    type="submit"
+                    data-testid="editBtn"
+                    sx={{ marginRight: '5px', marginLeft: '5px' }}
+                  >
+                    Edit
+                  </Button>
           </div>
         {/* </DialogActions> */}
         {/* </div>
