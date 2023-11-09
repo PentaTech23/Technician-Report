@@ -65,7 +65,7 @@ const navConfig = [
       },
 
       {
-        title: 'Inventory Laboratory Form',
+        title: 'Inventory Transfer Report',
         path: '/dashboard/reports_itr',
       },
       

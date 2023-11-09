@@ -23,7 +23,7 @@ import Profiling from './pages/Profiling';
 //  Reports Section
 import Reports from './pages/Report';
     import ReportsPTR from './pages/ReportsPTR';
-    import ReportsITR from './pages/ReportsITR';
+    import ReportsITR from './pages/ReportsPTR';
     import ReportsMAR from './pages/ReportsMARILF';
     import ReportsILF from './pages/ReportsILF';
 //  Archives Section

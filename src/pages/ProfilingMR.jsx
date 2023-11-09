@@ -1059,7 +1059,7 @@ export default function FormsIRF() {
 
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-                New User
+                New Document
               </Button>
             </div>
 

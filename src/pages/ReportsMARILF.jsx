@@ -614,7 +614,7 @@ export default function ReportsMARILF() {
       if (documentToDelete) {
         const sourceDocumentRef = doc(MARILFCollectionRef, documentToDelete);
         // Set the 'originalLocation' field to the current collection and update the Archive as true
-        await updateDoc(sourceDocumentRef, { archived: true, originalLocation: 'MEMORANDUM-OF-RECEIPTS' });
+        await updateDoc(sourceDocumentRef, { archived: true, originalLocation: 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM' });
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
         // Fetch existing document names from the Archives collection
@@ -844,7 +844,7 @@ export default function ReportsMARILF() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }}>
-            Monthly Assessment Report <br/>Inventory Laboratory Form
+            Monthly Assessment Report &<br/>Inventory Laboratory Form
           </Typography>
         </Stack>
 
@@ -898,7 +898,7 @@ export default function ReportsMARILF() {
 
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-                New User
+                New Document
               </Button>
             </div>
 
@@ -917,7 +917,7 @@ export default function ReportsMARILF() {
                   marginTop: '10px',
                 }}
               >
-                Monthly Assessment Report <br/>Inventory Laboratory Form
+                Monthly Assessment Report & <br/>Inventory Laboratory Form
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>

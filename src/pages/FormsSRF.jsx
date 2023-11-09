@@ -93,13 +93,13 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 // Access main collection
-const mainCollectionRef = collection(db, 'SERVICE-REQUEST');
+const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
 
 // Access FORMS document under main collection
-// const formsDocRef = doc(mainCollectionRef, 'FORMS');
+const formsDocRef = doc(mainCollectionRef, 'FORMS');
 
-// //  to subcollection
-// const serviceRequestCollectionRef = collection(formsDocRef, 'SERVICE-REQUEST');
+//  to subcollection
+const serviceRequestCollectionRef = collection(formsDocRef, 'SERVICE-REQUEST');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
@@ -231,7 +231,7 @@ export default function UserPage() {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(mainCollectionRef);
+      const querySnapshot = await getDocs(serviceRequestCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -261,7 +261,7 @@ export default function UserPage() {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, '0')}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(mainCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(serviceRequestCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -292,7 +292,7 @@ export default function UserPage() {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
 
-      const docRef = doc(mainCollectionRef, documentName);
+      const docRef = doc(serviceRequestCollectionRef, documentName);
 
       const docData = {
         ControlNum,
@@ -394,7 +394,7 @@ export default function UserPage() {
         // Include other properties here
       };
 
-      const docRef = doc(mainCollectionRef, formData.id);
+      const docRef = doc(serviceRequestCollectionRef, formData.id);
 
       // Update the editData object with the new file URL
       updatedEditData.fileURL = formData.fileURL;
@@ -413,10 +413,10 @@ export default function UserPage() {
   const handleConfirmDeleteWithoutArchive = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(mainCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(serviceRequestCollectionRef, documentToDelete);
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
-        await deleteDoc(doc(mainCollectionRef, documentToDelete));
+        await deleteDoc(doc(serviceRequestCollectionRef, documentToDelete));
 
         // Update the UI by removing the deleted row
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -450,7 +450,7 @@ export default function UserPage() {
   const handleConfirmDelete = async () => {
     try {
       if (documentToDelete) {
-        const sourceDocumentRef = doc(mainCollectionRef, documentToDelete);
+        const sourceDocumentRef = doc(serviceRequestCollectionRef, documentToDelete);
         // Set the 'originalLocation' field to the current collection and update the Archive as true
         await updateDoc(sourceDocumentRef, { archived: true, originalLocation: 'SERVICE-REQUEST' });
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
@@ -478,7 +478,7 @@ export default function UserPage() {
         await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
         // Delete the original document from the Service Request collection
-        await deleteDoc(doc(mainCollectionRef, documentToDelete));
+        await deleteDoc(doc(serviceRequestCollectionRef, documentToDelete));
 
         // Update the UI by removing the archived document
         setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -619,7 +619,7 @@ export default function UserPage() {
     try {
       // Create an array of promises to delete each selected item
       const deletePromises = selectedItems.map(async (itemId) => {
-        return deleteDoc(doc(mainCollectionRef, itemId));
+        return deleteDoc(doc(serviceRequestCollectionRef, itemId));
       });
 
       // Use Promise.all to await all the delete operations
@@ -795,7 +795,7 @@ export default function UserPage() {
             {/* <BlogPostsSort options={SORT_OPTIONS}  style={{ marginLeft: 'auto'}}/>
             <Filter  style={{ marginLeft: 'auto'}}/> */}
               <Button data-testid="newSFRform" onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-                New SFR Form
+                New Document
               </Button>
             </div>
 
