@@ -7,6 +7,8 @@
   "include": [
     "src/**/*"
   ],
+  "types": ["aria-query", "babel__core", "babel__generator", "babel__template", "body-parser", "bonjour", "connect"
+          , "d3-array", "d3-color", "d3-ease", "d3-interpolate", "d3-path", "d3-time", "express"],
   "exclude": [
     "node_modules"
   ]
