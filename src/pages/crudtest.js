@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { getDocs, collection, query, addDoc,ori, getFirestore, updateDoc, doc, deleteDoc, setDoc } from 'firebase/firestore';
-import { db } from './db';
+import { db } from './firebase';
 import FormsSFR from './SFRinput'
 
 const mockFirestoreAdd = jest.fn();

@@ -105,15 +105,15 @@ function SFRinput() {
 
   const initialFormData = {
     ControlNum: '',
-    Date: '',
+    // Date: '',
     FullName: '',
     LocationRoom: '',
     Requisitioner: '',
-    Services: [],
-    otherServices: '',
+    // Services: [],
+    // otherServices: '',
     Remarks: '',
-    fileInput: '',
-    fileURL: '',
+    // fileInput: '',
+    // fileURL: '',
   };
 
   const clearForm = () => {
@@ -123,14 +123,14 @@ function SFRinput() {
   // Handle change function
   const [formData, setFormData] = useState({
     ControlNum: null,
-    Date: '',
+    // Date: '',
     FullName: '',
     LocationRoom: null,
     Requisitioner: '',
-    Services: [], // If this is an array, it can be empty initially
-    otherServices: '',
+    // Services: [], // If this is an array, it can be empty initially
+    // otherServices: '',
     Remarks: '',
-    fileURL: '',
+    // fileURL: '',
   });
 
   // Show Query or the table, fetch data from firestore

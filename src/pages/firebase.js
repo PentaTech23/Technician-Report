@@ -51,3 +51,5 @@ const firebaseConfig = {
   // Second declaration
   export const storage = getStorage(firebaseApp);
   export const auth = getAuth(firebaseApp)
+
+  export default firebaseApp;
