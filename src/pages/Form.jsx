@@ -1,27 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
-
 import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
-import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-// @mui
-import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
-import Iconify from '../components/iconify';
-import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
-} from '../sections/@dashboard/app';
+import { AppWidgetSummary} from '../sections/@dashboard/app';
 
-// ----------------------------------------------------------------------
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -36,7 +20,6 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 export default function DashboardAppPage() {
-  const theme = useTheme();
   const [services, setServices] = useState([]);
   const [totalServices, setTotalServices] = useState([]);
   const [irequest, setIrequest] = useState([]);

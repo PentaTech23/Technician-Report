@@ -1,25 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
-
 import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
-import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-// @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
-import Iconify from '../components/iconify';
-import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
-} from '../sections/@dashboard/app';
+import { AppWidgetSummary} from '../sections/@dashboard/app';
 
 // ----------------------------------------------------------------------
 
@@ -66,7 +51,7 @@ export default function DashboardAppPage() {
 
       const propertyQuery = collectionGroup(db, 'PROPERTY-TRANSFER-REPORT');
       const transferInventoryQuery = collectionGroup(db, 'INVENTORY-TRANSFER-REPORT');
-      const inventoryQuery = collectionGroup(db, 'INVENTORY-TRANSFER-REPORT');
+      const inventoryQuery = collectionGroup(db, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
       const aPropertyQuery = collectionGroup(db, 'ARCHIVES-REPORTS-PTR');
       const aTransferInventoryQuery = collectionGroup(db, 'ARCHIVES-REPORTS-ITR');
       const aInventoryQuery = collectionGroup(db, 'ARCHIVES-REPORTS-MARILR');
