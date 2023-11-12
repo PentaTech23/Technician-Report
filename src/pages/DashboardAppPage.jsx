@@ -1,27 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
-
 import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
-import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-// @mui
+import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';// @mui
 import { useTheme } from '@mui/material/styles';
 import { Paper, Table, TableCell, TableHead, TableRow, Grid, Container, Typography, Pagination, TableBody, TableContainer } from '@mui/material';
-
-import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
-} from '../sections/@dashboard/app';
-
-import Logo from '../img/logo.png';
+import { AppWidgetSummary} from '../sections/@dashboard/app';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -38,12 +22,6 @@ const db = getFirestore(firebaseApp);
 
 
 export default function DashboardAppPage() {
-  const theme = useTheme();
-  const [items, setItems] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [borrows, setBorrows] = useState([]);
-  const [rooms, setRooms] = useState([]);
-  const [equipments, setEquipments] = useState([]);
   const [totalRooms, setTotalRooms] = useState([]);
   const [services, setServices] = useState([]);
   const [totalServices, setTotalServices] = useState([]);
@@ -53,7 +31,82 @@ export default function DashboardAppPage() {
   const [totalBrequest, setTotalBrequest] = useState([]);
   const [itemCounts, setItemCounts] = useState([]);
   const [borrowCounts, setBorrowCounts] = useState([]);
+  const [labInventoryData, setLabInventoryData] = useState([]);
+  const [equipInventoryData, setEquipInventoryData] = useState([]);
+  const [inspection, setInspection] = useState([]);
+  const [totalInspection, setTotalInspection] = useState([]);
+  const [totalForms, setTotalForms] = useState([]);
+  const [mreceipts, setMreceipts] = useState([]);
+  const [totalMreceipts, setTotalMreceipts] = useState([]);
+  const [citems, setCitems] = useState([]);
+  const [totalCitems, setTotalCitems] = useState([]);
+  const [totalProfiling, setTotalProfiling] = useState([]);
+  const [property, setProperty] = useState([]);
+  const [totalProperty, setTotalProperty] = useState([]);
+  const [transferInventory, setTransferInventory] = useState([]);
+  const [totalTransferInventory, setTotalTransferInventory] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [totalInventory, setTotalInventory] = useState([]);
+  const [totalReports, setTotalReports] = useState([]);
+
   
+  useEffect(() => {
+    fetchLabInventoryData();
+  }, []);
+
+  const fetchLabInventoryData = async () => {
+    try {
+      // Replace 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM' with your actual collection name
+      const labInventoryQuery = collectionGroup(db, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
+      const labInventorySnapshot = await getDocs(labInventoryQuery);
+
+      // Initialize an array to store the fetched data
+      const labInventoryDataArray = [];
+
+      labInventorySnapshot.docs.forEach((doc) => {
+        const inputFieldObservations = doc.data().inputFieldObservations || [];
+
+        inputFieldObservations.forEach((observation) => {
+          // Add each observation to the array
+          labInventoryDataArray.push(observation);
+        });
+      });
+
+      // Set the lab inventory data in the state
+      setLabInventoryData(labInventoryDataArray);
+    } catch (error) {
+      console.error('Error fetching lab inventory data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEquipInventoryData();
+  }, []);
+
+  const fetchEquipInventoryData = async () => {
+    try {
+      // Replace 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM' with your actual collection name
+      const equipInventoryQuery = collectionGroup(db, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
+      const equipInventorySnapshot = await getDocs(equipInventoryQuery);
+
+      // Initialize an array to store the fetched data
+      const equipInventoryDataArray = [];
+
+      equipInventorySnapshot.docs.forEach((doc) => {
+        const inputFieldObservations1 = doc.data().inputFieldObservations1 || [];
+
+        inputFieldObservations1.forEach((observation) => {
+          // Add each observation to the array
+          equipInventoryDataArray.push(observation);
+        });
+      });
+
+      // Set the lab inventory data in the state
+      setEquipInventoryData(equipInventoryDataArray);
+    } catch (error) {
+      console.error('Error fetching equipment inventory data:', error);
+    }
+  };
 
   
   useEffect(() => {
@@ -139,7 +192,7 @@ export default function DashboardAppPage() {
   const [page1, setPage1] = useState(1);
   const [page2, setPage2] = useState(1);
   const itemsPerPage1 = 5; // Set the number of items per page
-  const itemsPerPage2 = 4; // Set the number of items per page
+  const itemsPerPage2 = 5; // Set the number of items per page
 
   const handlePageChange1 = (event, newPage) => {
     setPage1(newPage);
@@ -157,44 +210,49 @@ export default function DashboardAppPage() {
 
   const fetchData = async () => {
     try {
-      const itemQuery = collectionGroup(db, 'requests-items-form');
-      const userQuery = collectionGroup(db, 'services-requests-form');
+
       const serviceQuery = collectionGroup(db, 'SERVICE-REQUEST');
-      const borrowQuery = collectionGroup(db, 'borrowers-items-form');
-      const roomQuery = collectionGroup(db, 'monthly-computer-inventory');
-      const equipmentQuery = collectionGroup(db, 'monthly-equipment-inventory');
       const irequestQuery = collectionGroup(db, 'ITEM-REQUEST');
       const brequestQuery = collectionGroup(db, 'ITEM-BORROWERS');
+      const inspectionQuery = collectionGroup(db, 'INSPECTION-REPORT-FORM');
+      const mreceiptsQuery = collectionGroup(db, 'MEMORANDUM-OF-RECEIPTS');
+      const citemsQuery = collectionGroup(db, 'CONDEMNED-ITEMS');
+      const propertyQuery = collectionGroup(db, 'PROPERTY-TRANSFER-REPORT');
+      const transferInventoryQuery = collectionGroup(db, 'INVENTORY-TRANSFER-REPORT');
+      const inventoryQuery = collectionGroup(db, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
 
-      const itemSnapshot = await getDocs(itemQuery);
-      const userSnapshot = await getDocs(userQuery);
       const serviceSnapshot = await getDocs(serviceQuery);
-      const borrowSnapshot = await getDocs(borrowQuery);
-      const roomSnapshot = await getDocs(roomQuery);
-      const equipmentSnapshot = await getDocs(equipmentQuery);
       const irequestSnapshot = await getDocs(irequestQuery);
       const brequestSnapshot = await getDocs(brequestQuery);
-      
+      const inspectionSnapshot = await getDocs(inspectionQuery);
+      const mreceiptsSnapshot = await getDocs(mreceiptsQuery);
+      const citemsSnapshot = await getDocs(citemsQuery);
+      const propertySnapshot = await getDocs(propertyQuery);
+      const transferInventorySnapshot = await getDocs(transferInventoryQuery);
+      const inventorySnapshot = await getDocs(inventoryQuery);
 
-      const itemData = itemSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const userData = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
       const serviceData = serviceSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const borrowData = borrowSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const roomData = roomSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const equipmentData = equipmentSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const irequestData =irequestSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       const brequestData =brequestSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
+      const inspectionData =inspectionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const mreceiptsData = mreceiptsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const citemsData = citemsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const propertyData = propertySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const transferInventoryData = transferInventorySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const inventoryData = inventorySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
       
-      setItems(itemData);
-      setUsers(userData);
+    
       setServices(serviceData);
-      setBorrows(borrowData);
-      setRooms(roomData);
-      setEquipments(equipmentData);
       setIrequest(irequestData);
       setBrequest(brequestData);
+      setInspection(inspectionData);
+      setMreceipts(mreceiptsData);
+      setCitems(citemsData);
+      setProperty(propertyData);
+      setTransferInventory(transferInventoryData);
+      setInventory(inventoryData);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -203,13 +261,13 @@ export default function DashboardAppPage() {
 
           useEffect(() => {
             // Count the number of pc
-            const countPCNo = () => {
-                const total = rooms.length;
+            const countPCNum = () => {
+                const total = labInventoryData.length;
                 setTotalRooms(total);
             };
 
-            countPCNo();
-        }, [rooms]);
+            countPCNum();
+        }, [labInventoryData]);
 
 
         useEffect(() => {
@@ -242,11 +300,91 @@ export default function DashboardAppPage() {
           countItems();
         }, [irequest]);
 
+        useEffect(() => {
+          // Count all the inspection forms
+          const countControlNum = () => {
+              const total = inspection.length;
+              setTotalInspection(total);
+          };
+
+          countControlNum();
+        }, [inspection]);
+
+        useEffect(() => {
+          // Count all the forms
+          const countControlNum = () => {
+            const total = totalServices + totalIrequest + totalBrequest + totalInspection;
+              setTotalForms(total);
+          };
+          countControlNum();
+        });
+
+        useEffect(() => {
+          // Count all the MR
+          const countSaiparNo = () => {
+              const total = mreceipts.length;
+              setTotalMreceipts(total);
+          };
+          countSaiparNo();
+        }, [mreceipts]);
+
+        useEffect(() => {
+          // Count all the CI
+          const countEntityName = () => {
+              const total = citems.length;
+              setTotalCitems(total);
+          };
+          countEntityName();
+        }, [citems]);
+
+        useEffect(() => {
+          // Count the total profiling
+          const countDate = () => {
+            const total = totalCitems + totalMreceipts;
+              setTotalProfiling(total);
+          };
+          countDate();
+        });
 
 
-  const ItemRequested = calculateItemCounts();
-  const BorrowedItems = calculateBorrowedItemCounts();
-  const RoomNo = calculateRoomNoCounts();
+        useEffect(() => {
+          // Count all the PTR
+          const count = () => {
+              const total = property.length;
+              setTotalProperty(total);
+          };
+          count();
+        }, [property]);
+
+        useEffect(() => {
+          // Count all the CI
+          const count = () => {
+              const total = transferInventory.length;
+              setTotalTransferInventory(total);
+          };
+          count();
+        }, [transferInventory]);
+
+        useEffect(() => {
+          // Count all the MARILF
+          const count = () => {
+              const total = inventory.length;
+              setTotalInventory(total);
+          };
+          count();
+        }, [inventory]);
+
+        useEffect(() => {
+          // Count the total reports
+          const count = () => {
+            const total = totalProperty + totalTransferInventory  + totalInventory;
+              setTotalReports(total);
+          };
+          count();
+        });
+
+
+
   const LocationRoom = calculateLocationRoomCounts();
 
    
@@ -351,113 +489,6 @@ export default function DashboardAppPage() {
   }
 
 
-  function calculateRoomNoCounts() {
-    let Room1Count = 0;
-    let Room2Count = 0;
-    let Room3Count = 0;
-    let Room4Count = 0;
-    let Room5Count = 0;
-    let Room6Count = 0;
-
-
-    rooms.forEach((room) => {
-      if (room.RoomNo === 'Maclab') {
-        Room1Count+=1;
-      } else if (room.RoomNo === 'A3') {
-        Room2Count+=1;
-      } else if (room.RoomNo === 'IT18') {
-        Room3Count+=1;
-      } else if (room.RoomNo === 'IT7') {
-        Room4Count+=1;
-      } else if (room.RoomNo === 'IT2') {
-        Room5Count+=1;
-      } else if (room.RoomNo === 'IT11') {
-        Room6Count+=1;
-      }
-    });
-
-    return [
-      { name: 'Maclab', rooms: Room1Count },
-      { name: 'A3', rooms: Room2Count },
-      { name: 'IT18', rooms: Room3Count },
-      { name: 'IT7', rooms: Room4Count },
-      { name: 'IT2', rooms: Room5Count },
-      { name: 'IT11', rooms: Room6Count },
-    ];
-  }
-
-
-
-  function calculateItemCounts() {
-    let Item1Count = 0;
-    let Item2Count = 0;
-    let Item3Count = 0;
-    let Item4Count = 0;
-    let Item5Count = 0;
-    let Item6Count = 0;
-
-
-    items.forEach((item) => {
-      if (item.Items === 'Mouse') {
-        Item1Count+=1;
-      } else if (item.Items === 'Keyboard') {
-        Item2Count+=1;
-      } else if (item.Items === 'Monitor') {
-        Item3Count+=1;
-      } else if (item.Items === 'AVR') {
-        Item4Count+=1;
-      } else if (item.Items === 'CPU') {
-        Item5Count+=1;
-      } else if (item.Items === 'Others') {
-        Item6Count+=1;
-      }
-    });
-
-    return [
-      { name: 'Mouse', items: Item1Count },
-      { name: 'Keyboard', items: Item2Count },
-      { name: 'Monitor', items: Item3Count },
-      { name: 'AVR', items: Item4Count },
-      { name: 'CPU', items: Item5Count },
-      { name: 'Others', items: Item6Count },
-    ];
-  }
-
-  
-
-  function calculateBorrowedItemCounts() {
-    let Borrow1Count = 0;
-    let Borrow2Count = 0;
-    let Borrow3Count = 0;
-    let Borrow4Count = 0;
-    let Borrow5Count = 0;
-    let Borrow6Count = 0;
-
-    borrows.forEach((borrow) => {
-      if (borrow.ItemBorrowed === 'HDMI') {
-        Borrow1Count+=1;
-      } else if (borrow.ItemBorrowed === 'Television') {
-        Borrow2Count+=1;
-      } else if (borrow.ItemBorrowed === 'Projector') {
-        Borrow3Count+=1;
-      } else if (borrow.ItemBorrowed === 'Chairs') {
-        Borrow4Count+=1;
-      } else if (borrow.ItemBorrowed === 'Monitor') {
-        Borrow5Count+=1;
-      } else if (borrow.ItemBorrowed === 'Others') {
-        Borrow6Count+=1;
-      }
-    });
-
-    return [
-      { name: 'HDMI', borrows: Borrow1Count },
-      { name: 'Television', borrows: Borrow2Count },
-      { name: 'Projector', borrows: Borrow3Count },
-      { name: 'Chairs', borrows: Borrow4Count },
-      { name: 'Monitor', borrows: Borrow5Count },
-      { name: 'Others', borrows: Borrow6Count },
-    ];
-  }
 
  // Create a function to count the services in "SERVICE-REQUEST" collection
  function countServiceRequests() {
@@ -479,7 +510,6 @@ export default function DashboardAppPage() {
       });
     }
   });
-
 
   const pieChartData = Object.entries(serviceCounts).map(([name, value, fill]) => ({
     name,
@@ -523,6 +553,8 @@ export default function DashboardAppPage() {
           );
         };
 
+        
+
   return (
     <>
       <Helmet>
@@ -542,22 +574,22 @@ export default function DashboardAppPage() {
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Item Borrow Requests " total={totalBrequest} color="info" /> }
+            { <AppWidgetSummary title="Forms " total={totalForms} color="info" /> }
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Service Requests" total={totalServices} color="warning" /> }
+            { <AppWidgetSummary title="Profilings" total={totalProfiling} color="warning" /> }
           </Grid>
 
           <Grid item xs={6} sm={3} md={3}>
-            { <AppWidgetSummary title="Item Requests" total={totalIrequest} color="error"/> }
+            { <AppWidgetSummary title="Reports" total={totalReports} color="error"/> }
           </Grid>
 
 
 
 
           <Grid item xs={12} md={8} lg={8}>
-          <div className="first-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="first-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF'}}>
           <Typography variant="h5"style={{ textAlign: 'center' }}>Breakdown of Services Requested</Typography>
                 <ResponsiveContainer width="100%" height={350}>
                   <PieChart width={330} height={400}>
@@ -578,24 +610,24 @@ export default function DashboardAppPage() {
 
 
           <Grid item xs={12} md={4} lg={4} >
-          <div className="second-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="second-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF'}}>
             <Typography variant="h5" style={{ textAlign: 'center' }}>Total Service Requests Per Room</Typography>
             <ResponsiveContainer width="100%" height={350}>
             <TableContainer style={{ maxHeight: '300px', overflowY: 'auto' }}>
               <Table>
-                <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: 'white' }}>
+                <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
-                    <th align='left' style={{ color: '#7D7C7C', fontWeight: 'normal'  }}>Room</th>
-                    <th align="right" style={{ color: '#7D7C7C', fontWeight: 'normal'  }}>Total Requests</th>
+                    <th align='center' style={{  color: 'white'  }}>Room</th>
+                    <th align="center" style={{ color: 'white'  }}>Total Requests</th>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {LocationRoom.map((row) => (
                     <TableRow key={row.name}>
-                      <TableCell component="th" scope="row">
+                      <TableCell align='center' component="th" scope="row">
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.services}</TableCell>
+                      <TableCell align="center">{row.services}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -608,7 +640,7 @@ export default function DashboardAppPage() {
 
 
           <Grid item xs={12} md={5} lg={5}>
-          <div className="third-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="third-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
             <Typography variant="h5" style={{ textAlign: 'center' }}>Breakdown of Borrowed Items</Typography>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart width={300} height={300} barSize={50} data={borrowCounts}>
@@ -626,7 +658,7 @@ export default function DashboardAppPage() {
 
           
           <Grid item xs={12} md={7} lg={7}>
-          <div className="fourth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="fourth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Breakdown of Item Requests</Typography>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart width={270} height={300} barSize={50} data={itemCounts}>
@@ -662,101 +694,108 @@ export default function DashboardAppPage() {
                   </Grid> */}
 
 
-          <Grid item xs={12} md={12} lg={12}>
-        <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
-          <TableContainer component={Paper} style={{
-          maxHeight: '300px',
-          overflowY: 'auto',
-          borderRadius: '10px', // Set the border-radius property here
-        }}>
-          <Table style={{ border: '1px solid #ddd' }}>
-              <TableHead>
-                <TableRow>
-                    <th style={{ textAlign: 'center' }}>PC No.</th>
-                    <th style={{ textAlign: 'center' }}>Unit Serial No.</th>
-                    <th style={{ textAlign: 'center' }}>Processor</th>
-                    <th style={{ textAlign: 'center' }}>Monitor</th>
-                    <th style={{ textAlign: 'center' }}>Mouse</th>
-                    <th style={{ textAlign: 'center' }}>Keyboard</th>
-                    <th style={{ textAlign: 'center' }}>Room</th>
-                    <th style={{ textAlign: 'center' }}>Status</th>
-                    <th style={{ textAlign: 'center' }}>Custodian</th>
+<Grid item xs={12} md={12} lg={12}>
+        <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
+          <Typography variant="h5" style={{ textAlign: 'center' }}>Computer Inventory</Typography>
+          <ResponsiveContainer width="100%" height={350}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+              <Table style={{ border: '1px solid #ddd' }}>
+              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
+                  <TableRow>
+                    <th style={{ textAlign: 'center', color: 'white' }}>PC No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Unit Serial No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Processor</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>HDD</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Memory</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Keyboard</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Monitor</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Mouse</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>VGA</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Remarks</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Status</th>
+                    
+                    
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {labInventoryData
+                  .slice((page1 - 1) * itemsPerPage1, page1 * itemsPerPage1)
+                  .map((observation, index) => (
+                    <TableRow key={index}>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.PCNum}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.UnitSerialNum}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Processor}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.HDD}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Memory}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Keyboard}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Monitor}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Mouse}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.VGA}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Remarks}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Status}</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                  {rooms
-                  .slice((page1 - 1) * itemsPerPage2, page1 * itemsPerPage2)
-                  .map((room) => (
-                    <TableRow key={room.id}>
-                          <td style={{ textAlign: 'center' }}>{room.PCNo}</td>
-                          <td style={{ textAlign: 'center' }}>{room.SerialNo}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Processor}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Monitor}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Mouse}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Keyboard}</td>
-                          <td style={{ textAlign: 'center' }}>{room.RoomNo}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Status}</td>
-                          <td style={{ textAlign: 'center' }}>{room.Custodian}</td>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                </TableContainer>
-                <Pagination
-            count={Math.ceil(rooms.length / itemsPerPage2)}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </ResponsiveContainer>
+          <Pagination
+            count={Math.ceil(labInventoryData.length / itemsPerPage1)}
             page={page1}
             onChange={handlePageChange1}
           />
-              </div>
-            </Grid>
+        </div>
+        
+      </Grid>
 
-            <Grid item xs={12} md={12} lg={12}>
-        <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
-          <TableContainer component={Paper} style={{
-          maxHeight: '300px',
-          overflowY: 'auto',
-          borderRadius: '10px', // Set the border-radius property here
-        }}>
-             <Table style={{ border: '1px solid #ddd' }}>
-              <TableHead>
-                <TableRow>
-                <th style={{ textAlign: 'center' }}>Room Equipment</th>
-                <th style={{ textAlign: 'center' }}>Brand</th>
-                <th style={{ textAlign: 'center' }}>Quantity</th>
-                <th style={{ textAlign: 'center' }}>Room</th>
-                <th style={{ textAlign: 'center' }}>Remarks</th>
-                <th style={{ textAlign: 'center' }}>Custodian</th>
+      <Grid item xs={12} md={12} lg={12}>
+        <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
+          <Typography variant="h5" style={{ textAlign: 'center' }}>Room Equipment Inventory</Typography>
+          <ResponsiveContainer width="100%" height={350}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+              <Table style={{ border: '1px solid #ddd'  }}>
+              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
+                  <TableRow>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Room Equipment</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Brand Description</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Model No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Serial No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Quantity</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Remarks</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Custodian</th>
+                   
+                    
+                    
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {equipInventoryData
+                  .slice((page2 - 1) * itemsPerPage2, page2 * itemsPerPage2)
+                  .map((observation, index) => (
+                    <TableRow key={index}>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.RoomEquipment}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.BrandDescription}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.ModelNum}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.SerialNum}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Quantity}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Remarks}</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{observation.Custodian}</TableCell>
+
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                  {equipments
-                  .slice((page2 - 1) * itemsPerPage1, page2 * itemsPerPage1)
-                  .map((equipment) => (
-                    <TableRow key={equipment.id}>
-                          <td style={{ textAlign: 'center' }}>{equipment.RoomEquipment}</td>
-                          <td style={{ textAlign: 'center' }}>{equipment.Brand}</td>
-                          <td style={{ textAlign: 'center' }}>{equipment.Quantity}</td>
-                          <td style={{ textAlign: 'center' }}>{equipment.RoomNo}</td>
-                          <td style={{ textAlign: 'center' }}>{equipment.Remarks}</td>
-                          <td style={{ textAlign: 'center' }}>{equipment.Custodian}</td>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                </TableContainer>
-                <Pagination
-            count={Math.ceil(equipments.length / itemsPerPage1)}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </ResponsiveContainer>
+          <Pagination
+            count={Math.ceil(equipInventoryData.length / itemsPerPage2)}
             page={page2}
             onChange={handlePageChange2}
           />
-              </div>
-            </Grid>
+        </div>
+      </Grid>
 
-
-
-
-
-
+           
 
           
 
