@@ -589,7 +589,7 @@ export default function DashboardAppPage() {
 
 
           <Grid item xs={12} md={8} lg={8}>
-          <div className="first-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="first-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF'}}>
           <Typography variant="h5"style={{ textAlign: 'center' }}>Breakdown of Services Requested</Typography>
                 <ResponsiveContainer width="100%" height={350}>
                   <PieChart width={330} height={400}>
@@ -610,24 +610,24 @@ export default function DashboardAppPage() {
 
 
           <Grid item xs={12} md={4} lg={4} >
-          <div className="second-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="second-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF'}}>
             <Typography variant="h5" style={{ textAlign: 'center' }}>Total Service Requests Per Room</Typography>
             <ResponsiveContainer width="100%" height={350}>
             <TableContainer style={{ maxHeight: '300px', overflowY: 'auto' }}>
               <Table>
-                <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: 'white' }}>
+                <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
-                    <th align='left' style={{ color: '#7D7C7C', fontWeight: 'normal'  }}>Room</th>
-                    <th align="right" style={{ color: '#7D7C7C', fontWeight: 'normal'  }}>Total Requests</th>
+                    <th align='center' style={{  color: 'white'  }}>Room</th>
+                    <th align="center" style={{ color: 'white'  }}>Total Requests</th>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {LocationRoom.map((row) => (
                     <TableRow key={row.name}>
-                      <TableCell component="th" scope="row">
+                      <TableCell align='center' component="th" scope="row">
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.services}</TableCell>
+                      <TableCell align="center">{row.services}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -640,7 +640,7 @@ export default function DashboardAppPage() {
 
 
           <Grid item xs={12} md={5} lg={5}>
-          <div className="third-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="third-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
             <Typography variant="h5" style={{ textAlign: 'center' }}>Breakdown of Borrowed Items</Typography>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart width={300} height={300} barSize={50} data={borrowCounts}>
@@ -658,7 +658,7 @@ export default function DashboardAppPage() {
 
           
           <Grid item xs={12} md={7} lg={7}>
-          <div className="fourth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+          <div className="fourth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Breakdown of Item Requests</Typography>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart width={270} height={300} barSize={50} data={itemCounts}>
@@ -695,24 +695,24 @@ export default function DashboardAppPage() {
 
 
 <Grid item xs={12} md={12} lg={12}>
-        <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+        <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Computer Inventory</Typography>
           <ResponsiveContainer width="100%" height={350}>
             <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
               <Table style={{ border: '1px solid #ddd' }}>
-              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: 'white' }}>
+              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
-                    <th style={{ textAlign: 'center' }}>PC No.</th>
-                    <th style={{ textAlign: 'center' }}>Unit Serial No.</th>
-                    <th style={{ textAlign: 'center' }}>Processor</th>
-                    <th style={{ textAlign: 'center' }}>HDD</th>
-                    <th style={{ textAlign: 'center' }}>Memory</th>
-                    <th style={{ textAlign: 'center' }}>Keyboard</th>
-                    <th style={{ textAlign: 'center' }}>Monitor</th>
-                    <th style={{ textAlign: 'center' }}>Mouse</th>
-                    <th style={{ textAlign: 'center' }}>VGA</th>
-                    <th style={{ textAlign: 'center' }}>Remarks</th>
-                    <th style={{ textAlign: 'center' }}>Status</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>PC No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Unit Serial No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Processor</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>HDD</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Memory</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Keyboard</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Monitor</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Mouse</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>VGA</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Remarks</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Status</th>
                     
                     
                   </TableRow>
@@ -749,20 +749,20 @@ export default function DashboardAppPage() {
       </Grid>
 
       <Grid item xs={12} md={12} lg={12}>
-        <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA' }}>
+        <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Room Equipment Inventory</Typography>
           <ResponsiveContainer width="100%" height={350}>
             <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
-              <Table style={{ border: '1px solid #ddd' }}>
-              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: 'white' }}>
+              <Table style={{ border: '1px solid #ddd'  }}>
+              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
-                    <th style={{ textAlign: 'center' }}>Room Equipment</th>
-                    <th style={{ textAlign: 'center' }}>Brand Description</th>
-                    <th style={{ textAlign: 'center' }}>Model No.</th>
-                    <th style={{ textAlign: 'center' }}>Serial No.</th>
-                    <th style={{ textAlign: 'center' }}>Quantity</th>
-                    <th style={{ textAlign: 'center' }}>Remarks</th>
-                    <th style={{ textAlign: 'center' }}>Custodian</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Room Equipment</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Brand Description</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Model No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Serial No.</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Quantity</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Remarks</th>
+                    <th style={{ textAlign: 'center', color: 'white' }}>Custodian</th>
                    
                     
                     
