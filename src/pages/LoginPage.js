@@ -21,6 +21,8 @@ const StyledRoot = styled('div')(({ theme }) => ({
   backgroundImage: `url('${Pimentel1}')`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  minHeight: '1050px', 
 }));
 
 const StyledSection = styled('div')(({ theme }) => ({
@@ -33,36 +35,26 @@ const StyledSection = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-// const StyledContent = styled('div')(({ theme }) => ({
-//   maxWidth: 480,
-//   margin: 'auto',
-//   minHeight: '100vh',
-//   display: 'flex',
-//   justifyContent: 'center',
-//   flexDirection: 'column',
-//   padding: theme.spacing(8, 7),
-//   backgroundColor: '#FFFFFF',
-//   borderRadius: 16, // Add rounded corners
-//   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Add shadows
-// }));
-
 const StyledContent = styled('div')(({ theme }) => ({
   maxWidth: 480,
   margin: 'auto',
   padding: theme.spacing(8, 7),
-  backgroundColor: '#FFFFFF',
+  backgroundColor: '#FBF6EC', 
   borderRadius: 16,
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  // backdropFilter: 'blur(50px)', // Apply the blur effect
+  border: '1px solid rgba(255, 255, 255, 0.25)', // Apply the border with transparency
 }));
 
+
 const ContentContainer = styled('div')(({ theme }) => ({
-  minHeight: '100vh', // Ensure the container takes the full viewport height
+  minHeight: '100vh', 
   display: 'flex',
-  justifyContent: 'center', // Center the content horizontally
-  alignItems: 'center', // Center the content vertically
+  justifyContent: 'center', 
+  alignItems: 'center',
 }));
 
 // ----------------------------------------------------------------------
@@ -78,55 +70,16 @@ export default function LoginPage() {
 
 
       <StyledRoot >
-        {/* <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        /> */}
-
-        {/* {mdUp && (
-          <StyledSection>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            <img src="/assets/illustrations/illustration_login.png" alt="login" />
-          </StyledSection>
-        )} */}
 
         <Container maxWidth="sm"  >
           <ContentContainer> 
+         
           <StyledContent >
-            <Logo />
+          <Logo />
+           
           <Typography variant="h2" sx={{ mb: 5 }} style={{ color: '#ff5500' }} >
               Sign in
             </Typography>
-
-            {/* <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2">Get started</Link>
-            </Typography> */}
-
-            {/* <Stack direction="row" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={22} height={22} />
-              </Button>
-            </Stack> */}
-
-            {/* <Divider sx={{ my: 3 }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                OR
-              </Typography>
-            </Divider> */}
 
             <LoginForm />
           </StyledContent>
@@ -137,3 +90,4 @@ export default function LoginPage() {
     </>
   );
 }
+

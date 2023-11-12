@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'; // Import useEffect
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Link,
   Stack,
-  IconButton,
+  IconButton, 
   InputAdornment,
   TextField,
   Checkbox,
@@ -11,8 +10,10 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { initializeApp} from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, collection, getDocs, doc, query, where } from 'firebase/firestore';
 import Iconify from '../../../components/iconify';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -31,82 +32,83 @@ const auth = getAuth(app);
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const location = useLocation(); // Access the location object
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); // State variable for error message
-  
-  const [authenticated, setAuthenticated] = useState(false); // Define setAuthenticated
-
-  
-  // useEffect(() => {
-  //   // Check if the user is already authenticated, then navigate to the dashboard
-  //   const unsubscribe = auth.onAuthStateChanged((user) => {
-  //     if (user) {
-  //       navigate('/dashboard', { replace: true });
-  //     }
-  //   });
-  //   return () => unsubscribe();
-  // }, [navigate]);
+  const [error, setError] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
 
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    let isHandled = false;
+  
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setAuthenticated(!!user);
       setIsLoading(false);
-
-      if (!!user) {
-        const prevPath = location.state?.from || '/dashboard'; // Get the previous path from location state
-        navigate(prevPath);
-        localStorage.setItem('authenticated', 'true');
+  
+      if (!isHandled && user) {
+        const db = getFirestore(app);
+        const usersCollection = collection(db, 'WP4-pendingUsers');
+  
+        // Query the collection to find the document with the matching UID
+        const querySnapshot = await getDocs(
+          query(usersCollection, where('uid', '==', user.uid))
+        );
+  
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+       
+  
+          if (userData && userData.status === 'registered') {
+            const prevPath = location.state?.from || '/dashboard';
+            navigate(prevPath);
+            localStorage.setItem('authenticated', 'true');
+          } else {
+            alert('Your account is still pending or not registered. Please wait for approval or contact support.');
+            await signOut(auth);
+          }
+        } else {
+          alert('Your account is still pending or not registered.');
+          await signOut(auth);
+        }
+  
+        isHandled = true;
       }
     });
-
+  
     const isUserAuthenticated = localStorage.getItem('authenticated') === 'true';
     setAuthenticated(isUserAuthenticated);
-
+  
     return () => unsubscribe();
-  }, [navigate, location]);
+  }, [navigate, location, auth]);
+
+  // ---------------------------------------
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
-      // Authenticate using Firebase
       await signInWithEmailAndPassword(auth, email, password);
-      // If authentication is successful, redirect to the dashboard
-      navigate('/dashboard', { replace: true });
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Error signing in: ', error.message);
-      // Set the error message in case of authentication failure
-      setError('Invalid email or password. Please try again.');
+      setError('Invalid email / password. Try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-//   auth.onAuthStateChanged(() => {
-//   // The Auth service is now fully initialized
-
-//   // Set session persistence for Firebase Authentication
-//   auth.setPersistence(auth.Auth.Persistence.SESSION)
-//     .then(() => {
-//       // The session persistence is set.
-//     })
-//     .catch((error) => {
-//       console.error('Error setting session persistence:', error);
-//     });
-// });
 
   return (
     <>
+    
     <form onSubmit={handleLogin}>
       <Stack spacing={3}>
         <TextField
           name="email"
           label="Email address"
-          placeholder="Username"
+          placeholder="Email"
           size='small'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -142,19 +144,26 @@ export default function LoginForm() {
       <LoadingButton
         fullWidth
         size="large"
-        type="button" // Use type="button" to prevent form submission
+        type="submit" // Use type="button" to prevent form submission
         variant="contained"
         onClick={handleLogin}
         loading={isLoading}
         style={{ backgroundColor: '#0073e6', color: 'white' }}
       >
         Login
-      </LoadingButton>
+      </LoadingButton> 
       {error && ( // Render the error message if it exists
         <Typography variant="body2" color="error" sx={{ marginTop: 1, backgroundColor: '#f8d7da', color: '#721c24', padding: '8px', borderRadius: '4px', border: '1px solid #f5c6cb' }}>
           {error}
         </Typography>
       )}
+       <Stack direction="row" alignItems="center" justifyContent="center" sx={{ my: 2 }}>
+        <Link to= "/signup"variant="subtitle2">
+         Click here to register!
+        </Link>
+      </Stack>
+
+      
     </form>
     </>
   );

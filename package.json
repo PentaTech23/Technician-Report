@@ -8,7 +8,7 @@
     "testEnvironment": "jsdom"
   },
   "scripts": {
-    "start": "react-scripts start ",
+    "start": "react-scripts start src/LoginPage.js",
     "build": "react-scripts build",
     "test": "jest",
     "eject": "react-scripts eject",
