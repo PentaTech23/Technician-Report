@@ -16,16 +16,24 @@ const firebaseApp = initializeApp({
 
 export const AuthContext = createContext()
 
-export const AuthContextProvider = props => {
-  const [user, setUser] = useState()
-  const [error, setError] = useState()
+export const AuthContextProvider = (props) => {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), setUser, setError)
-    return () => unsubscribe()
-  }, [])
-  return <AuthContext.Provider value={{user,error}} {...props} />
-}
+    const unsubscribe = onAuthStateChanged(getAuth(), (authUser) => {
+      setUser(authUser);
+      setError(null); // Clear any previous errors
+    }, (authError) => {
+      setUser(null);
+      setError(authError);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return <AuthContext.Provider value={{ user, error }} {...props} />;
+};
 
 export const useAuthState = () => {
   const auth = useContext(AuthContext)

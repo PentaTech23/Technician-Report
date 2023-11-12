@@ -61,6 +61,7 @@ const archivesCollectionRef = collection(archivesRef, "ARCHIVES-FORMS");
 // Second declaration
 const storage = getStorage(firebaseApp);
 
+
 //  Clear the whole Form function
 export default function UserPage() {
   const [fetchedData, setFetchedData] = useState([]);
@@ -583,6 +584,8 @@ const handleViewClose = () => {
       setOpenFilter(false);
     };
 
+
+
   return (
     <>
       <Helmet>
@@ -838,6 +841,7 @@ const handleViewClose = () => {
                 <TableCell>Other Items</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
+
               </TableRow>
             </TableHead>
             
@@ -876,6 +880,7 @@ const handleViewClose = () => {
                       <MoreVertIcon />
                     </IconButton>
                   </TableCell>
+               
               </TableRow>
 
               ))}
@@ -883,6 +888,7 @@ const handleViewClose = () => {
           </Table>
         </TableContainer>
       )}
+
       <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
         <DialogTitle>Remove Document</DialogTitle>
         <DialogContent>
@@ -894,6 +900,7 @@ const handleViewClose = () => {
           <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
         </DialogActions>
       </Dialog>
+      
        <TablePagination
         rowsPerPageOptions={[4, 10, 25]}
         component="div"

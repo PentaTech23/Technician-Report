@@ -84,10 +84,7 @@ export function useAuth() {
 // ----------------------------------------------------------------------
 export default function Router() {
   const routes = useRoutes([
-    // {
-    //   path: 'login',
-    //   element: <LoginPage />,
-    // },
+
     {
       path: '/dashboard',
       element: <DashboardLayout />,
@@ -122,15 +119,19 @@ export default function Router() {
       element: <SimpleLayout />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: '404', element: <Page404 /> },
-        { path: '*', element: <Navigate to="/404" /> },
+        // { path: '404', element: <Page404 /> },
+        // { path: '*', element: <Navigate to="/404" /> },
       ],
     },
-    {
-      path: '*',
-      element: <Navigate to="/404" replace />,
-    },
+    // {
+    //   path: '*',
+    //   element: <Navigate to="/404" replace />,
+    // },
 
+     {/* <Route path="/login" element={<LoginPage /> } >
+              
+                <Route path="signup/*" element={<SignUpComponent />} />
+              </Route> */}
     
 
     

@@ -1,15 +1,41 @@
-import { Typography } from '@mui/material'
-import { getAuth, signOut }  from 'firebase/auth' 
-import { useAuthState } from '../../../firebase'
+import { useEffect, useState } from 'react';
+import { Typography } from '@mui/material';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { useAuthState } from '../../../firebase';
+
 
 export const Home = () => {
-    const { user } = useAuthState()
-
+    const { user } = useAuthState();
+    const [username, setUsername] = useState(null);
+    const [userType, setUserType] = useState(null);
+  
+    useEffect(() => {
+      const fetchUserData = async () => {
+        if (user) {
+          const db = getFirestore();
+          const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
+  
+          const querySnapshot = await getDocs(
+            query(pendingUsersCollection, where('uid', '==', user.uid))
+          );
+  
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            setUsername(userData.username);
+            setUserType(userData.userType);
+          }
+        }
+      };
+  
+      fetchUserData();
+    }, [user]);
+  
     return (
-        <>
-            {/* <h1>Welcome {user?.email} </h1> */}
-            <Typography variant="h5" style={{ color: '#ff5500' }}>Welcome {user?.email}  </Typography>
-            {/* <button onClick={()=>signOut(getAuth())}>Sign Out</button> */}
-        </>
-    )
-}
+      <>
+        <Typography variant="h5" style={{ color: '#ff5500' }}>
+          Welcome {username || user?.email} {userType && `(${userType})`}
+        </Typography>
+      </>
+    );
+  };

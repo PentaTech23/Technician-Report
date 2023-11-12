@@ -1,18 +1,37 @@
-import { Typography } from '@mui/material'
-import { getAuth, signOut }  from 'firebase/auth' 
-import { useAuthState } from '../../../firebase'
-
+import { useEffect, useState } from 'react';
+import { Typography } from '@mui/material';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { useAuthState } from '../../../firebase';
 
 export const Home = () => {
-    const { user } = useAuthState()
+  const { user } = useAuthState();
+  const [username, setUsername] = useState(null);
 
-    return (
-        <>
-            <h1>Welcome {user?.email} </h1>
-            <Typography>Welcome {user?.email}  </Typography>
-            {/* <button onClick={()=>signOut(getAuth())}>Sign Out</button> */}
-        </>
-    )
-}
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (user) {
+        const db = getFirestore(app);
+        const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
 
-// export default welcome
+        const querySnapshot = await getDocs(
+          query(pendingUsersCollection, where('uid', '==', user.uid))
+        );
+
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          setUsername(userData.username);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [user]);
+
+  return (
+    <>
+      <h1>Welcome {username}</h1>
+      <Typography>Welcome {username}</Typography>
+      {/* <button onClick={() => signOut(getAuth())}>Sign Out</button> */}
+    </>
+  );
+};
