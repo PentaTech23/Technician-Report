@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 import { Paper, Table, TableCell, TableHead, TableRow, Grid, Container, Typography, Pagination, TableBody, TableContainer } from '@mui/material';
 import { AppWidgetSummary} from '../sections/@dashboard/app';
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
   authDomain: "wp4-technician-dms.firebaseapp.com",
@@ -698,7 +699,7 @@ export default function DashboardAppPage() {
         <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Computer Inventory</Typography>
           <ResponsiveContainer width="100%" height={350}>
-            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto'}}>
               <Table style={{ border: '1px solid #ddd' }}>
               <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
@@ -752,7 +753,7 @@ export default function DashboardAppPage() {
         <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Room Equipment Inventory</Typography>
           <ResponsiveContainer width="100%" height={350}>
-            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto'}}>
               <Table style={{ border: '1px solid #ddd'  }}>
               <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
