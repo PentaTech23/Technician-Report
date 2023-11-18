@@ -34,7 +34,11 @@ export const Home = () => {
     return (
       <>
         <Typography variant="h5" style={{ color: '#ff5500' }}>
-          Welcome {username || user?.email} {userType && `(${userType})`}
+          Welcome {username || user?.email} 
+        </Typography>
+        <br/>
+        <Typography variant="h5" style={{ color: '#ff5500' }}>
+           {userType && `(${userType})`}
         </Typography>
       </>
     );
