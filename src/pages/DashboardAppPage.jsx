@@ -4,8 +4,9 @@ import { getFirestore, collectionGroup, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';// @mui
 import { useTheme } from '@mui/material/styles';
-import { Paper, Table, TableCell, TableHead, TableRow, Grid, Container, Typography, Pagination, TableBody, TableContainer } from '@mui/material';
+import { Paper, Table, TableCell, TableHead, TableRow, Grid, Container, Typography, Pagination, TableBody, TableContainer, TextField } from '@mui/material';
 import { AppWidgetSummary} from '../sections/@dashboard/app';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -48,8 +49,63 @@ export default function DashboardAppPage() {
   const [inventory, setInventory] = useState([]);
   const [totalInventory, setTotalInventory] = useState([]);
   const [totalReports, setTotalReports] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredLabInventoryData, setFilteredLabInventoryData] = useState([]);
+  const [searchTerm2, setSearchTerm2] = useState('');
+  const [filteredLabInventoryData2, setFilteredLabInventoryData2] = useState([]);
+  const [searchTerm3, setSearchTerm3] = useState('');
+  const [filteredLocationRoom, setFilteredLocationRoom] = useState([]);
+
+  const handleSearch = () => {
+    const filteredData = equipInventoryData.filter((observation) => {
+      // Customize the conditions based on your search criteria
+      return (
+        observation.RoomEquipment.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.BrandDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.ModelNum.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.SerialNum.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.Quantity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.Remarks.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        observation.Custodian.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+
+    setFilteredLabInventoryData(filteredData);
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm, equipInventoryData]);
+
+  const handleSearch2 = () => {
+    const filteredData2 = labInventoryData.filter((observation) => {
+      // Customize the conditions based on your search criteria
+      return (
+        observation.PCNum.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.UnitSerialNum.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Processor.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.HDD.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Memory.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Keyboard.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Monitor.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Mouse.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.VGA.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Remarks.toLowerCase().includes(searchTerm2.toLowerCase()) ||
+        observation.Status.toLowerCase().includes(searchTerm2.toLowerCase()) 
+      );
+    });
+
+    setFilteredLabInventoryData2(filteredData2);
+  };
+
+  useEffect(() => {
+    handleSearch2();
+  }, [searchTerm2, labInventoryData]);
 
   
+  
+  
+
   useEffect(() => {
     fetchLabInventoryData();
   }, []);
@@ -59,26 +115,27 @@ export default function DashboardAppPage() {
       // Replace 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM' with your actual collection name
       const labInventoryQuery = collectionGroup(db, 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM');
       const labInventorySnapshot = await getDocs(labInventoryQuery);
-
+  
       // Initialize an array to store the fetched data
       const labInventoryDataArray = [];
-
+  
       labInventorySnapshot.docs.forEach((doc) => {
         const inputFieldObservations = doc.data().inputFieldObservations || [];
-
+  
         inputFieldObservations.forEach((observation) => {
           // Add each observation to the array
           labInventoryDataArray.push(observation);
         });
       });
-
-      // Set the lab inventory data in the state
+  
+      // Set both lab inventory data and filtered data in the state
       setLabInventoryData(labInventoryDataArray);
+      setFilteredLabInventoryData(labInventoryDataArray);
     } catch (error) {
       console.error('Error fetching lab inventory data:', error);
     }
   };
-
+  
   useEffect(() => {
     fetchEquipInventoryData();
   }, []);
@@ -532,26 +589,9 @@ export default function DashboardAppPage() {
           fill: colors[index],
         }));
 
-        const ServiceRequestsTable = ({ data }) => {
-          return (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Room</TableCell>
-                  <TableCell>Total Requests</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.services}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          );
-        };
+
+
+        
 
         
 
@@ -697,8 +737,21 @@ export default function DashboardAppPage() {
 <Grid item xs={12} md={12} lg={12}>
         <div className="sixth-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Computer Inventory</Typography>
+          <TextField 
+            type="text"
+            label="Search Computer Inventory..."
+            variant='outlined'
+            defaultValue="Small"
+            size="small"
+            style={{ marginBottom: '10px', marginLeft: '10px' }}
+            value={searchTerm2}
+            onChange={(e) => setSearchTerm2(e.target.value)}
+            
+          />
+
+
           <ResponsiveContainer width="100%" height={350}>
-            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto'}}>
               <Table style={{ border: '1px solid #ddd' }}>
               <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
                   <TableRow>
@@ -718,7 +771,7 @@ export default function DashboardAppPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {labInventoryData
+                  {filteredLabInventoryData2
                   .slice((page1 - 1) * itemsPerPage1, page1 * itemsPerPage1)
                   .map((observation, index) => (
                     <TableRow key={index}>
@@ -740,7 +793,7 @@ export default function DashboardAppPage() {
             </TableContainer>
           </ResponsiveContainer>
           <Pagination
-            count={Math.ceil(labInventoryData.length / itemsPerPage1)}
+            count={Math.ceil(filteredLabInventoryData2.length / itemsPerPage1)}
             page={page1}
             onChange={handlePageChange1}
           />
@@ -751,11 +804,22 @@ export default function DashboardAppPage() {
       <Grid item xs={12} md={12} lg={12}>
         <div className="seventh-box" style={{ borderRadius: '10px', border: '1px solid #D8D9DA', background: '#FFFFFF' }}>
           <Typography variant="h5" style={{ textAlign: 'center' }}>Room Equipment Inventory</Typography>
+          <TextField
+            type="text"
+            label="Search Equipment Inventory..."
+            variant='outlined'
+            defaultValue="Small"
+            size="small"
+            value={searchTerm}
+            style={{ marginBottom: '10px', marginLeft: '10px' }}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
           <ResponsiveContainer width="100%" height={350}>
-            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto', borderRadius: '10px' }}>
+            <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto'}}>
               <Table style={{ border: '1px solid #ddd'  }}>
-              <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
-                  <TableRow>
+                <TableHead style={{ position: 'sticky', top: '0', zIndex: '1', background: '#FF8042' }}>
+                <TableRow>
                     <th style={{ textAlign: 'center', color: 'white' }}>Room Equipment</th>
                     <th style={{ textAlign: 'center', color: 'white' }}>Brand Description</th>
                     <th style={{ textAlign: 'center', color: 'white' }}>Model No.</th>
@@ -769,7 +833,7 @@ export default function DashboardAppPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {equipInventoryData
+                  {filteredLabInventoryData
                   .slice((page2 - 1) * itemsPerPage2, page2 * itemsPerPage2)
                   .map((observation, index) => (
                     <TableRow key={index}>
@@ -780,7 +844,6 @@ export default function DashboardAppPage() {
                       <TableCell style={{ textAlign: 'center' }}>{observation.Quantity}</TableCell>
                       <TableCell style={{ textAlign: 'center' }}>{observation.Remarks}</TableCell>
                       <TableCell style={{ textAlign: 'center' }}>{observation.Custodian}</TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
@@ -788,7 +851,7 @@ export default function DashboardAppPage() {
             </TableContainer>
           </ResponsiveContainer>
           <Pagination
-            count={Math.ceil(equipInventoryData.length / itemsPerPage2)}
+            count={Math.ceil(filteredLabInventoryData.length / itemsPerPage2)}
             page={page2}
             onChange={handlePageChange2}
           />
