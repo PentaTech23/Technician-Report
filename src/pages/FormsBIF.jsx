@@ -4,69 +4,21 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
-
-// @mui
 import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
-        Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select, } from '@mui/material';
-// components
+        Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
+        FormControl, InputLabel } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
-// sections
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-// mock
-
-import { useAuthState } from '../firebase'
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
-  authDomain: "wp4-technician-dms.firebaseapp.com",
-  projectId: "wp4-technician-dms",
-  storageBucket: "wp4-technician-dms.appspot.com",
-  messagingSenderId: "1065436189229",
-  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
-};
-
-
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-
-// Initialize Firestore db
-const db = getFirestore(firebaseApp);
-
-// Access main collection
-const mainCollectionRef = collection(db, "WP4-TECHNICIAN-DMS");
-
-// Access FORMS document under main collection
-const formsDocRef = doc(mainCollectionRef, "FORMS");
-
-// Add to subcollection 
-const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
-
-// Access ARCHIVES document under main collection
-const archivesRef = doc(mainCollectionRef, "ARCHIVES");
-
-const archivesCollectionRef = collection(archivesRef, "ARCHIVES-FORMS");
-
-// Second declaration
-const storage = getStorage(firebaseApp);
-
-
-
-
-
-//  Clear the whole Form function
-
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
 export default function UserPage() {
 
 // Check the user's userType
-
-
-
 const { user } = useAuthState();
 const [username, setUsername] = useState(null);
 const [userType, setUserType] = useState(null);
@@ -86,7 +38,6 @@ useEffect(() => {
         setUsername(userData.username);
         setUserType(userData.userType);
 
-        // Ensure userData.uid is defined and is a string
         if (userData.uid && typeof userData.uid === 'string') {
           fetchUserDocuments(userData.uid);
         } else {
@@ -262,6 +213,11 @@ useEffect(() => {
   
     const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
   
+    // Validation logic for required fields
+    if (!Date || !FullName || !LocationRoom || !Borrower) {
+      alert('Please fill out all required fields');
+      return;
+    }
     try {
       const documentName = await incrementDocumentName();
       const docRef = doc(BorrowersCollectionRef, documentName);
@@ -482,7 +438,6 @@ const handleConfirmDelete = async () => {
 
   // This one is for Uploading files 
 
-
   const handleFileUpload = async (file) => {
   try {
     const allowedFileTypes = [
@@ -516,7 +471,7 @@ const handleConfirmDelete = async () => {
   }
 };
       
-  // This one is for Pagination
+// This one is for Pagination
 
 
 const [page, setPage] = useState(0); // Add these state variables for pagination
@@ -701,7 +656,7 @@ const handleViewClose = () => {
             return 'orange';
         case 'APPROVED':
           return 'green';
-        case 'DENIED':
+        case 'REJECTED':
           return 'red';
         default:
           return 'black'; // Default color if status doesn't match any case
@@ -710,10 +665,17 @@ const handleViewClose = () => {
     
 
 
+      const [selectedOption, setSelectedOption] = useState('All');
+    
+      const handleOptionChange = (e) => {
+        setSelectedOption(e.target.value);
+      };
+  
+
   return (
     <>
       <Helmet>
-        <title> Borrower Item's Form | Minimal UI </title>
+        <title> BORROWER'S FORM | Minimal UI </title>
       </Helmet>
 
         {/* This is the beginning of the Container for Faculty */}
@@ -722,7 +684,7 @@ const handleViewClose = () => {
   
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower Item's Form
+        Borrower's Form
       </Typography>
     </Stack>
 
@@ -758,6 +720,26 @@ const handleViewClose = () => {
           Refresh
         </Button>
         </div>
+        <div>
+        <FormControl fullWidth>
+          <InputLabel id="options-label">Select an option</InputLabel>
+          <Select
+            labelId="options-label"
+            id="options"
+            value={selectedOption}
+            onChange={handleOptionChange}
+            label="Select an option"
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="Approved">Approved</MenuItem>
+            <MenuItem value="Rejected">Rejected</MenuItem>
+            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
+            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
+            <MenuItem value="Archived">Archived</MenuItem>
+          </Select>
+        </FormControl>
+        <p>Selected Option: {selectedOption}</p>
+      </div>
       </div>
 
       <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
@@ -793,7 +775,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER ITEM
+                BORROWER'S FORM
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -921,14 +903,10 @@ const handleViewClose = () => {
         </Dialog>
     </div>  
   </Stack> 
-        
-</Container>
-)}
 {/* End of Faculty userType "New Document" function */}
     
 {/* Start of Faculty userType "Table" function */}
-{isFaculty && ( 
-<Container>
+
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -952,7 +930,6 @@ const handleViewClose = () => {
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
-
               </TableRow>
             </TableHead>
             
@@ -974,12 +951,10 @@ const handleViewClose = () => {
                   <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
-                      // Render a clickable link to download the file
                       <Link to={item.fileURL} target="_blank" download>
                         Download 
                       </Link>
                     ) : (
-                      // Display "No File" if there's no file URL
                       "No File"
                     )}
                   </TableCell>
@@ -991,9 +966,7 @@ const handleViewClose = () => {
                       <MoreVertIcon />
                     </IconButton>
                   </TableCell>
-               
               </TableRow>
-
               ))}
             </TableBody>
           </Table>
@@ -1002,7 +975,7 @@ const handleViewClose = () => {
        <TablePagination
         rowsPerPageOptions={[4, 10, 25]}
         component="div"
-        count={filteredData.length} // Make sure this reflects the total number of rows
+        count={filteredData.length} 
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
@@ -1037,7 +1010,7 @@ const handleViewClose = () => {
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower Item's Form
+        Borrower's Form
       </Typography>
       </Stack>
 
@@ -1049,17 +1022,7 @@ const handleViewClose = () => {
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
       >
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
-
-        <div>
+      <div>
         <Button
           onClick={() => fetchAllDocuments()}
           variant="contained"
@@ -1073,7 +1036,37 @@ const handleViewClose = () => {
           Refresh
         </Button>
         </div>
+        <div>
+          <TextField
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleFilterByName}
+            sx={{ width: '%' }}
+          />
+        </div>
+        <div style={{ margin: '0 8px' }}>
+        <FormControl fullWidth>
+          <InputLabel id="options-label">Select an option</InputLabel>
+          <Select
+            labelId="options-label"
+            id="options"
+            value={selectedOption}
+            onChange={handleOptionChange}
+            label="Select an option"
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="Approved">Approved</MenuItem>
+            <MenuItem value="Rejected">Rejected</MenuItem>
+            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
+            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
+            <MenuItem value="Archived">Archived</MenuItem>
+          </Select>
+        </FormControl>
       </div>
+      </div>
+
+    
 
       <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
         {selectedItems.length > 0 && (
@@ -1106,14 +1099,10 @@ const handleViewClose = () => {
       </div>  
       </Stack> 
       
-            
-    </Container>
-    )}
   {/* End of Technician usertype view for Search bar (top side) */}
 
   {/* Start of Technician usertype view for tables */}
-  {isTechnician && ( 
-    <Container>
+
     {isLoading ? (
       <CircularProgress />
     ) : (
@@ -1248,7 +1237,7 @@ const handleViewClose = () => {
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower Item's Form
+        Borrower's Form
       </Typography>
       </Stack>
 
@@ -1317,14 +1306,10 @@ const handleViewClose = () => {
       </div>  
       </Stack> 
       
-            
-    </Container>
-    )}
   {/* End of Dean usertype view for Search bar (top side) */}
 
   {/* Start of Dean usertype view for tables */}
-  {isDean && ( 
-    <Container>
+ 
     {isLoading ? (
       <CircularProgress />
     ) : (
@@ -1447,8 +1432,6 @@ const handleViewClose = () => {
       <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
     </Popover>
 
-
-
     </Container>
   )}
   {/* End of Dean usertype view for tables */}
@@ -1460,7 +1443,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER ITEM
+                BORROWER'S FORM
               </Typography>
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
@@ -1588,7 +1571,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER ITEM
+               BORROWER'S FORM
             </Typography>
             <DialogContent>
             <Grid
