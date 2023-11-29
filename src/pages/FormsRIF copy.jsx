@@ -1,25 +1,31 @@
 import { Helmet } from 'react-helmet-async';
+import { filter } from 'lodash';
+import { sentenceCase } from 'change-case';
 import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
 
+
 // @mui
 import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
-        Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select, } from '@mui/material';
+        Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select} from '@mui/material';
+
 // components
+import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
+import Label from '../components/label';
 import Iconify from '../components/iconify';
+import Scrollbar from '../components/scrollbar';
 // sections
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
 // mock
-
-import { useAuthState } from '../firebase'
+import USERLIST from '../_mock/user';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
@@ -44,7 +50,7 @@ const mainCollectionRef = collection(db, "WP4-TECHNICIAN-DMS");
 const formsDocRef = doc(mainCollectionRef, "FORMS");
 
 // Add to subcollection 
-const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
+const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
@@ -54,71 +60,22 @@ const archivesCollectionRef = collection(archivesRef, "ARCHIVES-FORMS");
 // Second declaration
 const storage = getStorage(firebaseApp);
 
-
-
-
-
-//  Clear the whole Form function
-
-
 export default function UserPage() {
-
-// Check the user's userType
-
-
-
-const { user } = useAuthState();
-const [username, setUsername] = useState(null);
-const [userType, setUserType] = useState(null);
-
-useEffect(() => {
-  const fetchUserData = async () => {
-    if (user) {
-      const db = getFirestore();
-      const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
-
-      const querySnapshot = await getDocs(
-        query(pendingUsersCollection, where('uid', '==', user.uid))
-      );
-        
-      if (!querySnapshot.empty) {
-        const userData = querySnapshot.docs[0].data();
-        setUsername(userData.username);
-        setUserType(userData.userType);
-
-        // Ensure userData.uid is defined and is a string
-        if (userData.uid && typeof userData.uid === 'string') {
-          fetchUserDocuments(userData.uid);
-        } else {
-          console.error('Invalid UID in userData:', userData.uid);
-        }
-      }
-    }
-  };
-
-  fetchUserData();
-}, [user]);
-
-const isFaculty = userType === 'faculty';
-const isTechnician = userType === 'technician';
-const isDean = userType === 'dean';
-
-// Start of Code
   const [fetchedData, setFetchedData] = useState([]);
-  const [fetchedDataTechnician, setFetchedDataTechnician] = useState([]);
-  const [fetchedDataDean, setFetchedDataDean] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+// Clear the whole form inputs
 const handleChange = (e) => {
   const { name, value } = e.target;
   setFormData({ ...formData, [name]: value });
 };
 
   const initialFormData = {
+    ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
+    Requisitioner: '',
     Items: [],
     otherItems: '',
     fileInput: '',
@@ -131,22 +88,23 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
+    ControlNum: null,
     Date: '',
     FullName: '',
-    LocationRoom: '',
-    Borrower: '',
+    LocationRoom: null,
+    Requisitioner: '',
     Items: [], // If this is an array, it can be empty initially
     otherItems: '',
     fileURL: '',
   });
 
-// Technician Show Query/table fetch from firestore
+// Show Query or the table, fetch data from firestore
 
   const fetchAllDocuments = async () => {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(BorrowersCollectionRef);
+      const querySnapshot = await getDocs(RequestCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -156,7 +114,7 @@ const handleChange = (e) => {
         dataFromFirestore.push(data);
       });
 
-      setFetchedDataTechnician(dataFromFirestore);
+      setFetchedData(dataFromFirestore);
     } catch (error) {
       console.error("Error fetching data from Firestore: ", error);
     } finally {
@@ -168,75 +126,7 @@ const handleChange = (e) => {
     fetchAllDocuments();
    }, []);
 
-// Dean Show Query/table fetch from firestore
-
-const DeanfetchAllDocuments = async () => {
-  setIsLoading(true);
-
-  try {
-    const querySnapshot = await getDocs(
-      query(BorrowersCollectionRef, where('status', '!=', 'PENDING (Technician)'))
-    );
-
-    const dataFromFirestore = [];
-
-    querySnapshot.forEach((doc) => {
-      // Handle each document here
-      const data = doc.data();
-      data.id = doc.id; // Add the ID field
-      dataFromFirestore.push(data);
-    });
-
-    setFetchedDataDean(dataFromFirestore);
-  } catch (error) {
-    console.error("Error fetching data from Firestore: ", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-useEffect(() => {
-  DeanfetchAllDocuments();
-}, []);
-
-// Show Query based on UID: 
-const fetchUserDocuments = async (userUID) => {
-  setIsLoading(true);
-
-  try {
-    // Ensure userUID is a string before proceeding
-    if (typeof userUID !== 'string') {
-      console.error('Invalid userUID:', userUID);
-      return;
-    }
-
-    const querySnapshotuid = await getDocs(
-      query(BorrowersCollectionRef, where('uid', '==', userUID))
-    );
-
-    const dataFromFirestore = [];
-
-    querySnapshotuid.forEach((doc) => {
-      const data = doc.data();
-      data.id = doc.id;
-      dataFromFirestore.push(data);
-    });
-
-    setFetchedData(dataFromFirestore);
-  } catch (error) {
-    console.error("Error fetching user's documents from Firestore: ", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-useEffect(() => {
-  // Ensure that user data is available before fetching documents
-  if (user?.uid) {
-    fetchUserDocuments(user.uid);
-  }
-}, [user]); // Trigger the fetch when the user object changes
-
+  const currentDocumentName = "SRF-00"; // Initialize it with your default document name
 
 // Function to increment the document name
 
@@ -244,7 +134,7 @@ useEffect(() => {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(RequestCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -255,99 +145,76 @@ useEffect(() => {
     return newDocumentName; // Return the generated document name
   };
 
-  // Add function
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    // const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
-    const {
+ // function for Adding new documents
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const { ControlNum, Date, FullName, LocationRoom, Requisitioner, Items=[], otherItems, fileURL } = formData;
+
+  try {
+    // Use the current document name when adding a new document
+    const documentName = await incrementDocumentName();
+
+    const docRef = doc(RequestCollectionRef, documentName);
+
+    const docData = {
       ControlNum,
       Date,
       FullName,
       LocationRoom,
       Requisitioner,
-      Services = [],
-      otherServices,
-      Remarks,
-      fileURL,
-    } = formData;
+      Items,
+      otherItems,
+      fileURL: fileURL || '',
+      archived: false, // Include the 'archived' field and set it to false for new documents
+      originalLocation: "ITEM-REQUEST", // Include the 'originalLocation' field
+    };
 
-    try {
-      const documentName = await incrementDocumentName();
-      const docRef = doc(BorrowersCollectionRef, documentName);
-  
-      const docData = {
-        ControlNum,
-        Date,
-        FullName,
-        LocationRoom,
-        Requisitioner,
-        Services,
-        otherServices,
-        Remarks,
-        fileURL: fileURL || '',
-        archived: false, // Include the 'archived' field and set it to false for new documents
-        originalLocation: 'SERVICE-REQUEST', // Include the 'originalLocation' field
-        uid: user?.uid || '',
-        status: "PENDING (Technician)",
-      };
-  
-      await setDoc(docRef, docData);
-  
-      const newData = { ...docData, id: documentName };
-      setFetchedData([...fetchedData, newData]);
-  
-      setOpen(false);
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error(error);
-      alert("Input cannot be incomplete");
-    }
-  
-    setFormData(initialFormData);
-  };
+    await setDoc(docRef, docData);
+
+    // Create a new data object that includes the custom ID
+    const newData = { ...docData, id: documentName };
+
+    // Update the state with the new data, adding it to the table
+    setFetchedData([...fetchedData, newData]);
+
+    setOpen(false);
+    setSnackbarOpen(true);
+  } catch (error) {
+    console.error(error);
+    alert("Input cannot be incomplete");
+  }
+  setFormData(initialFormData);
+};
 
   //  This one is for Search bar
   const [searchQuery, setSearchQuery] = useState('');
 
-const handleFilterByName = (event) => {
-  setPage(0);
-  setSearchQuery(event.target.value);
-};
 
-const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setSearchQuery(event.target.value);
+  };
 
-  return fieldsToSearchIn.some(field => {
-    if (item[field] && typeof item[field] === 'string') {
-      return item[field].toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    return false;
+  const filteredData = fetchedData.filter((item) => {
+    const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
+  
+    const servicesMatch = (item, searchQuery) => {
+      return item.Services && Array.isArray(item.Services) &&
+        item.Services.some(service => service.toLowerCase().includes(searchQuery.toLowerCase()));
+    };
+  
+    return fieldsToSearchIn.some(field => {
+      if (item[field] && typeof item[field] === 'string') {
+        return item[field].toLowerCase().includes(searchQuery.toLowerCase());
+      }
+      if (field === 'Items' && Array.isArray(item[field])) {
+        return servicesMatch(item, searchQuery);
+      }
+      return false;
+    });
   });
-});
-
-const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
-
-  return fieldsToSearchIn.some(field => {
-    if (item[field] && typeof item[field] === 'string') {
-      return item[field].toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    return false;
-  });
-});
-
-const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
-
-  return fieldsToSearchIn.some(field => {
-    if (item[field] && typeof item[field] === 'string') {
-      return item[field].toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    return false;
-  });
-});
 
 // This one is for the Edit button
 const [editData, setEditData] = useState(null);
@@ -359,14 +226,14 @@ const handleEditOpen = (data) => {
     setFormData({
       ...formData,
       ControlNum: data.ControlNum || '',
-        Date: data.Date || '',
-        FullName: data.FullName || '',
-        LocationRoom: data.LocationRoom || '',
-        Requisitioner: data.Requisitioner || '',
-        Services: data.Services || '',
-        otherServices: data.otherServices || '',
-        fileURL: data.fileURL || '',
-        id: data.id, // Set the document ID here
+      Date: data.Date || '',
+      FullName: data.FullName || '',
+      LocationRoom: data.LocationRoom || '',
+      Requisitioner: data.Requisitioner || '',
+      Items: data.Items || '',
+      otherItems: data.otherItems || '',
+      fileURL: data.fileURL || '',
+      id: data.id, // Set the document ID here
     });
     setEditData(data);
     setEditOpen(true);
@@ -388,7 +255,7 @@ const handleEditSubmit = async () => {
       // Include other properties here
     };
 
-    const docRef = doc(BorrowersCollectionRef, formData.id);
+    const docRef = doc(RequestCollectionRef, formData.id);
 
     // Update the editData object with the new file URL
     updatedEditData.fileURL = formData.fileURL;
@@ -408,10 +275,10 @@ const handleConfirmDeleteWithoutArchive = async () => {
   try {
 
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(RequestCollectionRef, documentToDelete);
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
    
-    await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+    await deleteDoc(doc(RequestCollectionRef, documentToDelete));
     
     // Update the UI by removing the deleted row
     setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -447,9 +314,9 @@ const [snackbarOpenArchive, setSnackbarOpenArchive] = useState(false);
 const handleConfirmDelete = async () => {
   try {
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(RequestCollectionRef, documentToDelete);
       // Set the 'originalLocation' field to the current collection and update the Archive as true
-      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-BORROWERS" });
+      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-REQUEST" });
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
 
@@ -476,7 +343,7 @@ const handleConfirmDelete = async () => {
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
-      await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+      await deleteDoc(doc(RequestCollectionRef, documentToDelete));
 
       // Update the UI by removing the archived document
       setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -532,15 +399,13 @@ const handleConfirmDelete = async () => {
       
   // This one is for Pagination
 
-
 const [page, setPage] = useState(0); // Add these state variables for pagination
 const [rowsPerPage, setRowsPerPage] = useState(4);
 
 const startIndex = page * rowsPerPage;
 const endIndex = startIndex + rowsPerPage;
 const displayedData = filteredData.slice(startIndex, endIndex);
-const displayedDataTechnician = filteredDataTechnician.slice(startIndex, endIndex);
-const displayedDataDean = filteredDataDean.slice(startIndex, endIndex);
+
 
 const handlePageChange = (event, newPage) => {
   console.log("Page changed to:", newPage); // Log the new page number
@@ -623,7 +488,7 @@ const handleConfirmDeleteAll = async () => {
   try {
     // Create an array of promises to delete each selected item
     const deletePromises = selectedItems.map(async (itemId) => {
-      return deleteDoc(doc(BorrowersCollectionRef, itemId));
+      return deleteDoc(doc(RequestCollectionRef, itemId));
     });
 
     // Use Promise.all to await all the delete operations
@@ -669,6 +534,15 @@ const handleViewClose = () => {
 
   const [snackbarOpen1, setSnackbarOpen1] = useState(false);
 
+  const [order, setOrder] = useState('asc');
+
+  const [selected, setSelected] = useState([]);
+
+  const [orderBy, setOrderBy] = useState('name');
+
+  const [filterName, setFilterName] = useState('');
+
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -707,36 +581,18 @@ const handleViewClose = () => {
       setOpenFilter(false);
     };
 
-    const getStatusColor = (status) => {
-      switch (status) {
-        case 'PENDING (Technician)':
-          return 'orange';
-          case 'PENDING (Dean)':
-            return 'orange';
-        case 'APPROVED':
-          return 'green';
-        case 'DENIED':
-          return 'red';
-        default:
-          return 'black'; // Default color if status doesn't match any case
-      }
-    };
-    
-
 
   return (
     <>
       <Helmet>
-        <title> Service Form Request | Minimal UI </title>
+        <title> Request Item's Form | Minimal UI </title>
       </Helmet>
 
-        {/* This is the beginning of the Container for Faculty */}
-        {isFaculty && ( 
       <Container>
-  
+
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-      Service Request Form
+        Request Item's Form
       </Typography>
     </Stack>
 
@@ -759,18 +615,20 @@ const handleViewClose = () => {
         </div>
 
         <div>
-        <Button
-          onClick={() => fetchUserDocuments(user?.uid)}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
+          <Button
+            onClick={fetchAllDocuments}
+            variant="contained"
+            size="large"
+            style={{
+              margin: '0 8px', // Add margin for spacing
+              display: 'flex',
+              justifyContent: 'center',
+               // Set the background color to transparent
+               // Remove the box shadow
+            }}
+          >
+            Refresh
+          </Button>
         </div>
       </div>
 
@@ -797,6 +655,8 @@ const handleViewClose = () => {
           </Stack>
         </Stack>
 
+
+
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
           <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Document
@@ -807,7 +667,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-              Service Request Form
+                REQUEST ITEM
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -819,6 +679,16 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
+                    <Grid item xs={8}>
+                    <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    value={formData.ControlNum || ''}
+                    onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
 
                     <Grid item xs={8}>
                     <TextField
@@ -844,10 +714,10 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                     <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                    name="Requisitioner"
+                    label="Requisitioner"
+                    value={formData.Requisitioner || ''}
+                    onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -856,25 +726,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >ITEMS:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={formData.Items.includes(' Mouse,')}
                       onChange={handleServiceChange}
                     />
-                    HDMI 
+                    Mouse 
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={formData.Items.includes(' Keyboard,')}
                       onChange={handleServiceChange}
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={formData.Items.includes(' Monitor,')}
                       onChange={handleServiceChange}
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={formData.Items.includes(' AVR,')}
+                      onChange={handleServiceChange}
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={formData.Items.includes(' CPU,')}
+                      onChange={handleServiceChange}
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}> 
                     Others:
@@ -901,20 +785,20 @@ const handleViewClose = () => {
                         <br/>
                       </Grid>
                       <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
-                      <TextField
-                          type="file"
-                          fullWidth
-                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                          onChange={(e) => handleFileUpload(e.target.files[0])}
-                          sx={{ width: '100%' }}
-                        />
+                      <Typography variant="subtitle1">File:</Typography>
+                  <TextField
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                    onChange={(e) => handleFileUpload(e.target.files[0])}
+                    sx={{ width: '100%' }}
+                  />
                         <br/>
                       </Grid>
                     </Grid>
                   </Grid>
 
                   <br />
+                  
                 </form>
               </DialogContent>
               <DialogActions>
@@ -933,15 +817,18 @@ const handleViewClose = () => {
             </div>
           </div>
         </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message="The Document was created successfully!"
+      />
     </div>  
-  </Stack> 
-        
+  </Stack>       
 </Container>
-)}
-{/* End of Faculty userType "New Document" function */}
+
     
-{/* Start of Faculty userType "Table" function */}
-{isFaculty && ( 
+
 <Container>
       {isLoading ? (
         <CircularProgress />
@@ -958,16 +845,14 @@ const handleViewClose = () => {
                 />
                 </TableCell>
                 <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
-                <TableCell>File Status</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Requisitioner</TableCell>
+                <TableCell>Items</TableCell>
+                <TableCell>Other Items</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
-
               </TableRow>
             </TableHead>
             
@@ -981,13 +866,12 @@ const handleViewClose = () => {
                       />
                   </TableCell>
                   <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                  <TableCell>{`${item.otherServices}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
-                  <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                  <TableCell>{item.Date}</TableCell>
+                  <TableCell>{item.FullName}</TableCell>
+                  <TableCell>{item.LocationRoom}</TableCell>
+                  <TableCell>{item.Requisitioner}</TableCell>
+                  <TableCell>{item.Items}</TableCell>
+                  <TableCell>{item.otherItems}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       // Render a clickable link to download the file
@@ -1007,7 +891,6 @@ const handleViewClose = () => {
                       <MoreVertIcon />
                     </IconButton>
                   </TableCell>
-               
               </TableRow>
 
               ))}
@@ -1015,6 +898,18 @@ const handleViewClose = () => {
           </Table>
         </TableContainer>
       )}
+      <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
+        <DialogTitle>Remove Document</DialogTitle>
+        <DialogContent>
+          Do you want to delete or archive this document?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
+          <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
+        </DialogActions>
+      </Dialog>
+
        <TablePagination
         rowsPerPageOptions={[4, 10, 25]}
         component="div"
@@ -1025,462 +920,12 @@ const handleViewClose = () => {
         onRowsPerPageChange={handleRowsPerPageChange}
       />
 
-      <Popover
-      open={Boolean(menuAnchorEl)}
-      anchorEl={menuAnchorEl}
-      onClose={handleMenuClose}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-    >
-      <MenuItem onClick={() => handleViewOpen(selectedItem)}>View</MenuItem>
-      <MenuItem onClick={() => handleEditOpen(selectedItem)}>Edit</MenuItem>
-      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
-    </Popover>
-
-        </Container>
-      )}
-  {/* End of Faculty usertype view for tables and edit dialog */}
-  
-  {/* Start of Technician usertype view for Search bar (top side) */}
-  {isTechnician && ( 
-  <Container>
-
-    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Service Request Form
-      </Typography>
-      </Stack>
-
-      <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      mb={5}
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
-      >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
-
-        <div>
-        <Button
-          onClick={() => fetchAllDocuments()}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
-        </div>
-      </div>
-
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-      <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
-            />
-            <ProductSort />
-          </Stack>
-        </Stack>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
-      />
-      </div>  
-      </Stack> 
-      
-            
-    </Container>
-    )}
-  {/* End of Technician usertype view for Search bar (top side) */}
-
-  {/* Start of Technician usertype view for tables */}
-  {isTechnician && ( 
-    <Container>
-    {isLoading ? (
-      <CircularProgress />
-    ) : (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-              <Checkbox
-                checked={selectAll}
-                onChange={handleSelectAll}
-                color="primary"
-              />
-              </TableCell>
-              <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
-
-            </TableRow>
-          </TableHead>
-          
-          <TableBody>
-            {displayedDataTechnician.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell> 
-                    <Checkbox
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleSelection(item.id)}
-                    />
-                </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                    <TableCell>{item.otherServices}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
-                <TableCell>
-                  <div style={{ display: 'flex' }}>
-                    <IconButton style={{ color: 'green' }}>
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
-                    </IconButton>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {item.fileURL ? (
-                    // Render a clickable link to download the file
-                    <Link to={item.fileURL} target="_blank" download>
-                      Download 
-                    </Link>
-                  ) : (
-                    // Display "No File" if there's no file URL
-                    "No File"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    aria-label="menu"
-                    onClick={(event) => handleMenuOpen(event, item)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
-             
-            </TableRow>
-
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
-
-    <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-      <DialogTitle>Remove Document</DialogTitle>
-      <DialogContent>
-        Do you want to delete or archive this document?
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-        <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-        <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
-      </DialogActions>
-    </Dialog>
-    
-     <TablePagination
-      rowsPerPageOptions={[4, 10, 25]}
-      component="div"
-      count={filteredDataTechnician.length} // Make sure this reflects the total number of rows
-      rowsPerPage={rowsPerPage}
-      page={page}
-      onPageChange={handlePageChange}
-      onRowsPerPageChange={handleRowsPerPageChange}
-    />
-
-   
-  <Popover
-      open={Boolean(menuAnchorEl)}
-      anchorEl={menuAnchorEl}
-      onClose={handleMenuClose}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-    >
-      <MenuItem onClick={() => handleViewOpen(selectedItem)}>View</MenuItem>
-      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
-    </Popover>
-
-
-
-    </Container>
-  )}
-  {/* End of Technician usertype view for tables */}
-
- {/* Start of Dean usertype view for Search bar (top side) */}
- {isDean && ( 
-  <Container>
-
-    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower Item's Form
-      </Typography>
-      </Stack>
-
-      <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      mb={5}
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
-      >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
-
-        <div>
-        <Button
-          onClick={() => DeanfetchAllDocuments()}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
-        </div>
-      </div>
-
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-      <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
-            />
-            <ProductSort />
-          </Stack>
-        </Stack>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
-      />
-      </div>  
-      </Stack> 
-      
-            
-    </Container>
-    )}
-  {/* End of Dean usertype view for Search bar (top side) */}
-
-  {/* Start of Dean usertype view for tables */}
-  {isDean && ( 
-    <Container>
-    {isLoading ? (
-      <CircularProgress />
-    ) : (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-              <Checkbox
-                checked={selectAll}
-                onChange={handleSelectAll}
-                color="primary"
-              />
-              </TableCell>
-              <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
-
-            </TableRow>
-          </TableHead>
-          
-          <TableBody>
-            {displayedDataDean.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell> 
-                    <Checkbox
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleSelection(item.id)}
-                    />
-                </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                <TableCell>{`${item.otherServices}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
-                <TableCell>
-                  <div style={{ display: 'flex' }}>
-                    <IconButton style={{ color: 'green' }}>
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
-                    </IconButton>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {item.fileURL ? (
-                    // Render a clickable link to download the file
-                    <Link to={item.fileURL} target="_blank" download>
-                      Download 
-                    </Link>
-                  ) : (
-                    // Display "No File" if there's no file URL
-                    "No File"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    aria-label="menu"
-                    onClick={(event) => handleMenuOpen(event, item)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
-             
-            </TableRow>
-
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
-
-    <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-      <DialogTitle>Remove Document</DialogTitle>
-      <DialogContent>
-        Do you want to delete or archive this document?
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-        <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-        <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
-      </DialogActions>
-    </Dialog>
-    
-     <TablePagination
-      rowsPerPageOptions={[4, 10, 25]}
-      component="div"
-      count={filteredDataTechnician.length} // Make sure this reflects the total number of rows
-      rowsPerPage={rowsPerPage}
-      page={page}
-      onPageChange={handlePageChange}
-      onRowsPerPageChange={handleRowsPerPageChange}
-    />
-
-   
-  <Popover
-      open={Boolean(menuAnchorEl)}
-      anchorEl={menuAnchorEl}
-      onClose={handleMenuClose}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-    >
-      <MenuItem onClick={() => handleViewOpen(selectedItem)}>View</MenuItem>
-      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
-    </Popover>
-
-
-
-    </Container>
-  )}
-  {/* End of Dean usertype view for tables */}
-
-  {/* Start of public container for all user */}
-    <Container> 
       {/* This is the dialog for the Edit button */}
       <Dialog open={editOpen} onClose={handleEditClose}>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                Service Request Form
+                REQUEST ITEM
               </Typography>
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
@@ -1493,6 +938,17 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
+                    <Grid item xs={8}>
+                    <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    value={editData ? editData.ControlNum : ''}
+                    onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
                     <Grid item xs={8}>
                     <TextField
                     type="date"
@@ -1517,10 +973,10 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                     <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
+                    name="Requisitioner"
+                    label="Requisitioner"
+                    value={editData ? editData.Requisitioner : ''}
+                    onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -1529,25 +985,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >Items:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={formData.Items.includes(' Mouse,')}
                       onChange={handleServiceChange}
                     />
-                    HDMI
+                    Mouse
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={formData.Items.includes(' Keyboard,')}
                       onChange={handleServiceChange}
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={formData.Items.includes(' Monitor,')}
                       onChange={handleServiceChange}
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={formData.Items.includes(' AVR,')}
+                      onChange={handleServiceChange}
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={formData.Items.includes(' CPU,')}
+                      onChange={handleServiceChange}
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}>
                     Others:
@@ -1558,6 +1028,7 @@ const handleViewClose = () => {
                     />
                     </div>
                   </fieldset>
+                  <br/>
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
@@ -1602,13 +1073,49 @@ const handleViewClose = () => {
         </div>
       </div>
       </Dialog>
+      <Snackbar
+        open={snackbarOpen1}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen1(false)}
+        message="The Document was edited successfully!"
+      />
+      <Snackbar
+        open={snackbarOpenDelete}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpenDelete(false)}
+        message="The Document was deleted successfully!"
+      />
+
+      <Snackbar
+        open={snackbarOpenArchive}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpenArchive(false)}
+        message="The Document was archived successfully!"
+      />
+    <Popover
+      open={Boolean(menuAnchorEl)}
+      anchorEl={menuAnchorEl}
+      onClose={handleMenuClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+    >
+      <MenuItem onClick={() => handleViewOpen(selectedItem)}>View</MenuItem>
+      <MenuItem onClick={() => handleEditOpen(selectedItem)}>Edit</MenuItem>
+      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
+    </Popover>
 
     {/* Dialog for View button */}
       <Dialog open={viewOpen} onClose={handleViewClose}>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               Service Request Form 
+              REQUEST ITEM 
             </Typography>
             <DialogContent>
             <Grid
@@ -1620,12 +1127,12 @@ const handleViewClose = () => {
                     alignItems="center"
                   >
                     <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
+                    <Typography variant="subtitle1">Control Number:</Typography>
                   <TextField
                     type="text"
-                    name="id"
-                    placeholder="Docuent ID:"
-                    value={viewItem  ? viewItem .id : ''}
+                    name="ControlNum"
+                    placeholder="Control Number"
+                    value={viewItem  ? viewItem .ControlNum : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1671,25 +1178,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items">ITEMS:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={viewItem && viewItem.Items.includes(' Mouse,')}
                       disabled
                     />
-                    HDMI
+                    Mouse
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={viewItem && viewItem.Items.includes(' Keyboard,')}
                       disabled
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={viewItem && viewItem.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={viewItem && viewItem.Items.includes(' Monitor,')}
                       disabled
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={viewItem && viewItem.Items.includes(' AVR,')}
+                      disabled
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={viewItem && viewItem.Items.includes(' CPU,')}
+                      disabled
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}>
                     Others:
@@ -1742,20 +1263,7 @@ const handleViewClose = () => {
         </DialogActions>
       </Dialog>
 
-       {/* Dialog for Remove Button */}
-    <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-        <DialogTitle>Remove Document</DialogTitle>
-        <DialogContent>
-          Do you want to delete or archive this document?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-          <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
-        </DialogActions>
-    </Dialog>
-        
-         {/* Dialog for Delete Button */}
+
     <Dialog
       open={deleteConfirmationDialogOpen}
       onClose={() => setDeleteConfirmationDialogOpen(false)}
@@ -1769,37 +1277,9 @@ const handleViewClose = () => {
         <Button onClick={handleConfirmDeleteAll} color="error">Delete</Button>
       </DialogActions>
     </Dialog>
-  
 
-   
-    <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
-      />
-    <Snackbar
-        open={snackbarOpen1}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen1(false)}
-        message="The Document was edited successfully!"
-      />
-      <Snackbar
-        open={snackbarOpenDelete}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpenDelete(false)}
-        message="The Document was deleted successfully!"
-      />
+        </Container>
 
-      <Snackbar
-        open={snackbarOpenArchive}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpenArchive(false)}
-        message="The Document was archived successfully!"
-      />
-
-
-    </Container>
     </>
   );}
 

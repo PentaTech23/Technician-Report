@@ -260,35 +260,22 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
-    const {
-      ControlNum,
-      Date,
-      FullName,
-      LocationRoom,
-      Requisitioner,
-      Services = [],
-      otherServices,
-      Remarks,
-      fileURL,
-    } = formData;
-
+    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+  
     try {
       const documentName = await incrementDocumentName();
       const docRef = doc(BorrowersCollectionRef, documentName);
   
       const docData = {
-        ControlNum,
         Date,
         FullName,
         LocationRoom,
-        Requisitioner,
-        Services,
-        otherServices,
-        Remarks,
+        Borrower,
+        Items,
+        otherItems,
         fileURL: fileURL || '',
-        archived: false, // Include the 'archived' field and set it to false for new documents
-        originalLocation: 'SERVICE-REQUEST', // Include the 'originalLocation' field
+        archived: false,
+        originalLocation: "ITEM-BORROWERS",
         uid: user?.uid || '',
         status: "PENDING (Technician)",
       };
@@ -358,15 +345,14 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
-      ControlNum: data.ControlNum || '',
-        Date: data.Date || '',
-        FullName: data.FullName || '',
-        LocationRoom: data.LocationRoom || '',
-        Requisitioner: data.Requisitioner || '',
-        Services: data.Services || '',
-        otherServices: data.otherServices || '',
-        fileURL: data.fileURL || '',
-        id: data.id, // Set the document ID here
+      Date: data.Date || '',
+      FullName: data.FullName || '',
+      LocationRoom: data.LocationRoom || '',
+      Borrower: data.Borrower || '',
+      Items: data.Items || '',
+      otherItems: data.otherItems || '',
+      fileURL: data.fileURL || '',
+      id: data.id, // Set the document ID here
     });
     setEditData(data);
     setEditOpen(true);
@@ -727,7 +713,7 @@ const handleViewClose = () => {
   return (
     <>
       <Helmet>
-        <title> Service Form Request | Minimal UI </title>
+        <title> Borrower Item's Form | Minimal UI </title>
       </Helmet>
 
         {/* This is the beginning of the Container for Faculty */}
@@ -736,7 +722,7 @@ const handleViewClose = () => {
   
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-      Service Request Form
+        Borrower Item's Form
       </Typography>
     </Stack>
 
@@ -807,7 +793,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-              Service Request Form
+                BORROWER ITEM
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -957,13 +943,12 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
+                <TableCell>Document ID</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Borrower</TableCell>
+                <TableCell>Items</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
@@ -980,13 +965,12 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                  <TableCell>{`${item.otherServices}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
+                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.Date}</TableCell>
+                  <TableCell>{item.FullName}</TableCell>
+                  <TableCell>{item.LocationRoom}</TableCell>
+                  <TableCell>{item.Borrower}</TableCell>
+                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                   <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
@@ -1053,7 +1037,7 @@ const handleViewClose = () => {
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Service Request Form
+        Borrower Item's Form
       </Typography>
       </Stack>
 
@@ -1144,13 +1128,12 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
+              <TableCell>Document ID</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Full Name</TableCell>
+              <TableCell>Location/Room</TableCell>
+              <TableCell>Borrower</TableCell>
+              <TableCell>Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1168,13 +1151,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                    <TableCell>{item.otherServices}</TableCell>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{item.Date}</TableCell>
+                <TableCell>{item.FullName}</TableCell>
+                <TableCell>{item.LocationRoom}</TableCell>
+                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1357,13 +1339,12 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Control Number</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Location/Room</TableCell>
-                  <TableCell>Requesitioner</TableCell>
-                  <TableCell>Services</TableCell>
-                  <TableCell>Other Service</TableCell>
+              <TableCell>Document ID</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Full Name</TableCell>
+              <TableCell>Location/Room</TableCell>
+              <TableCell>Borrower</TableCell>
+              <TableCell>Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1381,13 +1362,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
-                    <TableCell>{item.Date}</TableCell>
-                    <TableCell>{item.FullName}</TableCell>
-                    <TableCell>{item.LocationRoom}</TableCell>
-                    <TableCell>{item.Requisitioner}</TableCell>
-                    <TableCell>{item.Services}</TableCell>
-                <TableCell>{`${item.otherServices}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{item.Date}</TableCell>
+                <TableCell>{item.FullName}</TableCell>
+                <TableCell>{item.LocationRoom}</TableCell>
+                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1480,7 +1460,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                Service Request Form
+                BORROWER ITEM
               </Typography>
         <DialogContent>
           <form onSubmit={handleEditSubmit}>
@@ -1608,7 +1588,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               Service Request Form 
+               BORROWER ITEM
             </Typography>
             <DialogContent>
             <Grid

@@ -3,8 +3,18 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "jest": true
+    "jest": true,
+    "node": true
   },
+
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src"]
+      }
+    }
+  },
+
   "extends": [
     "airbnb",
     "plugin:jsx-a11y/recommended",
@@ -19,7 +29,7 @@
     "prettier",
     "@typescript-eslint"
   ],
-  "parser": "@babel/eslint-parser",
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 8,
     "requireConfigFile": false,
@@ -80,5 +90,6 @@
         "array": false
       }
     ]
-  }
+  },
+  
 }

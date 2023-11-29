@@ -2,81 +2,46 @@ import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-    getFirestore,
-    collection,
-    query,
-    onSnapshot,
-    doc,
-    getDocs,
-    where,
-    updateDoc,
-    deleteDoc,
-    addDoc,
-    getDoc,
-    documentId,
-    setDoc,
-  } from '@firebase/firestore';
-  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-  import { initializeApp } from 'firebase/app';
+  getFirestore,
+  collection,
+  query,
+  onSnapshot,
+  doc,
+  getDocs,
+  where,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  getDoc,
+  documentId,
+  setDoc,
+} from '@firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { initializeApp } from 'firebase/app';
 
-
-
-import {
-  Card,
-  Table,
-  Stack,
-  Box,
-  Paper,
-  Avatar,
-  Popover,
-  Checkbox,
-  TableRow,
-  MenuItem,
-  TableBody,
-  TableCell,
-  LinearProgress,
-  Container,
-  Typography,
-  IconButton,
-  TableContainer,
-  TablePagination,
-  Dialog,
-  Grid,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Backdrop,
-  Snackbar,
-  TableHead,
-  CircularProgress,
-  TextField,
-  Select,
-} from '@mui/material';
+import { Typography, Grid, Button, TextField } from '@mui/material';
 
 // import db from './db';
 
-
-
 const firebaseConfig = {
-    apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
-    authDomain: 'wp4-technician-dms.firebaseapp.com',
-    projectId: 'wp4-technician-dms',
-    storageBucket: 'wp4-technician-dms.appspot.com',
-    messagingSenderId: '1065436189229',
-    appId: '1:1065436189229:web:88094d3d71b15a0ab29ea4',
-  };
-  
-  // Initialize Firebase
-  const firebaseApp = initializeApp(firebaseConfig);
-  
-  // Initialize Firestore db
-  const db = getFirestore(firebaseApp);
-  
-  // Access main collection
-  const mainCollectionRef = collection(db, 'SERVICE-REQUEST');
+  apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
+  authDomain: 'wp4-technician-dms.firebaseapp.com',
+  projectId: 'wp4-technician-dms',
+  storageBucket: 'wp4-technician-dms.appspot.com',
+  messagingSenderId: '1065436189229',
+  appId: '1:1065436189229:web:88094d3d71b15a0ab29ea4',
+};
 
-  const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+
+// Initialize Firestore db
+const db = getFirestore(firebaseApp);
+
+// Access main collection
+const mainCollectionRef = collection(db, 'SERVICE-REQUEST');
+
+const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
 
 const archivesCollectionRef = collection(archivesRef, 'ARCHIVES-FORMS');
 
@@ -186,14 +151,14 @@ function SFRinput() {
 
     const {
       ControlNum,
-    //   Date,
+      //   Date,
       FullName,
       LocationRoom,
       Requisitioner,
-    //   Services = [],
-    //   otherServices,
+      //   Services = [],
+      //   otherServices,
       Remarks,
-    //   fileURL,
+      //   fileURL,
     } = formData;
 
     try {
@@ -621,83 +586,83 @@ function SFRinput() {
   return (
     <div>
       {/* <Dialog open={open} onClose={handleClose} maxWidth="md"> */}
-        {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
+      {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}> */}
-        <Typography
-          variant="h3"
-          sx={{ mb: 5 }}
-          style={{
-            alignSelf: 'center',
-            color: '#ff5500',
-            margin: 'auto',
-            fontSize: '40px',
-            fontWeight: 'bold',
-            marginTop: '10px',
-          }}
-        >
-          SERVICE REQUEST
-        </Typography>
-        {/* <DialogContent> */}
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} columns={16} direction="row" justifyContent="space-between" alignItems="center">
-              <Grid item xs={8}>
-                <TextField
-                  type="text"
-                  name="ControlNum"
-                  variant="outlined"
-                  label='ControlNum'
-                  placeholder="ControlNum"
-                  data-testid="ControlNum"
-                  value={formData.ControlNum || ''}
-                  fullWidth
-                  onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
-                  // sx={{ width: '100%', marginBottom: '10px' }}
-                />
-              </Grid>
+      <Typography
+        variant="h3"
+        sx={{ mb: 5 }}
+        style={{
+          alignSelf: 'center',
+          color: '#ff5500',
+          margin: 'auto',
+          fontSize: '40px',
+          fontWeight: 'bold',
+          marginTop: '10px',
+        }}
+      >
+        SERVICE REQUEST
+      </Typography>
+      {/* <DialogContent> */}
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2} columns={16} direction="row" justifyContent="space-between" alignItems="center">
+          <Grid item xs={8}>
+            <TextField
+              type="text"
+              name="ControlNum"
+              variant="outlined"
+              label="ControlNum"
+              placeholder="ControlNum"
+              data-testid="ControlNum"
+              value={formData.ControlNum || ''}
+              fullWidth
+              onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
+              // sx={{ width: '100%', marginBottom: '10px' }}
+            />
+          </Grid>
 
-              <Grid item xs={8}>
-                <TextField
-                  type="date"
-                  name="Date"
-                  label="Date"
-                  fullWidth
-                  value={formData.Date || ''}
-                  onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                  // sx={{ width: '100%', marginBottom: '10px' }}
-                />
-              </Grid>
+          <Grid item xs={8}>
+            <TextField
+              type="date"
+              name="Date"
+              label="Date"
+              fullWidth
+              value={formData.Date || ''}
+              onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+              // sx={{ width: '100%', marginBottom: '10px' }}
+            />
+          </Grid>
 
-              <Grid item xs={16}>
-                <TextField
-                  type="text"
-                  name="FullName"
-                  fullWidth
-                  label="FullName"
-                  placeholder="FullName"
-                  variant="outlined"
-                  data-testid="FullName"
-                  value={formData.FullName || ''}
-                  onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                  // sx={{ width: '100%', marginBottom: '10px' }}
-                />
-              </Grid>
+          <Grid item xs={16}>
+            <TextField
+              type="text"
+              name="FullName"
+              fullWidth
+              label="FullName"
+              placeholder="FullName"
+              variant="outlined"
+              data-testid="FullName"
+              value={formData.FullName || ''}
+              onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+              // sx={{ width: '100%', marginBottom: '10px' }}
+            />
+          </Grid>
 
-              <Grid item xs={16}>
-                <TextField
-                  type="text"
-                  name="Requisitioner"
-                  label="Requisitioner"
-                  placeholder="Requisitioner"
-                  data-testid="Requisitioner"
-                  fullWidth
-                  value={formData.Requisitioner || ''}
-                  onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
-                  // sx={{ width: '100%', marginBottom: '10px' }}
-                />
-              </Grid>
+          <Grid item xs={16}>
+            <TextField
+              type="text"
+              name="Requisitioner"
+              label="Requisitioner"
+              placeholder="Requisitioner"
+              data-testid="Requisitioner"
+              fullWidth
+              value={formData.Requisitioner || ''}
+              onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
+              // sx={{ width: '100%', marginBottom: '10px' }}
+            />
+          </Grid>
 
-              <Grid item xs={8}>
-                {/* <fieldset>
+          <Grid item xs={8}>
+            {/* <fieldset>
                   <legend name="Services">SERVICES:</legend>
                   <Checkbox
                     value=" Application Installation,"
@@ -745,47 +710,45 @@ function SFRinput() {
                     />
                   </div>
                 </fieldset> */}
+          </Grid>
+
+          <Grid item xs={8}>
+            <Grid container spacing={3} column={6}>
+              <Grid item xs={12}>
+                <TextField
+                  type="text"
+                  name="LocationRoom"
+                  label="Location/Room"
+                  placeholder="Location/Room"
+                  fullWidth
+                  data-testid="LocationRoom"
+                  value={formData.LocationRoom || ''}
+                  onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                  // sx={{ width: '100%', marginBottom: '10px' }}
+                />
+                <br />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  type="text"
+                  name="Remarks"
+                  variant="outlined"
+                  label="Remarks"
+                  placeholder="Remarks"
+                  data-testid="Remarks"
+                  multiline
+                  value={formData.Remarks || ''}
+                  onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
+                  // minRows={5}
+                  fullWidth
+                  // maxRows={80}
+                  // marginBottom="10px"
+                />
+                <br />
               </Grid>
 
-              <Grid item xs={8}>
-                <Grid container spacing={3} column={6}>
-                  <Grid item xs={12}>
-                    <TextField
-                      type="text"
-                      name="LocationRoom"
-                      label="Location/Room"
-                      placeholder="Location/Room"
-                      fullWidth
-                      data-testid="LocationRoom"
-                      
-                      value={formData.LocationRoom || ''}
-                      onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                      // sx={{ width: '100%', marginBottom: '10px' }}
-                    />
-                    <br />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      type="text"
-                      name="Remarks"
-                      variant="outlined"
-                      label="Remarks"
-                      placeholder="Remarks"
-                      data-testid="Remarks"
-                      
-                      multiline
-                      value={formData.Remarks || ''}
-                      onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
-                      // minRows={5}
-                      fullWidth
-                      // maxRows={80}
-                      // marginBottom="10px"
-                    />
-                    <br />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    {/* {<Typography variant="subtitle1">Document Upload:</Typography>}
+              <Grid item xs={12}>
+                {/* {<Typography variant="subtitle1">Document Upload:</Typography>}
                     <TextField
                       type="file"
                       fullWidth
@@ -793,62 +756,60 @@ function SFRinput() {
                       onChange={(e) => handleFileUpload(e.target.files[0])}
                       sx={{ width: '100%' }}
                     /> */}
-                  </Grid>
-                </Grid>
               </Grid>
             </Grid>
+          </Grid>
+        </Grid>
 
-            <br />
-          </form>
-        {/* </DialogContent> */}
-        {/* <DialogActions> */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-            <Button variant="contained" onClick={clearForm} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-              Clear
-            </Button>
-            <Button variant="contained" onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              data-testid="submitBtn"
-              type="submit"
-              sx={{ marginRight: '5px', marginLeft: '5px' }}
-            >
-              Create
-            </Button>
-            <Button
-                    variant="contained"
-                    onClick={handleEditSubmit}
-                    type="submit"
-                    data-testid="editBtn"
-                    sx={{ marginRight: '5px', marginLeft: '5px' }}
-                  >
-                    Edit
-                  </Button>
-          </div>
-        {/* </DialogActions> */}
-        {/* </div>
+        <br />
+      </form>
+      {/* </DialogContent> */}
+      {/* <DialogActions> */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
+        <Button variant="contained" onClick={clearForm} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+          Clear
+        </Button>
+        <Button variant="contained" onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          data-testid="submitBtn"
+          type="submit"
+          sx={{ marginRight: '5px', marginLeft: '5px' }}
+        >
+          Create
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleEditSubmit}
+          type="submit"
+          data-testid="editBtn"
+          sx={{ marginRight: '5px', marginLeft: '5px' }}
+        >
+          Edit
+        </Button>
+      </div>
+      {/* </DialogActions> */}
+      {/* </div>
     </div> */}
       {/* </Dialog> */}
       {/* <Dialog data-testid="deleteModal" open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
           <DialogTitle>Remove Document</DialogTitle>
           <DialogContent>Do you want to delete or archive this document?</DialogContent>
           <DialogActions> */}
-            <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-            <Button data-testid="deleteButton" onClick={handleConfirmDeleteWithoutArchive} color="error">
-              Delete
-            </Button>
-            <Button data-testid="archiveButton" onClick={handleConfirmDelete} style={{ color: 'orange' }}>
-              Archive
-            </Button>
-          {/* </DialogActions>
+      <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
+      <Button data-testid="deleteButton" onClick={handleConfirmDeleteWithoutArchive} color="error">
+        Delete
+      </Button>
+      <Button data-testid="archiveButton" onClick={handleConfirmDelete} style={{ color: 'orange' }}>
+        Archive
+      </Button>
+      {/* </DialogActions>
         </Dialog> */}
     </div>
-    
   );
-  
 }
 
 export default SFRinput;
