@@ -22,7 +22,7 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 
-test('renders add document form', async() => {
+test('Renders add document form', async() => {
     render(<IncomingCrud/>)
         expect(screen.getByPlaceholderText('name'));
         expect(screen.getByPlaceholderText('email'));
@@ -31,7 +31,7 @@ test('renders add document form', async() => {
 
 })
 
-test('add document functionality', async() => {
+test('Add document functionality', async() => {
     jest.setTimeout(30000);
   render(<IncomingCrud />);
     const name = screen.getByPlaceholderText('name');
@@ -82,7 +82,7 @@ test('add document functionality', async() => {
   //   jest.resetAllMocks();
   // });
 
-  test('edit document form', async() => {
+  test('Edit document form', async() => {
     render(<IncomingCrud/>)
         expect(screen.getByPlaceholderText('name'));
         expect(screen.getByPlaceholderText('email'));
@@ -105,7 +105,7 @@ test('add document functionality', async() => {
         
         
 })
-test('renders View document form', async() => {
+test('Renders View document form', async() => {
   render(<IncomingCrud/>)
       expect(screen.getByPlaceholderText('name'));
       expect(screen.getByPlaceholderText('email'));
@@ -128,7 +128,7 @@ test('renders View document form', async() => {
       
 })
 
-test('Delete document form', async() => {
+test('Archive document form', async() => {
   render(<IncomingCrud/>)
       expect(screen.getByPlaceholderText('name'));
       expect(screen.getByPlaceholderText('email'));
