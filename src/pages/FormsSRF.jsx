@@ -675,7 +675,7 @@ const handleViewClose = () => {
   return (
     <>
       <Helmet>
-        <title> BORROWER'S FORM | Minimal UI </title>
+        <title> Service Request Form | Minimal UI </title>
       </Helmet>
 
         {/* This is the beginning of the Container for Faculty */}
@@ -684,7 +684,7 @@ const handleViewClose = () => {
   
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower's Form
+        Service Request Form
       </Typography>
     </Stack>
 
@@ -775,7 +775,7 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+              Service Request Form
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>

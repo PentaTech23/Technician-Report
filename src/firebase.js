@@ -29,6 +29,7 @@ const formsDocRef = doc(mainCollectionRef, "FORMS");
 
 // Add to subcollection 
 const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
+const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
@@ -70,6 +71,7 @@ export {
   mainCollectionRef,
   formsDocRef,
   BorrowersCollectionRef,
+  RequestCollectionRef,
   archivesRef,
   archivesCollectionRef,
   storage

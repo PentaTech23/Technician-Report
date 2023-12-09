@@ -9,18 +9,20 @@ import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
         FormControl, InputLabel } from '@mui/material';
+        import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+
 
 export default function UserPage() {
 
   const exportToPDF = (viewItem) => {
+    // eslint-disable-next-line new-cap
     const pdf = new jsPDF();
   
     // Get the content to be exported
@@ -33,18 +35,18 @@ export default function UserPage() {
     //   // Add the image to the PDF
     //   pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
     pdf.text("BORROWER'S FORM", 20, 20);
-    pdf.text("Document ID: " + (viewItem ? viewItem.id : ""), 20, 30);
-    pdf.text("Date: " + (viewItem ? viewItem.Date : ""), 20, 40);
-    pdf.text("Faculty Name: " + (viewItem ? viewItem.FullName : ""), 20, 50);
-    pdf.text("Borrower: " + (viewItem ? viewItem.Borrower : ""), 20, 60);
+    pdf.text(`Document ID: ${  viewItem ? viewItem.id : ""}`, 20, 30);
+    pdf.text(`Date: ${  viewItem ? viewItem.Date : ""}`, 20, 40);
+    pdf.text(`Faculty Name: ${  viewItem ? viewItem.FullName : ""}`, 20, 50);
+    pdf.text(`Borrower: ${  viewItem ? viewItem.Borrower : ""}`, 20, 60);
   
     // Add checkboxes
-    const itemsText = "ITEMS: " + (viewItem ? viewItem.Items.join(", ") : "");
+    const itemsText = `ITEMS: ${  viewItem ? viewItem.Items.join(", ") : ""}`;
     pdf.text(itemsText, 20, 70);
   
     // Add location/room and file information
-    pdf.text("Location/Room: " + (viewItem ? viewItem.LocationRoom : ""), 20, 80);
-    const fileText = "File: " + (viewItem && viewItem.fileURL ? "View / Download File" : "No File");
+    pdf.text(`Location/Room: ${  viewItem ? viewItem.LocationRoom : ""}`, 20, 80);
+    // const fileText = "File: " + (viewItem && viewItem.fileURL ? "View / Download File" : "No File");
     // pdf.text(fileText, 20, 90);
   
       // Save the PDF

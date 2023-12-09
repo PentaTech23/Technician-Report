@@ -14,7 +14,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, RequestCollectionRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
 export default function UserPage() {
 
@@ -66,10 +66,11 @@ const handleChange = (e) => {
 };
 
   const initialFormData = {
+    ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
+    Requisitioner: '',
     Items: [],
     otherItems: '',
     fileInput: '',
@@ -82,10 +83,11 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
+    ControlNum: null,
     Date: '',
     FullName: '',
-    LocationRoom: '',
-    Borrower: '',
+    LocationRoom: null,
+    Requisitioner: '',
     Items: [], // If this is an array, it can be empty initially
     otherItems: '',
     fileURL: '',
@@ -97,7 +99,7 @@ const handleChange = (e) => {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(BorrowersCollectionRef);
+      const querySnapshot = await getDocs(RequestCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -126,7 +128,7 @@ const DeanfetchAllDocuments = async () => {
 
   try {
     const querySnapshot = await getDocs(
-      query(BorrowersCollectionRef, where('status', '!=', 'PENDING (Technician)'))
+      query(RequestCollectionRef, where('status', '!=', 'PENDING (Technician)'))
     );
 
     const dataFromFirestore = [];
@@ -162,7 +164,7 @@ const fetchUserDocuments = async (userUID) => {
     }
 
     const querySnapshotuid = await getDocs(
-      query(BorrowersCollectionRef, where('uid', '==', userUID))
+      query(RequestCollectionRef, where('uid', '==', userUID))
     );
 
     const dataFromFirestore = [];
@@ -195,7 +197,7 @@ useEffect(() => {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(RequestCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -211,27 +213,27 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const { ControlNum, Date, FullName, LocationRoom, Requisitioner, Items=[], otherItems, fileURL } = formData;
   
     // Validation logic for required fields
-    if (!Date || !FullName || !LocationRoom || !Borrower) {
+    if (!Date || !FullName || !LocationRoom || !Requisitioner) {
       alert('Please fill out all required fields');
       return;
     }
     try {
       const documentName = await incrementDocumentName();
-      const docRef = doc(BorrowersCollectionRef, documentName);
+      const docRef = doc(RequestCollectionRef, documentName);
   
       const docData = {
         Date,
         FullName,
         LocationRoom,
-        Borrower,
+        Requisitioner,
         Items,
         otherItems,
         fileURL: fileURL || '',
         archived: false,
-        originalLocation: "ITEM-BORROWERS",
+        originalLocation: "ITEM-REQUEST",
         uid: user?.uid || '',
         status: "PENDING (Technician)",
       };
@@ -260,7 +262,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -271,7 +273,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -282,7 +284,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -301,10 +303,11 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
+      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
-      Borrower: data.Borrower || '',
+      Requisitioner: data.Requisitioner || '',
       Items: data.Items || '',
       otherItems: data.otherItems || '',
       fileURL: data.fileURL || '',
@@ -330,7 +333,7 @@ const handleEditSubmit = async () => {
       // Include other properties here
     };
 
-    const docRef = doc(BorrowersCollectionRef, formData.id);
+    const docRef = doc(RequestCollectionRef, formData.id);
 
     // Update the editData object with the new file URL
     updatedEditData.fileURL = formData.fileURL;
@@ -350,10 +353,10 @@ const handleConfirmDeleteWithoutArchive = async () => {
   try {
 
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(RequestCollectionRef, documentToDelete);
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
    
-    await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+    await deleteDoc(doc(RequestCollectionRef, documentToDelete));
     
     // Update the UI by removing the deleted row
     setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -391,7 +394,7 @@ const handleConfirmDelete = async () => {
     if (documentToDelete) {
       const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
       // Set the 'originalLocation' field to the current collection and update the Archive as true
-      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-BORROWERS" });
+      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-REQUEST" });
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
 
@@ -418,7 +421,7 @@ const handleConfirmDelete = async () => {
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
-      await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+      await deleteDoc(doc(RequestCollectionRef, documentToDelete));
 
       // Update the UI by removing the archived document
       setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -564,7 +567,7 @@ const handleConfirmDeleteAll = async () => {
   try {
     // Create an array of promises to delete each selected item
     const deletePromises = selectedItems.map(async (itemId) => {
-      return deleteDoc(doc(BorrowersCollectionRef, itemId));
+      return deleteDoc(doc(RequestCollectionRef, itemId));
     });
 
     // Use Promise.all to await all the delete operations
@@ -675,7 +678,7 @@ const handleViewClose = () => {
   return (
     <>
       <Helmet>
-        <title> BORROWER'S FORM | Minimal UI </title>
+        <title> Request Item Form | Minimal UI </title>
       </Helmet>
 
         {/* This is the beginning of the Container for Faculty */}
@@ -684,7 +687,7 @@ const handleViewClose = () => {
   
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower's Form
+      Request Item Form
       </Typography>
     </Stack>
 
@@ -775,10 +778,10 @@ const handleViewClose = () => {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+              Request Item Form
               </Typography>
               <DialogContent>
-                <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <Grid
                     container
                     spacing={2}
@@ -787,6 +790,16 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
+                    <Grid item xs={8}>
+                    <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    value={formData.ControlNum || ''}
+                    onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
 
                     <Grid item xs={8}>
                     <TextField
@@ -812,10 +825,10 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                     <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                    name="Requisitioner"
+                    label="Requisitioner"
+                    value={formData.Requisitioner || ''}
+                    onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -824,25 +837,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >ITEMS:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={formData.Items.includes(' Mouse,')}
                       onChange={handleServiceChange}
                     />
-                    HDMI 
+                    Mouse 
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={formData.Items.includes(' Keyboard,')}
                       onChange={handleServiceChange}
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={formData.Items.includes(' Monitor,')}
                       onChange={handleServiceChange}
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={formData.Items.includes(' AVR,')}
+                      onChange={handleServiceChange}
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={formData.Items.includes(' CPU,')}
+                      onChange={handleServiceChange}
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}> 
                     Others:
@@ -869,20 +896,20 @@ const handleViewClose = () => {
                         <br/>
                       </Grid>
                       <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
-                      <TextField
-                          type="file"
-                          fullWidth
-                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                          onChange={(e) => handleFileUpload(e.target.files[0])}
-                          sx={{ width: '100%' }}
-                        />
+                      <Typography variant="subtitle1">File:</Typography>
+                  <TextField
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                    onChange={(e) => handleFileUpload(e.target.files[0])}
+                    sx={{ width: '100%' }}
+                  />
                         <br/>
                       </Grid>
                     </Grid>
                   </Grid>
 
                   <br />
+                  
                 </form>
               </DialogContent>
               <DialogActions>
@@ -921,12 +948,13 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Document ID</TableCell>
+                <TableCell>Control Number</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Location/Room</TableCell>
-                <TableCell>Borrower</TableCell>
+                <TableCell>Requisitioner</TableCell>
                 <TableCell>Items</TableCell>
+                <TableCell>Other Items</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
@@ -942,11 +970,12 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.ControlNum}</TableCell>
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Borrower}</TableCell>
+                  <TableCell>{item.Requisitioner}</TableCell>
+                  <TableCell>{item.Items}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                   <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
@@ -1117,12 +1146,13 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Control Number</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Requisitioner</TableCell>
+                <TableCell>Items</TableCell>
+                <TableCell>Other Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1140,11 +1170,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{item.ControlNum}</TableCell>
+                  <TableCell>{item.Date}</TableCell>
+                  <TableCell>{item.FullName}</TableCell>
+                  <TableCell>{item.LocationRoom}</TableCell>
+                  <TableCell>{item.Requisitioner}</TableCell>
+                  <TableCell>{item.Items}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
@@ -1324,12 +1355,13 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Control Number</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Requisitioner</TableCell>
+                <TableCell>Items</TableCell>
+                <TableCell>Other Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1347,11 +1379,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{item.ControlNum}</TableCell>
+                  <TableCell>{item.Date}</TableCell>
+                  <TableCell>{item.FullName}</TableCell>
+                  <TableCell>{item.LocationRoom}</TableCell>
+                  <TableCell>{item.Requisitioner}</TableCell>
+                  <TableCell>{item.Items}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
@@ -1446,7 +1479,7 @@ const handleViewClose = () => {
                 BORROWER'S FORM
               </Typography>
         <DialogContent>
-          <form onSubmit={handleEditSubmit}>
+        <form onSubmit={handleEditSubmit}>
             {/* Fields to edit */}
             <Grid
                     container
@@ -1456,6 +1489,17 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
+                    <Grid item xs={8}>
+                    <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    value={editData ? editData.ControlNum : ''}
+                    onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
                     <Grid item xs={8}>
                     <TextField
                     type="date"
@@ -1480,10 +1524,10 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                     <TextField
                     type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
+                    name="Requisitioner"
+                    label="Requisitioner"
+                    value={editData ? editData.Requisitioner : ''}
+                    onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -1492,25 +1536,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >Items:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={formData.Items.includes(' Mouse,')}
                       onChange={handleServiceChange}
                     />
-                    HDMI
+                    Mouse
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={formData.Items.includes(' Keyboard,')}
                       onChange={handleServiceChange}
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={formData.Items.includes(' Monitor,')}
                       onChange={handleServiceChange}
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={formData.Items.includes(' AVR,')}
+                      onChange={handleServiceChange}
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={formData.Items.includes(' CPU,')}
+                      onChange={handleServiceChange}
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}>
                     Others:
@@ -1521,6 +1579,7 @@ const handleViewClose = () => {
                     />
                     </div>
                   </fieldset>
+                  <br/>
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
@@ -1571,7 +1630,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER'S FORM
+               Request Item Form
             </Typography>
             <DialogContent>
             <Grid
@@ -1583,12 +1642,12 @@ const handleViewClose = () => {
                     alignItems="center"
                   >
                     <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
+                    <Typography variant="subtitle1">Control Number:</Typography>
                   <TextField
                     type="text"
-                    name="id"
-                    placeholder="Docuent ID:"
-                    value={viewItem  ? viewItem .id : ''}
+                    name="ControlNum"
+                    placeholder="Control Number"
+                    value={viewItem  ? viewItem .ControlNum : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1634,25 +1693,39 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items">ITEMS:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
+                      value=" Mouse,"
+                      checked={viewItem && viewItem.Items.includes(' Mouse,')}
                       disabled
                     />
-                    HDMI
+                    Mouse
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
+                      value=" Keyboard,"
+                      checked={viewItem && viewItem.Items.includes(' Keyboard,')}
                       disabled
                     />
-                    Projector
+                    Keyboard
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={viewItem && viewItem.Items.includes('TV')}
+                      value=" Monitor,"
+                      checked={viewItem && viewItem.Items.includes(' Monitor,')}
                       disabled
                     />
-                    TV
+                    Monitor
+                    <br />
+                    <Checkbox
+                      value=" AVR,"
+                      checked={viewItem && viewItem.Items.includes(' AVR,')}
+                      disabled
+                    />
+                    AVR
+                    <br />
+                    <Checkbox
+                      value=" CPU,"
+                      checked={viewItem && viewItem.Items.includes(' CPU,')}
+                      disabled
+                    />
+                    CPU
                     <br />
                     <div style={{ marginLeft: '42px' }}>
                     Others:

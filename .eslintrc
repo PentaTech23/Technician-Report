@@ -30,7 +30,7 @@
     "prettier",
     "@typescript-eslint"
   ],
-  "parser": "babel-eslint",
+  // "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 8,
     "requireConfigFile": false,
