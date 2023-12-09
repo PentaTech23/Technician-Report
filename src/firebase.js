@@ -22,7 +22,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 // Access main collection
-const mainCollectionRef = collection(db, "WP4-TESTING-AREA");
+const mainCollectionRef = collection(db, "WP4-TECHNICIAN-DMS");
 
 // Access FORMS document under main collection
 const formsDocRef = doc(mainCollectionRef, "FORMS");
@@ -30,6 +30,8 @@ const formsDocRef = doc(mainCollectionRef, "FORMS");
 // Add to subcollection 
 const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
 const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
+const ServiceCollectionRef = collection(formsDocRef, "SERVICE-REQUEST");
+const InspectionCollectionRef = collection(formsDocRef, "INSPECTION-REPORT-FORM");
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
@@ -72,6 +74,8 @@ export {
   formsDocRef,
   BorrowersCollectionRef,
   RequestCollectionRef,
+  ServiceCollectionRef,
+  InspectionCollectionRef,
   archivesRef,
   archivesCollectionRef,
   storage

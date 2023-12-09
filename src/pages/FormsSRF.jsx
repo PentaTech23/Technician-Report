@@ -14,7 +14,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, ServiceCollectionRef, formsDocRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
 export default function UserPage() {
 
@@ -66,12 +66,14 @@ const handleChange = (e) => {
 };
 
   const initialFormData = {
+    ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
-    Items: [],
-    otherItems: '',
+    Requisitioner: '',
+    Services: [],
+    otherServices: '',
+    Remarks: '',
     fileInput: '',
     fileURL: '',
   };
@@ -82,12 +84,14 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
+    ControlNum: null,
     Date: '',
     FullName: '',
-    LocationRoom: '',
-    Borrower: '',
-    Items: [], // If this is an array, it can be empty initially
-    otherItems: '',
+    LocationRoom: null,
+    Requisitioner: '',
+    Services: [], // If this is an array, it can be empty initially
+    otherServices: '',
+    Remarks: '',
     fileURL: '',
   });
 
@@ -97,7 +101,7 @@ const handleChange = (e) => {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(BorrowersCollectionRef);
+      const querySnapshot = await getDocs(ServiceCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -126,7 +130,7 @@ const DeanfetchAllDocuments = async () => {
 
   try {
     const querySnapshot = await getDocs(
-      query(BorrowersCollectionRef, where('status', '!=', 'PENDING (Technician)'))
+      query(ServiceCollectionRef, where('status', '!=', 'PENDING (Technician)'))
     );
 
     const dataFromFirestore = [];
@@ -162,7 +166,7 @@ const fetchUserDocuments = async (userUID) => {
     }
 
     const querySnapshotuid = await getDocs(
-      query(BorrowersCollectionRef, where('uid', '==', userUID))
+      query(ServiceCollectionRef, where('uid', '==', userUID))
     );
 
     const dataFromFirestore = [];
@@ -195,7 +199,7 @@ useEffect(() => {
     const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(ServiceCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -220,18 +224,21 @@ useEffect(() => {
     }
     try {
       const documentName = await incrementDocumentName();
-      const docRef = doc(BorrowersCollectionRef, documentName);
+      const docRef = doc(ServiceCollectionRef, documentName);
   
       const docData = {
-        Date,
-        FullName,
-        LocationRoom,
-        Borrower,
-        Items,
-        otherItems,
+        ControlNum: '',
+    Date: '',
+    FullName: '',
+    LocationRoom: '',
+    Requisitioner: '',
+    Services: [],
+    otherServices: '',
+    Remarks: '',
+    fileInput: '',
         fileURL: fileURL || '',
         archived: false,
-        originalLocation: "ITEM-BORROWERS",
+        originalLocation: "SERVICE-REQUEST",
         uid: user?.uid || '',
         status: "PENDING (Technician)",
       };
@@ -260,7 +267,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -271,7 +278,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -282,7 +289,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -301,14 +308,15 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
-      Date: data.Date || '',
-      FullName: data.FullName || '',
-      LocationRoom: data.LocationRoom || '',
-      Borrower: data.Borrower || '',
-      Items: data.Items || '',
-      otherItems: data.otherItems || '',
-      fileURL: data.fileURL || '',
-      id: data.id, // Set the document ID here
+      ControlNum: data.ControlNum || '',
+        Date: data.Date || '',
+        FullName: data.FullName || '',
+        LocationRoom: data.LocationRoom || '',
+        Requisitioner: data.Requisitioner || '',
+        Services: data.Services || '',
+        otherServices: data.otherServices || '',
+        fileURL: data.fileURL || '',
+        id: data.id, // Set the document ID here
     });
     setEditData(data);
     setEditOpen(true);
@@ -330,7 +338,7 @@ const handleEditSubmit = async () => {
       // Include other properties here
     };
 
-    const docRef = doc(BorrowersCollectionRef, formData.id);
+    const docRef = doc(ServiceCollectionRef, formData.id);
 
     // Update the editData object with the new file URL
     updatedEditData.fileURL = formData.fileURL;
@@ -350,10 +358,10 @@ const handleConfirmDeleteWithoutArchive = async () => {
   try {
 
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(ServiceCollectionRef, documentToDelete);
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
    
-    await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+    await deleteDoc(doc(ServiceCollectionRef, documentToDelete));
     
     // Update the UI by removing the deleted row
     setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -389,9 +397,9 @@ const [snackbarOpenArchive, setSnackbarOpenArchive] = useState(false);
 const handleConfirmDelete = async () => {
   try {
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(ServiceCollectionRef, documentToDelete);
       // Set the 'originalLocation' field to the current collection and update the Archive as true
-      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-BORROWERS" });
+      await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "SERVICE-REQUEST" });
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
 
@@ -418,7 +426,7 @@ const handleConfirmDelete = async () => {
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
-      await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+      await deleteDoc(doc(ServiceCollectionRef, documentToDelete));
 
       // Update the UI by removing the archived document
       setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -564,7 +572,7 @@ const handleConfirmDeleteAll = async () => {
   try {
     // Create an array of promises to delete each selected item
     const deletePromises = selectedItems.map(async (itemId) => {
-      return deleteDoc(doc(BorrowersCollectionRef, itemId));
+      return deleteDoc(doc(ServiceCollectionRef, itemId));
     });
 
     // Use Promise.all to await all the delete operations
@@ -778,8 +786,8 @@ const handleViewClose = () => {
               Service Request Form
               </Typography>
               <DialogContent>
-                <form onSubmit={handleSubmit}>
-                <Grid
+              <form onSubmit={handleSubmit}>
+                  <Grid
                     container
                     spacing={2}
                     columns={16}
@@ -787,98 +795,150 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
-
                     <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={formData.Date || ''}
-                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={formData.FullName || ''}
-                    onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >ITEMS:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI 
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}> 
-                    Others:
-                    <input
-                    type="text"
-                    name="Others:"
-                    value={formData.otherItems || ''}
-                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
-                    />
-                      </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
                       <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={formData.LocationRoom || ''}
-                    onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
-                      <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
+                        type="text"
+                        name="ControlNum"
+                        variant="outlined"
+                        placeholder="ControlNum"
+                        value={formData.ControlNum || ''}
+                        fullWidth
+                        onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        fullWidth
+                        placeholder='Date'
+                        value={formData.Date || ''}
+                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        fullWidth
+                        variant="outlined"
+                        placeholder="FullName"
+                        value={formData.FullName || ''}
+                        onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="Requisitioner"
+                        placeholder="Requisitioner"
+                        fullWidth
+                        value={formData.Requisitioner || ''}
+                        onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <fieldset>
+                        <legend name="Services">SERVICES:</legend>
+                        <Checkbox
+                          value=" Application Installation,"
+                          checked={formData.Services.includes(' Application Installation,')}
+                          onChange={handleServiceChange}
+                        />
+                        Application Installation
+                        <br />
+                        <Checkbox
+                          value=" Network,"
+                          checked={formData.Services.includes(' Network,')}
+                          onChange={handleServiceChange}
+                        />
+                        Network
+                        <br />
+                        <Checkbox
+                          value=" Inventory,"
+                          checked={formData.Services.includes(' Inventory,')}
+                          onChange={handleServiceChange}
+                        />
+                        Inventory
+                        <br />
+                        <Checkbox
+                          value=" Reformat,"
+                          checked={formData.Services.includes(' Reformat,')}
+                          onChange={handleServiceChange}
+                        />
+                        Reformat
+                        <br />
+                        <Checkbox
+                          value=" Repair,"
+                          checked={formData.Services.includes(' Repair,')}
+                          onChange={handleServiceChange}
+                        />
+                        Repair
+                        <br />
+                        <div style={{ marginLeft: '42px' }}>
+                          Others:
+                          <br />
+                          <input
+                            type="text"
+                            name="Others:"
+                            value={formData.otherServices || ''}
+                            onChange={(e) => setFormData({ ...formData, otherServices: e.target.value })}
+                          />
+                        </div>
+                      </fieldset>
+                    </Grid>
+
+                    <Grid item xs={8} >
+                      <Grid container spacing={3} column={6}>
+                        <Grid item xs={12}>
+                          <TextField
+                            type="text"
+                            name="LocationRoom"
+                            placeholder="LocationRoom"
+                            fullWidth
+                            value={formData.LocationRoom || ''}
+                            onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                            // sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                          <br />
+                        </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              type="text"
+                              name="Remarks"
+                              variant="outlined"
+                              placeholder="Remarks"
+                              multiline
+                              value={formData.Remarks || ''}
+                              onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
+                              // minRows={5}
+                              fullWidth
+                              // maxRows={80}
+                              // marginBottom="10px"
+                            />
+                            <br />
+                          </Grid>
+                        
+                      <Grid item xs={12}>
+                        { <Typography variant="subtitle1">Document Upload:</Typography> }
                       <TextField
                           type="file"
                           fullWidth
                           accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
                           onChange={(e) => handleFileUpload(e.target.files[0])}
                           sx={{ width: '100%' }}
+                          
                         />
-                        <br/>
                       </Grid>
+                    </Grid>
                     </Grid>
                   </Grid>
 
@@ -921,12 +981,13 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Document ID</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Location/Room</TableCell>
-                <TableCell>Borrower</TableCell>
-                <TableCell>Items</TableCell>
+                <TableCell>Control Number</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Full Name</TableCell>
+                  <TableCell>Location/Room</TableCell>
+                  <TableCell>Requesitioner</TableCell>
+                  <TableCell>Services</TableCell>
+                  <TableCell>Other Service</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
@@ -942,11 +1003,12 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.Date}</TableCell>
-                  <TableCell>{item.FullName}</TableCell>
-                  <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Borrower}</TableCell>
+                  <TableCell>{item.ControlNum}</TableCell>
+                    <TableCell>{item.Date}</TableCell>
+                    <TableCell>{item.FullName}</TableCell>
+                    <TableCell>{item.LocationRoom}</TableCell>
+                    <TableCell>{item.Requisitioner}</TableCell>
+                    <TableCell>{item.Services}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                   <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
@@ -1117,12 +1179,13 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Control Number</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Full Name</TableCell>
+                  <TableCell>Location/Room</TableCell>
+                  <TableCell>Requesitioner</TableCell>
+                  <TableCell>Services</TableCell>
+                  <TableCell>Other Service</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1140,11 +1203,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{item.ControlNum}</TableCell>
+                    <TableCell>{item.Date}</TableCell>
+                    <TableCell>{item.FullName}</TableCell>
+                    <TableCell>{item.LocationRoom}</TableCell>
+                    <TableCell>{item.Requisitioner}</TableCell>
+                    <TableCell>{item.Services}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
@@ -1324,12 +1388,13 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Control Number</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Full Name</TableCell>
+                  <TableCell>Location/Room</TableCell>
+                  <TableCell>Requesitioner</TableCell>
+                  <TableCell>Services</TableCell>
+                  <TableCell>Other Service</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1347,11 +1412,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
+                <TableCell>{item.ControlNum}</TableCell>
+                    <TableCell>{item.Date}</TableCell>
+                    <TableCell>{item.FullName}</TableCell>
+                    <TableCell>{item.LocationRoom}</TableCell>
+                    <TableCell>{item.Requisitioner}</TableCell>
+                    <TableCell>{item.Services}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
@@ -1443,12 +1509,12 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+                SERVICE REQUEST FORM
               </Typography>
         <DialogContent>
-          <form onSubmit={handleEditSubmit}>
-            {/* Fields to edit */}
-            <Grid
+        <form onSubmit={handleEditSubmit}>
+                  {/* Fields to edit */}
+                  <Grid
                     container
                     spacing={2}
                     columns={16}
@@ -1457,100 +1523,144 @@ const handleViewClose = () => {
                     alignItems="center"
                   >
                     <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="ControlNum"
+                        label="Control Number"
+                        value={editData ? editData.ControlNum : ''}
+                        onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
                     <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >Items:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={editData  ? editData .otherItems :''}
-                      onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
-                    />
-                    </div>
-                  </fieldset>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        label="Date"
+                        value={editData ? editData.Date : ''}
+                        onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        label="Faculty Name"
+                        value={editData ? editData.FullName : ''}
+                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="Requisitioner"
+                        label="Requisitioner"
+                        value={editData ? editData.Requisitioner : ''}
+                        onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <fieldset>
+                        <legend name="Services">SERVICES:</legend>
+                        <Checkbox
+                          value=" Application Installation,"
+                          checked={formData.Services.includes(' Application Installation,')}
+                          onChange={handleServiceChange}
+                        />
+                        Application Installation
+                        <br />
+                        <Checkbox
+                          value=" Network,"
+                          checked={formData.Services.includes(' Network,')}
+                          onChange={handleServiceChange}
+                        />
+                        Network
+                        <br />
+                        <Checkbox
+                          value=" Inventory,"
+                          checked={formData.Services.includes(' Inventory,')}
+                          onChange={handleServiceChange}
+                        />
+                        Inventory
+                        <br />
+                        <Checkbox
+                          value=" Reformat,"
+                          checked={formData.Services.includes(' Reformat,')}
+                          onChange={handleServiceChange}
+                        />
+                        Reformat
+                        <br />
+                        <Checkbox
+                          value=" Repair,"
+                          checked={formData.Services.includes(' Repair,')}
+                          onChange={handleServiceChange}
+                        />
+                        Repair
+                        <br />
+                        <div style={{ marginLeft: '42px' }}>
+                          Others:
+                          <input
+                            type="text"
+                            value={editData ? editData.otherServices : ''}
+                            onChange={(e) => setEditData({ ...editData, otherServices: e.target.value })}
+                          />
+                        </div>
+                      </fieldset>
+                      <br />
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
                       <Grid>
-                      <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          label="Location/Room"
+                          value={editData ? editData.LocationRoom : ''}
+                          onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
                       </Grid>
                       <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
-                  />
-                        <br/>
+                        <Typography variant="subtitle1">Remarks:</Typography>
+                        <TextField
+                          type="text"
+                          name="Remarks"
+                          label="Remarks"
+                          value={editData ? editData.Remarks : ''}
+                          onChange={(e) => setEditData({ ...editData, Remarks: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
+                      </Grid>
+                      <Grid>
+                        <Typography variant="subtitle1">File:</Typography>
+                        <TextField
+                          type="file"
+                          name="fileInput"
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          inputProps={{
+                            className:
+                              'w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input',
+                          }}
+                        />
                       </Grid>
                     </Grid>
                   </Grid>
 
                   <br />
-          </form>
+                </form>
         </DialogContent>
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
@@ -1571,129 +1681,150 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER'S FORM
+               SERVICE REQUEST FORM
             </Typography>
             <DialogContent>
-            <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
-                  <TextField
-                    type="text"
-                    name="id"
-                    placeholder="Docuent ID:"
-                    value={viewItem  ? viewItem .id : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Date:</Typography>
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={viewItem ? viewItem.Date : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Faculty Name:</Typography>
-                  <TextField
-                    type="text"
-                    name="FullName"
-                    placeholder="Faculty Name"
-                    value={viewItem  ? viewItem .FullName : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
-                  <TextField
-                    type="text"
-                    name="Borrower"
-                    placeholder="Borrower"
-                    value={viewItem  ? viewItem .Borrower : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items">ITEMS:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
-                      disabled
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
-                      disabled
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={viewItem && viewItem.Items.includes('TV')}
-                      disabled
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
+                <Grid
+                  container
+                  spacing={2}
+                  columns={16}
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Control Number:</Typography>
+                    <TextField
                       type="text"
-                      value={viewItem ? viewItem.otherItems : ''}
+                      name="ControlNum"
+                      
+                      value={viewItem ? viewItem.ControlNum : ''}
                       disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
                     />
-                    </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      <Typography variant="subtitle1">Location/Room:</Typography>
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={viewItem  ? viewItem .LocationRoom : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
-                      <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                    {viewItem && viewItem.fileURL ? (
-                      <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                        View / Download File
-                      </a>
-                    ) : (
-                      "No File"
-                    )}
-                        <br/>
-                      </Grid>
-                    </Grid>
                   </Grid>
 
-                  <br />
-            </DialogContent>
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1">Date:</Typography>
+                    <TextField
+                      type="date"
+                      name="Date"
+                      
+                      value={viewItem ? viewItem.Date : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Faculty Name:</Typography>
+                    <TextField
+                      type="text"
+                      name="FullName"
+                      
+                      value={viewItem ? viewItem.FullName : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={16}>
+                    <Typography variant="subtitle1">Requisitioner:</Typography>
+                    <TextField
+                      type="text"
+                      name="Requisitioner"
+                    
+                      value={viewItem ? viewItem.Requisitioner : ''}
+                      disabled
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <fieldset>
+                      <legend name="Services">SERVICES:</legend>
+                      <Checkbox
+                        value=" Application Installation,"
+                        checked={viewItem && viewItem.Services.includes(' Application Installation,')}
+                        disabled
+                      />
+                      Application Installation
+                      <br />
+                      <Checkbox
+                        value=" Network,"
+                        checked={viewItem && viewItem.Services.includes(' Network,')}
+                        disabled
+                      />
+                      Network
+                      <br />
+                      <Checkbox
+                        value=" Inventory,"
+                        checked={viewItem && viewItem.Services.includes(' Inventory,')}
+                        disabled
+                      />
+                      Inventory
+                      <br />
+                      <Checkbox
+                        value=" Reformat,"
+                        checked={viewItem && viewItem.Services.includes(' Reformat,')}
+                        disabled
+                      />
+                      Reformat
+                      <br />
+                      <Checkbox
+                        value=" Repair,"
+                        checked={viewItem && viewItem.Services.includes(' Repair,')}
+                        disabled
+                      />
+                      Repair
+                      <br />
+                      <div style={{ marginLeft: '42px' }}>
+                        Others:
+                        <input type="text" value={viewItem ? viewItem.otherServices : ''} disabled />
+                      </div>
+                    </fieldset>
+                  </Grid>
+
+                  <Grid item xs={8} spacing={1}>
+                    <Grid>
+                      <Typography variant="subtitle1">Location/Room:</Typography>
+                      <TextField
+                        type="text"
+                        name="LocationRoom"
+                        
+                        value={viewItem ? viewItem.LocationRoom : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                    <Grid>
+                      <Typography variant="subtitle1">Remarks:</Typography>
+                      <TextField
+                        type="text"
+                        name="Remarks"
+                        
+                        value={viewItem ? viewItem.Remarks : ''}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                    <Grid>
+                      <Typography variant="subtitle1">File:</Typography>
+                      {viewItem && viewItem.fileURL ? (
+                        <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                          View / Download File
+                        </a>
+                      ) : (
+                        'No File'
+                      )}
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                <br />
+                <br />
+              </DialogContent>
           </div>
         </div>
         <DialogActions>
