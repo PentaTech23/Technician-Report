@@ -1,8 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useTable } from 'react-table';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+
 // @mui
 import {
   Card,
@@ -82,6 +85,38 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
+
+
+
+    const [data, setData] = useState([]);
+    const columns = React.useMemo(
+      () => [
+        // { Header: 'ID', accessor: 'id' },
+        { Header: 'Username', accessor: 'username' },
+        { Header: 'Email', accessor: 'email' },
+        { Header: 'User Type', accessor: 'userType' },
+        { Header: 'Status', accessor: 'status' },
+        // Add more columns as needed
+      ],
+      []
+    );
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        const db = getFirestore();
+        const myCollection = collection(db, 'WP4-pendingUsers'); // Replace 'your-collection' with your actual collection name
+  
+        const querySnapshot = await getDocs(myCollection);
+        const newData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  
+        setData(newData);
+      };
+  
+      fetchData();
+    }, []);
+  
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -319,59 +354,31 @@ export default function UserPage() {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
-
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
-
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell align="left">{company}</TableCell>
-
-                        <TableCell align="left">{role}</TableCell>
-
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
+              <Table {...getTableProps()} style={{ width: '100%' }}>
+      <thead>
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column) => (
+              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map((cell) => (
+                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
+                
+                
 
                 {isNotFound && (
                   <TableBody>
