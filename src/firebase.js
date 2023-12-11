@@ -26,12 +26,14 @@ const mainCollectionRef = collection(db, "WP4-TECHNICIAN-DMS");
 
 // Access FORMS document under main collection
 const formsDocRef = doc(mainCollectionRef, "FORMS");
+const profilingDocRef = doc(mainCollectionRef, "PROFILING");
 
 // Add to subcollection 
 const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
 const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
 const ServiceCollectionRef = collection(formsDocRef, "SERVICE-REQUEST");
 const InspectionCollectionRef = collection(formsDocRef, "INSPECTION-REPORT-FORM");
+const MemorandumCollectionRef = collection(profilingDocRef, 'MEMORANDUM-OF-RECEIPTS');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
@@ -76,6 +78,7 @@ export {
   RequestCollectionRef,
   ServiceCollectionRef,
   InspectionCollectionRef,
+  MemorandumCollectionRef,
   archivesRef,
   archivesCollectionRef,
   storage

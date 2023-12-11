@@ -26,6 +26,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  TableHead,
   TableCell,
   Container,
   Typography,
@@ -354,29 +355,24 @@ export default function UserPage() {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-              <Table {...getTableProps()} style={{ width: '100%' }}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+              <Table>
+        <TableHead>
+          <TableRow>
+            {columns.map((column) => (
+              <TableCell key={column.Header}>{column.Header}</TableCell>
             ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell) => (
-                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              {columns.map((column) => (
+                <TableCell key={column.accessor}>{row[column.accessor]}</TableCell>
               ))}
-            </tr>
-          );
-        })}
-      </tbody>
-    </Table>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
                 
                 
 
