@@ -689,7 +689,7 @@ const handleViewClose = () => {
         case 'PENDING (Technician)':
           return 'orange';
           case 'PENDING (Dean)':
-            return 'orange';
+            return 'blue';
         case 'APPROVED':
           return 'green';
         case 'REJECTED':
