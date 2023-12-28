@@ -767,6 +767,8 @@ useEffect(() => {
         fileURL: fileURL || '',
         archived: false, 
         originalLocation: 'MEMORANDUM-OF-RECEIPTS', 
+        uid: user?.uid || '',
+        status: "PENDING (Technician)",
       };
 
       await setDoc(docRef, docData);
