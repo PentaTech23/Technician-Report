@@ -168,6 +168,52 @@ export default function UserPage() {
     }
   };
 
+  const updateStatusInFirebaseReject = async () => {
+    try {
+      if (documentIds.length === 0) {
+        console.error('No document IDs to update.');
+        return;
+      }
+  
+      // Update each document in the subcollection
+      const updatePromises = documentIds.map(async (documentId) => {
+        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+        await updateDoc(statusRef, { status: 'REJECTED' });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log('Status updated successfully!');
+      setStatus('REJECTED'); // Update local state if needed
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const updateStatusInFirebaseDean = async () => {
+    try {
+      if (documentIds.length === 0) {
+        console.error('No document IDs to update.');
+        return;
+      }
+  
+      // Update each document in the subcollection
+      const updatePromises = documentIds.map(async (documentId) => {
+        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+        await updateDoc(statusRef, { status: 'APPROVED' });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log('Status updated successfully!');
+      setStatus('APPROVED'); // Update local state if needed
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
 
 
 
@@ -1373,7 +1419,7 @@ const handleViewClose = () => {
                       <CheckIcon onClick={updateStatusInFirebase} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
+                      <CloseIcon onClick={updateStatusInFirebaseReject}/>
                     </IconButton>
                   </div>
                 </TableCell>
@@ -1577,10 +1623,10 @@ const handleViewClose = () => {
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
-                      <CheckIcon />
+                      <CheckIcon onClick={updateStatusInFirebaseDean} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
+                      <CloseIcon onClick={updateStatusInFirebaseReject} />
                     </IconButton>
                   </div>
                 </TableCell>
