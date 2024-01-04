@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Deny read and write access by default
+    match /{document=**} {
+      allow read, write;
+    }
+    
+    // Allow authenticated users to read and write FORMS collection
+    match /WP4-TECHNICIAN-DMS/{FORMS} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write SERVICE-REQUEST documents
+    match /WP4-TECHNICIAN-DMS/{FORMS}/SERVICE-REQUEST/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write ITEMS-BORROWERS documents
+    match /WP4-TECHNICIAN-DMS/{FORMS}/ITEM-BORROWERS/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write ITEMS-BORROWERS documents
+    match /WP4-TECHNICIAN-DMS/{FORMS}/ITEM-REQUEST/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write ITEMS-BORROWERS documents
+    match /WP4-TECHNICIAN-DMS/{FORMS}/INSPECTION-REPORT-FORM/{document} {
+      allow read, write: if request.auth != null;
+    }
+    
+    
+    
+     // Allow authenticated users to read and write PROFILING collection
+    match /WP4-TECHNICIAN-DMS/{PROFILING} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write CONDEMNED-ITEMS documents
+    match /WP4-TECHNICIAN-DMS/{PROFILING}/CONDEMNED-ITEMS/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write MEMORANDUM-OF-RECEIPTS documents
+    match /WP4-TECHNICIAN-DMS/{PROFILING}/MEMORANDUM-OF-RECEIPTS/{document} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write REPORTS collection
+    match /WP4-TECHNICIAN-DMS/{REPORTS} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM documents
+    match /WP4-TECHNICIAN-DMS/{REPORTS}/MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write INVENTORY-TRANSFER-REPORTS documents
+    match /WP4-TECHNICIAN-DMS/{REPORTS}/INVENTORY-TRANSFER-REPORTS/{document} {
+      allow read, write: if request.auth != null;
+    }
+    // Allow authenticated users to read and write PROPERTY-TRANSFER-REPORTS documents
+    match /WP4-TECHNICIAN-DMS/{REPORTS}/PROPERTY-TRANSFER-REPORTS/{document} {
+      allow read, write: if request.auth != null;
+    }
+    
+    
+    // Allow authenticated users to read and write documents in ARCHIVES-DOCUMENT
+    match /WP4-TECHNICIAN-DMS/{ARCHIVES}/ARCHIVES-FORMS/{document} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
