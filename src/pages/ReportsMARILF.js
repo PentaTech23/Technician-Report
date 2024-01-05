@@ -62,10 +62,9 @@ import Scrollbar from '../components/scrollbar';
 
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
+import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products';
 // mock
 import USERLIST from '../_mock/user';
-
 
 // ----------------------------------------------------------------------
 
@@ -111,7 +110,7 @@ export default function ReportsMARILF() {
     {
       PCNum: '',
       Processor: '',
-      UnitSerialNum:'',
+      UnitSerialNum: '',
       Monitor: '',
       HDD: '',
       Memory: '',
@@ -125,19 +124,19 @@ export default function ReportsMARILF() {
 
   const handleAddFieldObservations = () => {
     setInputFieldObservations([
-      ...inputFieldObservations, 
+      ...inputFieldObservations,
       {
-      PCNum: '',
-      Processor: '',
-      UnitSerialNum:'',
-      Monitor: '',
-      HDD: '',
-      Memory: '',
-      VGA: '',
-      Keyboard: '',
-      Mouse: '',
-      Status: '',
-      Remarks: '',
+        PCNum: '',
+        Processor: '',
+        UnitSerialNum: '',
+        Monitor: '',
+        HDD: '',
+        Memory: '',
+        VGA: '',
+        Keyboard: '',
+        Mouse: '',
+        Status: '',
+        Remarks: '',
       },
     ]);
   };
@@ -161,7 +160,7 @@ export default function ReportsMARILF() {
     const newField = {
       PCNum: '',
       Processor: '',
-      UnitSerialNum:'',
+      UnitSerialNum: '',
       Monitor: '',
       HDD: '',
       Memory: '',
@@ -171,28 +170,26 @@ export default function ReportsMARILF() {
       Status: '',
       Remarks: '',
     };
-  
     setEditData((prevEditData) => ({
       ...prevEditData,
       inputFieldObservations: [...prevEditData.inputFieldObservations, newField],
     }));
-  
     console.log('After adding field:', editData);
   };
 
   const handleEditRemoveFieldObservations = async (index) => {
     try {
       const docRef = doc(MARILFCollectionRef, formData.id); // Use the document ID for updating
-  
+
       // Create a copy of the editData
       const editDataCopy = { ...editData };
-  
+
       // Remove the specific item from the inputField array in Firestore
       editDataCopy.inputFieldObservations.splice(index, 1);
-  
+
       // Update Firestore document with the modified inputField
       await updateDoc(docRef, editDataCopy); // Update the document in Firestore
-  
+
       // Update the local state (formData) with the modified inputField
       setFormData((prevData) => ({
         ...prevData,
@@ -205,8 +202,8 @@ export default function ReportsMARILF() {
 
   const handleRemoveAllFieldObservations = () => {
     const values = [...inputFieldObservations];
-        // Remove all fields by splicing from the end of the array to the beginning
-    for (let i = values.length - 1; i >= 0; i-=1) {
+    // Remove all fields by splicing from the end of the array to the beginning
+    for (let i = values.length - 1; i >= 0; i -= 1) {
       values.splice(i, 1);
     }
     // Update the inputField state with the modified array
@@ -224,13 +221,12 @@ export default function ReportsMARILF() {
     });
   };
 
-
-    // -------------------------Observations 1 FIELDS ---------------------------------------------
+  // -------------------------Observations 1 FIELDS ---------------------------------------------
   const [inputFieldObservations1, setInputFieldObservations1] = useState([
     {
       RoomEquipment: '',
       BrandDescription: '',
-      Quantity:'',
+      Quantity: '',
       SerialNum: '',
       ModelNum: '',
       Custodian: '',
@@ -240,11 +236,11 @@ export default function ReportsMARILF() {
 
   const handleAddFieldObservations1 = () => {
     setInputFieldObservations1([
-      ...inputFieldObservations1, 
+      ...inputFieldObservations1,
       {
         RoomEquipment: '',
         BrandDescription: '',
-        Quantity:'',
+        Quantity: '',
         SerialNum: '',
         ModelNum: '',
         Custodian: '',
@@ -266,40 +262,38 @@ export default function ReportsMARILF() {
     setInputFieldObservations1(values);
   };
 
-   // -------------------------EDIT Observations1 FIELDS ---------------------------------------------
+  // -------------------------EDIT Observations1 FIELDS ---------------------------------------------
 
-   const handleEditAddFieldObservations1 = () => {
+  const handleEditAddFieldObservations1 = () => {
     const newField = {
       RoomEquipment: '',
       BrandDescription: '',
-      Quantity:'',
+      Quantity: '',
       SerialNum: '',
       ModelNum: '',
       Custodian: '',
       Remarks: '',
     };
-  
     setEditData((prevEditData) => ({
       ...prevEditData,
       inputFieldObservations1: [...prevEditData.inputFieldObservations1, newField],
     }));
-  
     console.log('After adding field:', editData);
   };
 
   const handleEditRemoveFieldObservations1 = async (index) => {
     try {
       const docRef = doc(MARILFCollectionRef, formData.id); // Use the document ID for updating
-  
+
       // Create a copy of the editData
       const editDataCopy = { ...editData };
-  
+
       // Remove the specific item from the inputField array in Firestore
       editDataCopy.inputFieldObservations1.splice(index, 1);
-  
+
       // Update Firestore document with the modified inputField
       await updateDoc(docRef, editDataCopy); // Update the document in Firestore
-  
+
       // Update the local state (formData) with the modified inputField
       setFormData((prevData) => ({
         ...prevData,
@@ -312,15 +306,14 @@ export default function ReportsMARILF() {
 
   const handleRemoveAllFieldObservations1 = () => {
     const values = [...inputFieldObservations1];
-        // Remove all fields by splicing from the end of the array to the beginning
-    for (let i = values.length - 1; i >= 0; i-=1) {
+    // Remove all fields by splicing from the end of the array to the beginning
+    for (let i = values.length - 1; i >= 0; i -= 1) {
       values.splice(i, 1);
     }
     // Update the inputField state with the modified array
     setInputFieldObservations1(values);
   };
 
-  
   const handleEditChangeInputObservations1 = (index, event, fieldName) => {
     setEditData((prevData) => {
       const newInputFieldObservations1 = [...prevData.inputFieldObservations1];
@@ -351,13 +344,12 @@ export default function ReportsMARILF() {
 
     PreparedBy: '',
     ApprovedBy: '',
-    CheckedBy:'',
-    Custodian:'',
+    CheckedBy: '',
+    Custodian: '',
 
     fileInput: '',
     fileURL: '',
   };
-
 
   const clearForm = () => {
     handleRemoveAllFieldObservations();
@@ -374,12 +366,11 @@ export default function ReportsMARILF() {
 
     PreparedBy: '',
     ApprovedBy: '',
-    CheckedBy:'',
-    Custodian:'',
+    CheckedBy: '',
+    Custodian: '',
 
     fileURL: '',
   });
-
 
   // Show Query or the table, fetch data from firestore
 
@@ -433,20 +424,20 @@ export default function ReportsMARILF() {
     e.preventDefault();
 
     const {
-    ComputerRoom,
-    Date,
+      ComputerRoom,
+      Date,
 
-    // inputFieldObservations,
-    // inputFieldObservations1,
+      // inputFieldObservations,
+      // inputFieldObservations1,
 
-    PreparedBy,
-    ApprovedBy,
-    CheckedBy,
-    Custodian,
+      PreparedBy,
+      ApprovedBy,
+      CheckedBy,
+      Custodian,
 
-    fileURL,
-      } = formData;
-  
+      fileURL,
+    } = formData;
+
     try {
       // Use the current document name when adding a new document
       const documentName = await incrementDocumentName();
@@ -456,18 +447,18 @@ export default function ReportsMARILF() {
       const docData = {
         ComputerRoom,
         Date,
-    
+
         inputFieldObservations,
         inputFieldObservations1,
-    
+
         PreparedBy,
         ApprovedBy,
         CheckedBy,
         Custodian,
 
         fileURL: fileURL || '',
-        archived: false, 
-        originalLocation: 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM', 
+        archived: false,
+        originalLocation: 'MONTHLY-ASSESSMENT-REPORT-INVENTORY-LABORATORY-FORM',
       };
 
       await setDoc(docRef, docData);
@@ -527,10 +518,10 @@ export default function ReportsMARILF() {
         ...formData,
         ComputerRoom: data.ComputerRoom || '',
         Date: data.Date || '',
-    
+
         inputFieldObservations: data.inputFieldObservations || '',
         inputFieldObservations1: data.inputFieldObservations1 || '',
-    
+
         PreparedBy: data.PreparedBy || '',
         ApprovedBy: data.ApprovedBy || '',
         CheckedBy: data.CheckedBy || '',
@@ -836,17 +827,16 @@ export default function ReportsMARILF() {
     setOpen(false);
   };
 
-
   const [openFilter, setOpenFilter] = useState(false);
- 
- const handleOpenFilter = () => {
-      setOpenFilter(true);
-    };
-  
-    const handleCloseFilter = () => {
-      setOpenFilter(false);
-    };
- 
+
+  const handleOpenFilter = () => {
+    setOpenFilter(true);
+  };
+
+  const handleCloseFilter = () => {
+    setOpenFilter(false);
+  };
+
   return (
     <>
       <Helmet>
@@ -856,7 +846,8 @@ export default function ReportsMARILF() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h2" style={{ color: '#ff5500' }}>
-            Monthly Assessment Report <br/>Inventory Laboratory Form
+            Monthly Assessment Report <br />
+            Inventory Laboratory Form
           </Typography>
         </Stack>
 
@@ -887,8 +878,8 @@ export default function ReportsMARILF() {
                   margin: '0 8px', // Add margin for spacing
                   display: 'flex',
                   justifyContent: 'center',
-                   // Set the background color to transparent
-                   // Remove the box shadow
+                  // Set the background color to transparent
+                  // Remove the box shadow
                 }}
               >
                 Refresh
@@ -908,21 +899,24 @@ export default function ReportsMARILF() {
               </div>
             )}
 
-<Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
-            />
-            <ProductSort />
-          </Stack>
-        </Stack>
-
-
+            <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
+              <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+                <ProductFilterSidebar
+                  openFilter={openFilter}
+                  onOpenFilter={handleOpenFilter}
+                  onCloseFilter={handleCloseFilter}
+                />
+                <ProductSort />
+              </Stack>
+            </Stack>
 
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-              <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+              <Button
+                onClick={handleClickOpen}
+                variant="contained"
+                size="large"
+                startIcon={<Iconify icon="eva:plus-fill" />}
+              >
                 New User
               </Button>
             </div>
@@ -942,12 +936,12 @@ export default function ReportsMARILF() {
                   marginTop: '10px',
                 }}
               >
-                Monthly Assessment Report <br/>Inventory Laboratory Form
+                Monthly Assessment Report <br />
+                Inventory Laboratory Form
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
-              
-                <br/>
+                  <br />
                   <Grid container spacing={1}>
                     <Grid item xs={6} md={4}>
                       <TextField
@@ -960,70 +954,69 @@ export default function ReportsMARILF() {
                         onChange={(e) => setFormData({ ...formData, ComputerRoom: e.target.value })}
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
-                      </Grid>
-                      <Grid item xs={6} md={4}>
-                       <TextField
-                      type="date"
-                      name="Date"
-                      variant="outlined"
-                      size="small"
-                      value={formData.Date || ''}
-                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   </Grid>
-                   <Grid item xs={6} md={4}>
-                       <TextField
-                      type="text"
-                      name="PreparedBy"
-                      variant="outlined"
-                      label="Prepared By"
-                      size="small"
-                      value={formData.PreparedBy || ''}
-                      onChange={(e) => setFormData({ ...formData, PreparedBy: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   </Grid>
+                    </Grid>
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        variant="outlined"
+                        size="small"
+                        value={formData.Date || ''}
+                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="PreparedBy"
+                        variant="outlined"
+                        label="Prepared By"
+                        size="small"
+                        value={formData.PreparedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, PreparedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
 
-                   <Grid item xs={6} md={4}>
-                       <TextField
-                      type="text"
-                      name="ApprovedBy"
-                      variant="outlined"
-                      label="Approved By"
-                      size="small"
-                      value={formData.ApprovedBy || ''}
-                      onChange={(e) => setFormData({ ...formData, ApprovedBy: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   </Grid>
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="ApprovedBy"
+                        variant="outlined"
+                        label="Approved By"
+                        size="small"
+                        value={formData.ApprovedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, ApprovedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
 
-                   <Grid item xs={6} md={4}>
-                       <TextField
-                      type="text"
-                      name="CheckedBy"
-                      variant="outlined"
-                      label="Checked By"
-                      size="small"
-                      value={formData.CheckedBy || ''}
-                      onChange={(e) => setFormData({ ...formData, CheckedBy: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   </Grid>
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="CheckedBy"
+                        variant="outlined"
+                        label="Checked By"
+                        size="small"
+                        value={formData.CheckedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, CheckedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
 
-                   <Grid item xs={6} md={4}>
-                       <TextField
-                      type="text"
-                      name="Custodian"
-                      variant="outlined"
-                      label="Custodian/Co-Custodian"
-                      size="small"
-                      value={formData.Custodian || ''}
-                      onChange={(e) => setFormData({ ...formData, Custodian: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   </Grid>
-
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="Custodian"
+                        variant="outlined"
+                        label="Custodian/Co-Custodian"
+                        size="small"
+                        value={formData.Custodian || ''}
+                        onChange={(e) => setFormData({ ...formData, Custodian: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
                   </Grid>
 
                   {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
@@ -1059,7 +1052,14 @@ export default function ReportsMARILF() {
                   <div>
                     {inputFieldObservations.map((inputFieldObservations, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={11} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid
+                          container
+                          spacing={1}
+                          columns={11}
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
                           {/* First Column */}
                           <Grid item xs={1}>
                             <TextField
@@ -1205,7 +1205,6 @@ export default function ReportsMARILF() {
                             />
                           </Grid>
 
-
                           {/* Eighth Column */}
                           <Grid item xs={1}>
                             {/* <Button
@@ -1220,16 +1219,14 @@ export default function ReportsMARILF() {
                                 handleRemoveFieldObservations(index);
                               }}
                               // variant="warning"
-
                             >
                               Remove
                             </Button>
                             {/* Content for the eighth column */}
                           </Grid>
                           <br />
-                          
                         </Grid>
-                        <br/>
+                        <br />
                       </div>
                     ))}
                   </div>
@@ -1266,7 +1263,14 @@ export default function ReportsMARILF() {
                   <div>
                     {inputFieldObservations1.map((inputFieldObservations1, index) => (
                       <div key={index}>
-                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
+                        <Grid
+                          container
+                          spacing={1}
+                          columns={14}
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
                           {/* First Column */}
                           <Grid item xs={2}>
                             <TextField
@@ -1386,7 +1390,7 @@ export default function ReportsMARILF() {
                             <br />
                           </div>
                         </Grid>
-                        <br/>
+                        <br />
                       </div>
                     ))}
                   </div>
@@ -1396,7 +1400,6 @@ export default function ReportsMARILF() {
                   </div>
 
                   <Grid container spacing={1}>
-                    
                     <Grid item xs={12}>
                       <TextField
                         type="file"
@@ -1516,548 +1519,509 @@ export default function ReportsMARILF() {
 
         {/* This is the dialog for the Edit button */}
         <Dialog open={editOpen} onClose={handleEditClose} maxWidth="xl">
-           {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
+          {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width:'1000px'}}> */}
-              <Typography
-                variant="h3"
-                sx={{ mb: 5 }}
-                style={{
-                  alignSelf: 'center',
-                  color: '#ff5500',
-                  margin: 'auto',
-                  fontSize: '40px',
-                  fontWeight: 'bold',
-                  marginTop: '10px',
-                }}
-              >
-                Monthly Assessment Report <br/> Inventory Laboratory Form
-              </Typography>
-              <DialogContent>
-                <form onSubmit={handleEditSubmit}>
-                
-                <br/>
-                  <Grid container spacing={1} columns={12}>
-                    <Grid item xs={4}>
-                      <TextField
-                        type="text"
-                        name="ComputerRoom"
-                        variant="outlined"
-                        label="Computer Room"
-                        size="small"
-                        value={editData ? editData.ComputerRoom : ''}
-                        onChange={(e) => setEditData({ ...editData, ComputerRoom: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      </Grid>
-                      <Grid item xs={4} >
-                       <TextField
-                      type="date"
-                      name="Date"
-                      variant="outlined"
-                      size="small"
-                      value={editData ? editData.Date : ''}
-                      onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        name="PreparedBy"
-                        variant="outlined"
-                        label="Prepared By"
-                        size="small"
-                        value={editData ? editData.PreparedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, PreparedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        name="ApprovedBy"
-                        variant="outlined"
-                        label="Approved By"
-                        size="small"
-                        value={editData ? editData.ApprovedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, ApprovedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        name="CheckedBy"
-                        variant="outlined"
-                        label="Checked By"
-                        size="small"
-                        value={editData ? editData.CheckedBy : ''}
-                        onChange={(e) => setEditData({ ...editData, CheckedBy: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
+          <Typography
+            variant="h3"
+            sx={{ mb: 5 }}
+            style={{
+              alignSelf: 'center',
+              color: '#ff5500',
+              margin: 'auto',
+              fontSize: '40px',
+              fontWeight: 'bold',
+              marginTop: '10px',
+            }}
+          >
+            Monthly Assessment Report <br /> Inventory Laboratory Form
+          </Typography>
+          <DialogContent>
+            <form onSubmit={handleEditSubmit}>
+              <br />
+              <Grid container spacing={1} columns={12}>
+                <Grid item xs={4}>
+                  <TextField
+                    type="text"
+                    name="ComputerRoom"
+                    variant="outlined"
+                    label="Computer Room"
+                    size="small"
+                    value={editData ? editData.ComputerRoom : ''}
+                    onChange={(e) => setEditData({ ...editData, ComputerRoom: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    type="date"
+                    name="Date"
+                    variant="outlined"
+                    size="small"
+                    value={editData ? editData.Date : ''}
+                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    name="PreparedBy"
+                    variant="outlined"
+                    label="Prepared By"
+                    size="small"
+                    value={editData ? editData.PreparedBy : ''}
+                    onChange={(e) => setEditData({ ...editData, PreparedBy: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    name="ApprovedBy"
+                    variant="outlined"
+                    label="Approved By"
+                    size="small"
+                    value={editData ? editData.ApprovedBy : ''}
+                    onChange={(e) => setEditData({ ...editData, ApprovedBy: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    name="CheckedBy"
+                    variant="outlined"
+                    label="Checked By"
+                    size="small"
+                    value={editData ? editData.CheckedBy : ''}
+                    onChange={(e) => setEditData({ ...editData, CheckedBy: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
 
-                    <Grid item xs={4}>
-                      <TextField
-                        name="Custodian"
-                        variant="outlined"
-                        label="Custodian/Co-Custodian"
-                        size="small"
-                        value={editData ? editData.Custodian : ''}
-                        onChange={(e) => setEditData({ ...editData, Custodian: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    name="Custodian"
+                    variant="outlined"
+                    label="Custodian/Co-Custodian"
+                    size="small"
+                    value={editData ? editData.Custodian : ''}
+                    onChange={(e) => setEditData({ ...editData, Custodian: e.target.value })}
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+              </Grid>
 
-                  </Grid>
-
-
-
-                  {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        PC OBSERVATIONS
-                      </Typography>
-                    </Grid>
-                    <Grid>
-                      <Button
-                        onClick={() => {
-                          handleEditAddFieldObservations();
-                        }}
-                        variant="contained"
-                      >
-                        Add
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  <div>
-                  {editData && editData.inputFieldObservations.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="PCNum"
-                              label="PC No."
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.PCNum
-                              : input?.PCNum}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'PCNum')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Processor"
-                              label="Processor"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Processor
-                              : input?.Processor}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Processor')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="UnitSerialNum"
-                              label="UnitSerialNum"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.UnitSerialNum
-                              : input?.UnitSerialNum}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'UnitSerialNum')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Monitor"
-                              label="Monitor"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Monitor
-                              : input?.Monitor}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Monitor')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="HDD"
-                              label="HDD"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.HDD
-                              : input?.HDD}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'HDD')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Memory"
-                              label="Memory"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Memory
-                              : input?.Memory}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Memory')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="VGA"
-                              label="VGA"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.VGA
-                              : input?.VGA}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'VGA')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Keyboard"
-                              label="Keyboard"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Keyboard
-                              : input?.Keyboard}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Keyboard')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Mouse"
-                              label="Mouse"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Mouse
-                              : input?.Mouse}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Mouse')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Status"
-                              label="Status"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Status
-                              : input?.Status}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Status')}
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Remarks"
-                              label="Remarks"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations[index]?.Remarks
-                              : input?.Remarks}
-                              onChange={(event) => handleEditChangeInputObservations(index, event, 'Remarks')}
-                            />
-                          </Grid>
-
-
-                          {/* Eighth Column */}
-                          <Grid item xs={1}>
-                            {/* <Button
-                              onClick={() => {
-                                handleAddField();
-                              }}
-                            >
-                              Add
-                            </Button> */}
-                            <Button
-                              onClick={() => {
-                                handleEditRemoveFieldObservations(index);
-                              }}
-                              // variant="warning"
-
-                            >
-                              Remove
-                            </Button>
-                            {/* Content for the eighth column */}
-                          </Grid>
-                          <br />
-                          
-                        </Grid>
-                        <br/>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Equipments Observation
-                      </Typography>
-                    </Grid>
-                    <Grid>
-                      <Button
-                        onClick={() => {
-                          handleEditAddFieldObservations1();
-                        }}
-                        variant="contained"
-                      >
-                        Add
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  <div>
-                  {editData && editData.inputFieldObservations1.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="RoomEquipment"
-                              label="Room Equipment"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.RoomEquipment
-                              : input?.RoomEquipment}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'RoomEquipment')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="BrandDescription"
-                              label="Brand/Description"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.BrandDescription
-                              : input?.BrandDescription}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'BrandDescription')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Quantity"
-                              label="Quantity"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.Quantity
-                              : input?.Quantity}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Quantity')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="SerialNum"
-                              label="Serial Number"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.SerialNum
-                              : input?.SerialNum}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'SerialNum')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="ModelNum"
-                              label="Model Number"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.ModelNum
-                              : input?.ModelNum}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'ModelNum')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Custodian"
-                              label="Custodian"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.Custodian
-                              : input?.Custodian}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Custodian')}
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Remarks"
-                              label="Remarks"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                editData
-                              ? editData.inputFieldObservations1[index]?.Remarks
-                              : input?.Remarks}
-                              onChange={(event) => handleEditChangeInputObservations1(index, event, 'Remarks')}
-                            />
-                          </Grid>
-
-                          {/* Eighth Column */}
-                          <Grid item xs={1}>
-                            {/* <Button
-                              onClick={() => {
-                                handleAddField();
-                              }}
-                            >
-                              Add
-                            </Button> */}
-                            <Button
-                              onClick={() => {
-                                handleEditRemoveFieldObservations1(index);
-                              }}
-                            >
-                              Remove
-                            </Button>
-                            {/* Content for the eighth column */}
-                          </Grid>
-                          <br />
-                          <div>
-                            <br />
-                            <br />
-                          </div>
-                        </Grid>
-                        <br/>
-                      </div>
-                    ))}
-                  </div>
-
-                    <Typography variant="subtitle1">File:</Typography>
-                    <Grid container spacing={1}>
-                        <Grid item xs={10}>
-                          <TextField
-                            type="file"
-                            name="fileInput"
-                            accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                            onChange={(e) => handleFileUpload(e.target.files[0])}
-                            sx={{ width: '100%' }}
-                              
-                          />
-                    </Grid>
-                  </Grid>   
-                </form>
-              </DialogContent>
-              <DialogActions>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-                  <Button variant="contained" onClick={handleEditClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleEditSubmit}
-                    type="submit"
-                    sx={{ marginRight: '5px', marginLeft: '5px' }}
+              {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+              <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                <Grid>
+                  <Typography
+                    variant="h6"
+                    sx={{ mb: 5 }}
+                    style={{
+                      alignSelf: 'center',
+                      color: '#ff5500',
+                      margin: 'auto',
+                      // fontSize: '40px',
+                      fontWeight: 'bold',
+                      marginTop: '10px',
+                      marginBottom: '10px',
+                    }}
                   >
-                    Save
+                    PC OBSERVATIONS
+                  </Typography>
+                </Grid>
+                <Grid>
+                  <Button
+                    onClick={() => {
+                      handleEditAddFieldObservations();
+                    }}
+                    variant="contained"
+                  >
+                    Add
                   </Button>
-                </div>
-              </DialogActions>
+                </Grid>
+              </Grid>
+              <div>
+                {editData &&
+                  editData.inputFieldObservations.map((input, index) => (
+                    <div key={index}>
+                      <Grid
+                        container
+                        spacing={1}
+                        columns={12}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        {/* First Column */}
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="PCNum"
+                            label="PC No."
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.PCNum : input?.PCNum}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'PCNum')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Processor"
+                            label="Processor"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Processor : input?.Processor}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Processor')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="UnitSerialNum"
+                            label="UnitSerialNum"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={
+                              editData ? editData.inputFieldObservations[index]?.UnitSerialNum : input?.UnitSerialNum
+                            }
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'UnitSerialNum')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Monitor"
+                            label="Monitor"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Monitor : input?.Monitor}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Monitor')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="HDD"
+                            label="HDD"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.HDD : input?.HDD}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'HDD')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Memory"
+                            label="Memory"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Memory : input?.Memory}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Memory')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="VGA"
+                            label="VGA"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.VGA : input?.VGA}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'VGA')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Keyboard"
+                            label="Keyboard"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Keyboard : input?.Keyboard}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Keyboard')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Mouse"
+                            label="Mouse"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Mouse : input?.Mouse}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Mouse')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Status"
+                            label="Status"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Status : input?.Status}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Status')}
+                          />
+                        </Grid>
+                        <Grid item xs={1}>
+                          <TextField
+                            type="text"
+                            name="Remarks"
+                            label="Remarks"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations[index]?.Remarks : input?.Remarks}
+                            onChange={(event) => handleEditChangeInputObservations(index, event, 'Remarks')}
+                          />
+                        </Grid>
 
+                        {/* Eighth Column */}
+                        <Grid item xs={1}>
+                          {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                          <Button
+                            onClick={() => {
+                              handleEditRemoveFieldObservations(index);
+                            }}
+                            // variant="warning"
+                          >
+                            Remove
+                          </Button>
+                          {/* Content for the eighth column */}
+                        </Grid>
+                        <br />
+                      </Grid>
+                      <br />
+                    </div>
+                  ))}
+              </div>
+
+              <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                <Grid>
+                  <Typography
+                    variant="h6"
+                    sx={{ mb: 5 }}
+                    style={{
+                      alignSelf: 'center',
+                      color: '#ff5500',
+                      margin: 'auto',
+                      // fontSize: '40px',
+                      fontWeight: 'bold',
+                      marginTop: '10px',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    Equipments Observation
+                  </Typography>
+                </Grid>
+                <Grid>
+                  <Button
+                    onClick={() => {
+                      handleEditAddFieldObservations1();
+                    }}
+                    variant="contained"
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+              <div>
+                {editData &&
+                  editData.inputFieldObservations1.map((input, index) => (
+                    <div key={index}>
+                      <Grid
+                        container
+                        spacing={1}
+                        columns={14}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        {/* First Column */}
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="RoomEquipment"
+                            label="Room Equipment"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={
+                              editData ? editData.inputFieldObservations1[index]?.RoomEquipment : input?.RoomEquipment
+                            }
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'RoomEquipment')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="BrandDescription"
+                            label="Brand/Description"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={
+                              editData
+                                ? editData.inputFieldObservations1[index]?.BrandDescription
+                                : input?.BrandDescription
+                            }
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'BrandDescription')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="Quantity"
+                            label="Quantity"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations1[index]?.Quantity : input?.Quantity}
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'Quantity')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="SerialNum"
+                            label="Serial Number"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations1[index]?.SerialNum : input?.SerialNum}
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'SerialNum')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="ModelNum"
+                            label="Model Number"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations1[index]?.ModelNum : input?.ModelNum}
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'ModelNum')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="Custodian"
+                            label="Custodian"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations1[index]?.Custodian : input?.Custodian}
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'Custodian')}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <TextField
+                            type="text"
+                            name="Remarks"
+                            label="Remarks"
+                            // sx={{ width: '100px' }}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            value={editData ? editData.inputFieldObservations1[index]?.Remarks : input?.Remarks}
+                            onChange={(event) => handleEditChangeInputObservations1(index, event, 'Remarks')}
+                          />
+                        </Grid>
+
+                        {/* Eighth Column */}
+                        <Grid item xs={1}>
+                          {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                          <Button
+                            onClick={() => {
+                              handleEditRemoveFieldObservations1(index);
+                            }}
+                          >
+                            Remove
+                          </Button>
+                          {/* Content for the eighth column */}
+                        </Grid>
+                        <br />
+                        <div>
+                          <br />
+                          <br />
+                        </div>
+                      </Grid>
+                      <br />
+                    </div>
+                  ))}
+              </div>
+
+              <Typography variant="subtitle1">File:</Typography>
+              <Grid container spacing={1}>
+                <Grid item xs={10}>
+                  <TextField
+                    type="file"
+                    name="fileInput"
+                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                    onChange={(e) => handleFileUpload(e.target.files[0])}
+                    sx={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
+              <Button variant="contained" onClick={handleEditClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleEditSubmit}
+                type="submit"
+                sx={{ marginRight: '5px', marginLeft: '5px' }}
+              >
+                Save
+              </Button>
+            </div>
+          </DialogActions>
         </Dialog>
         <Snackbar
           open={snackbarOpen1}
@@ -2098,527 +2062,518 @@ export default function ReportsMARILF() {
 
         {/* Dialog for View button */}
         <Dialog open={viewOpen} onClose={handleViewClose} maxWidth="xl">
+          <Typography
+            variant="h3"
+            sx={{ mb: 5 }}
+            style={{
+              alignSelf: 'center',
+              color: '#ff5500',
+              margin: 'auto',
+              fontSize: '40px',
+              fontWeight: 'bold',
+              marginTop: '10px',
+            }}
+          >
+            INSPECTION REPORT
+          </Typography>
+          <DialogContent>
+            <Typography variant="subtitle1">Name:</Typography>
+            <br />
+            <Grid container spacing={1}>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="EntityName"
+                  variant="outlined"
+                  label="Entity Name"
+                  size="small"
+                  value={viewItem ? viewItem.EntityName : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="CollegeCampusOffice"
+                  variant="outlined"
+                  label="College/Campus/Office"
+                  size="small"
+                  value={viewItem ? viewItem.CollegeCampusOffice : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  name="SAIPARNum"
+                  variant="outlined"
+                  label="SAIPAR Number"
+                  size="small"
+                  value={viewItem ? viewItem.SAIPARNum : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+            </Grid>
 
-              <Typography
-                variant="h3"
-                sx={{ mb: 5 }}
-                style={{
-                  alignSelf: 'center',
-                  color: '#ff5500',
-                  margin: 'auto',
-                  fontSize: '40px',
-                  fontWeight: 'bold',
-                  marginTop: '10px',
-                }}
-              >
-                INSPECTION REPORT
-              </Typography>
-              <DialogContent>
-              <Typography variant="subtitle1">Name:</Typography>
-                <br/>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6} md={4}>
+            <Typography variant="subtitle1">Acknowledged By:</Typography>
+            <br />
+            <Grid container spacing={1}>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="AcknowledgedBy"
+                  variant="outlined"
+                  label="Acknowledged By"
+                  size="small"
+                  value={viewItem ? viewItem.AcknowledgedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+                {/* <Item>xs=6 md=4</Item> */}
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="PositionAcknowledgedBy"
+                  variant="outlined"
+                  size="small"
+                  label="Position/College/Campus/Office"
+                  value={viewItem ? viewItem.PositionAcknowledgedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="date"
+                  name="DateAcknowledgedBy"
+                  variant="outlined"
+                  size="small"
+                  value={viewItem ? viewItem.DateAcknowledgedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+            </Grid>
+            <Typography variant="subtitle1">Inspected By:</Typography>
+            <br />
+            <Grid container spacing={1}>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="InspectedBy"
+                  variant="outlined"
+                  label="Inspected By"
+                  size="small"
+                  value={viewItem ? viewItem.InspectedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+                {/* <Item>xs=6 md=4</Item> */}
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="text"
+                  name="PositionInspectedBy"
+                  variant="outlined"
+                  size="small"
+                  label="Position/College/Campus/Office"
+                  value={viewItem ? viewItem.PositionInspectedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <TextField
+                  type="date"
+                  name="DateInspectedBy"
+                  variant="outlined"
+                  size="small"
+                  value={viewItem ? viewItem.DateInspectedBy : ''}
+                  disabled
+                  sx={{ width: '100%', marginBottom: '10px' }}
+                />
+              </Grid>
+            </Grid>
+
+            {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+            <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+              <Grid>
+                <Typography
+                  variant="h6"
+                  sx={{ mb: 5 }}
+                  style={{
+                    alignSelf: 'center',
+                    color: '#ff5500',
+                    margin: 'auto',
+                    // fontSize: '40px',
+                    fontWeight: 'bold',
+                    marginTop: '10px',
+                    marginBottom: '10px',
+                  }}
+                >
+                  PC OBSERVATIONS
+                </Typography>
+              </Grid>
+            </Grid>
+            <div>
+              {formData.inputFieldObservations.map((input, index) => (
+                <div key={index}>
+                  <Grid
+                    container
+                    spacing={1}
+                    columns={12}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    {/* First Column */}
+                    <Grid item xs={1}>
                       <TextField
                         type="text"
-                        name="EntityName"
+                        name="PCNum"
+                        label="PC No."
+                        // sx={{ width: '100px' }}
                         variant="outlined"
-                        label="Entity Name"
+                        fullWidth
                         size="small"
-                        value={viewItem ? viewItem.EntityName : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.PCNum : input?.PCNum // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      </Grid>
-                      <Grid item xs={6} md={4}>
-                       <TextField
-                      type="text"
-                      name="CollegeCampusOffice"
-                      variant="outlined"
-                      label="College/Campus/Office"
-                      size="small"
-                      value={viewItem ? viewItem.CollegeCampusOffice : ''}
-                        disabled
-                      sx={{ width: '100%', marginBottom: '10px' }}
-                    /> 
-                   
-                    </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        name="SAIPARNum"
-                        variant="outlined"
-                        label="SAIPAR Number"
-                        size="small"
-                        value={viewItem ? viewItem.SAIPARNum : ''}
-                        disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                  </Grid>
-
-                  <Typography variant="subtitle1">Acknowledged By:</Typography>
-                <br/>
-                  <Grid container spacing={1}>
-
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={1}>
                       <TextField
                         type="text"
-                        name="AcknowledgedBy"
+                        name="Processor"
+                        label="Processor"
+                        // sx={{ width: '100px' }}
                         variant="outlined"
-                        label="Acknowledged By"
+                        fullWidth
                         size="small"
-                        value={viewItem ? viewItem.AcknowledgedBy : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Processor : input?.Processor // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
-                      {/* <Item>xs=6 md=4</Item> */}
                     </Grid>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={1}>
                       <TextField
                         type="text"
-                        name="PositionAcknowledgedBy"
+                        name="UnitSerialNum"
+                        label="UnitSerialNum"
+                        // sx={{ width: '100px' }}
                         variant="outlined"
+                        fullWidth
                         size="small"
-                        label="Position/College/Campus/Office"
-                        value={viewItem ? viewItem.PositionAcknowledgedBy : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.UnitSerialNum : input?.UnitSerialNum // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                    <Grid item xs={6} md={4}>
-                      <TextField
-                        type="date"
-                        name="DateAcknowledgedBy"
-                        variant="outlined"
-                        size="small"
-                        value={viewItem ? viewItem.DateAcknowledgedBy : ''}
-                        disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                  </Grid>
-                    <Typography variant="subtitle1">Inspected By:</Typography>
-                <br/>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={1}>
                       <TextField
                         type="text"
-                        name="InspectedBy"
+                        name="Monitor"
+                        label="Monitor"
+                        // sx={{ width: '100px' }}
                         variant="outlined"
-                        label="Inspected By"
+                        fullWidth
                         size="small"
-                        value={viewItem ? viewItem.InspectedBy : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Monitor : input?.Monitor // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
-                      {/* <Item>xs=6 md=4</Item> */}
                     </Grid>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={1}>
                       <TextField
                         type="text"
-                        name="PositionInspectedBy"
+                        name="HDD"
+                        label="HDD"
+                        // sx={{ width: '100px' }}
                         variant="outlined"
+                        fullWidth
                         size="small"
-                        label="Position/College/Campus/Office"
-                        value={viewItem ? viewItem.PositionInspectedBy : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.HDD : input?.HDD // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={1}>
                       <TextField
-                        type="date"
-                        name="DateInspectedBy"
+                        type="text"
+                        name="Memory"
+                        label="Memory"
+                        // sx={{ width: '100px' }}
                         variant="outlined"
+                        fullWidth
                         size="small"
-                        value={viewItem ? viewItem.DateInspectedBy : ''}
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Memory : input?.Memory // Use optional chaining to handle potential undefined values
+                        }
                         disabled
-                        sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-                  </Grid>
-
-{/* // ------------------------------ testing the dynamic form---------------------------------------- */}
-<Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        PC OBSERVATIONS
-                      </Typography>
+                    <Grid item xs={1}>
+                      <TextField
+                        type="text"
+                        name="VGA"
+                        label="VGA"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.VGA : input?.VGA // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
                     </Grid>
-                  </Grid>
-                  <div>
-                  {formData.inputFieldObservations.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="PCNum"
-                              label="PC No."
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.PCNum : input?.PCNum // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Processor"
-                              label="Processor"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Processor : input?.Processor // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="UnitSerialNum"
-                              label="UnitSerialNum"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.UnitSerialNum : input?.UnitSerialNum // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Monitor"
-                              label="Monitor"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Monitor : input?.Monitor // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="HDD"
-                              label="HDD"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.HDD : input?.HDD // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Memory"
-                              label="Memory"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Memory : input?.Memory // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="VGA"
-                              label="VGA"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.VGA : input?.VGA // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Keyboard"
-                              label="Keyboard"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Keyboard : input?.Keyboard // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Mouse"
-                              label="Mouse"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Mouse : input?.Mouse // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Status"
-                              label="Status"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Status : input?.Status // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={1}>
-                            <TextField
-                              type="text"
-                              name="Remarks"
-                              label="Remarks"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations[index]
-                                ?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-
-                          {/* Eighth Column */}
-                          
-                          <br />
-                          
-                            <br />
-                            <br />
-                        </Grid>
-                        <br/>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 5 }}
-                        style={{
-                          alignSelf: 'center',
-                          color: '#ff5500',
-                          margin: 'auto',
-                          // fontSize: '40px',
-                          fontWeight: 'bold',
-                          marginTop: '10px',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Equipments Observation
-                      </Typography>
+                    <Grid item xs={1}>
+                      <TextField
+                        type="text"
+                        name="Keyboard"
+                        label="Keyboard"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Keyboard : input?.Keyboard // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
                     </Grid>
-                    
-                  </Grid>
-                  <div>
-                  {formData.inputFieldObservations1.map((input, index) => (
-                      <div key={index}>
-                        <Grid container spacing={1} columns={14} direction="row" justifyContent="space-between" alignItems="center">
-                          {/* First Column */}
+                    <Grid item xs={1}>
+                      <TextField
+                        type="text"
+                        name="Mouse"
+                        label="Mouse"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Mouse : input?.Mouse // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={1}>
+                      <TextField
+                        type="text"
+                        name="Status"
+                        label="Status"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Status : input?.Status // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={1}>
+                      <TextField
+                        type="text"
+                        name="Remarks"
+                        label="Remarks"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations[index]?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
 
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="RoomEquipment"
-                              label="Room Equipment"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.RoomEquipment : input?.RoomEquipment // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="BrandDescription"
-                              label="Brand/Description"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.BrandDescription : input?.BrandDescription // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Quantity"
-                              label="Quantity"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.Quantity : input?.Quantity // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="SerialNum"
-                              label="Serial Number"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.SerialNum : input?.SerialNum // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="ModelNum"
-                              label="Model Number"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.ModelNum : input?.ModelNum // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
+                    {/* Eighth Column */}
 
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Custodian"
-                              label="Custodian"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.Custodian : input?.Custodian // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
+                    <br />
 
-                          <Grid item xs={2}>
-                            <TextField
-                              type="text"
-                              name="Remarks"
-                              label="Remarks"
-                              // sx={{ width: '100px' }}
-                              variant="outlined"
-                              fullWidth
-                              size="small"
-                              value={
-                                viewItem ? viewItem.inputFieldObservations1[index]
-                                ?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
-                              }
-                              disabled
-                            />
-                          </Grid>
-                          {/* Eighth Column */}
-                         
-                          <br />
-                          <div>
-                            <br />
-                            <br />
-                          </div>
-                        </Grid>
-                        <br/>
-                      </div>
-                    ))}
-                  </div>
-                  <div>
                     <br />
                     <br />
-                  </div>
+                  </Grid>
+                  <br />
+                </div>
+              ))}
+            </div>
 
+            <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+              <Grid>
+                <Typography
+                  variant="h6"
+                  sx={{ mb: 5 }}
+                  style={{
+                    alignSelf: 'center',
+                    color: '#ff5500',
+                    margin: 'auto',
+                    // fontSize: '40px',
+                    fontWeight: 'bold',
+                    marginTop: '10px',
+                    marginBottom: '10px',
+                  }}
+                >
+                  Equipments Observation
+                </Typography>
+              </Grid>
+            </Grid>
+            <div>
+              {formData.inputFieldObservations1.map((input, index) => (
+                <div key={index}>
+                  <Grid
+                    container
+                    spacing={1}
+                    columns={14}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    {/* First Column */}
 
-                <Typography variant="subtitle1">File:</Typography>
-                {viewItem && viewItem.fileURL ? (
-                  <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                    View / Download File
-                  </a>
-                ) : (
-                  'No File'
-                )}
-              </DialogContent>
-          
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="RoomEquipment"
+                        label="Room Equipment"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.RoomEquipment : input?.RoomEquipment // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="BrandDescription"
+                        label="Brand/Description"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.BrandDescription : input?.BrandDescription // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="Quantity"
+                        label="Quantity"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.Quantity : input?.Quantity // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="SerialNum"
+                        label="Serial Number"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.SerialNum : input?.SerialNum // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="ModelNum"
+                        label="Model Number"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.ModelNum : input?.ModelNum // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="Custodian"
+                        label="Custodian"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.Custodian : input?.Custodian // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+
+                    <Grid item xs={2}>
+                      <TextField
+                        type="text"
+                        name="Remarks"
+                        label="Remarks"
+                        // sx={{ width: '100px' }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        value={
+                          viewItem ? viewItem.inputFieldObservations1[index]?.Remarks : input?.Remarks // Use optional chaining to handle potential undefined values
+                        }
+                        disabled
+                      />
+                    </Grid>
+                    {/* Eighth Column */}
+
+                    <br />
+                    <div>
+                      <br />
+                      <br />
+                    </div>
+                  </Grid>
+                  <br />
+                </div>
+              ))}
+            </div>
+            <div>
+              <br />
+              <br />
+            </div>
+
+            <Typography variant="subtitle1">File:</Typography>
+            {viewItem && viewItem.fileURL ? (
+              <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                View / Download File
+              </a>
+            ) : (
+              'No File'
+            )}
+          </DialogContent>
+
           <DialogActions>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
               <Button variant="contained" onClick={handleViewClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
