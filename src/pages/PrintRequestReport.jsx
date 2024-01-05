@@ -749,6 +749,7 @@ const PrintRequestReport = forwardRef((props, ref) => {
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
                   <Pie dataKey="value" data={pieChartData} outerRadius={100} fill="#8884d8" />
+                  <Tooltip />
                   <Legend verticalAlign="bottom" height={120} />
                 </PieChart>
               </ResponsiveContainer>

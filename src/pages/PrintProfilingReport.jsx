@@ -95,11 +95,11 @@ const PrintProfilingReport = forwardRef((props, ref) => {
         if (
           (`${year}` === '' || `${year}` === `${yearValidation}`) &&
           (`${month}` === '' || `${month}` === `${monthValidation}`) &&
-          (`${custodian.toLowerCase()}` === `${doc.data().InspectedBy.toLowerCase()}` || `${custodian}` === '')
+          (`${custodian.toLowerCase()}` === `${doc.data().EntityName.toLowerCase()}` || `${custodian}` === '')
         ) {
           totalMRData.push(doc.data());
 
-          const { inputFieldCict, inputFieldOffice, inputFieldOther, InspectedBy } = doc.data();
+          const { inputFieldCict, inputFieldOffice, inputFieldOther, EntityName } = doc.data();
 
           if (Array.isArray(inputFieldCict)) {
             inputFieldCict.forEach(({ Quantity, unitCost, Description }) => {
@@ -107,7 +107,7 @@ const PrintProfilingReport = forwardRef((props, ref) => {
                 Quantity: Quantity || null,
                 UnitCost: unitCost || null,
                 Description: Description || null,
-                Custodian: InspectedBy || null,
+                Custodian: EntityName || null,
               });
             });
           }
@@ -118,7 +118,7 @@ const PrintProfilingReport = forwardRef((props, ref) => {
                 Quantity: Quantity || null,
                 UnitCost: unitCost || null,
                 Description: Description || null,
-                Custodian: InspectedBy || null,
+                Custodian: EntityName || null,
               });
             });
           }
@@ -129,7 +129,7 @@ const PrintProfilingReport = forwardRef((props, ref) => {
                 Quantity: Quantity || null,
                 UnitCost: unitCost || null,
                 Description: Description || null,
-                Custodian: InspectedBy || null,
+                Custodian: EntityName || null,
               });
             });
           }
@@ -137,16 +137,16 @@ const PrintProfilingReport = forwardRef((props, ref) => {
       });
 
       if (Array.isArray(totalMRData)) {
-        totalMRData.forEach(({ InspectedBy }) => {
+        totalMRData.forEach(({ EntityName }) => {
           const existingItem = facultyMRData.find(
-            (item) => item.facultyName.toLowerCase() === InspectedBy.toLowerCase()
+            (item) => item.facultyName.toLowerCase() === EntityName.toLowerCase()
           );
 
           if (existingItem) {
             existingItem.total += 1;
           } else {
             facultyMRData.push({
-              facultyName: InspectedBy,
+              facultyName: EntityName,
               total: 1,
             });
           }
@@ -154,16 +154,16 @@ const PrintProfilingReport = forwardRef((props, ref) => {
       }
 
       if (Array.isArray(memorandumData)) {
-        memorandumData.forEach(({ InspectedBy }) => {
+        memorandumData.forEach(({ EntityName }) => {
           const existingItem = availableCustodian.find(
-            (item) => item.facultyName.toLowerCase() === InspectedBy.toLowerCase()
+            (item) => item.facultyName.toLowerCase() === EntityName.toLowerCase()
           );
 
           if (existingItem) {
             existingItem.total += 1;
           } else {
             availableCustodian.push({
-              facultyName: InspectedBy,
+              facultyName: EntityName,
               total: 1,
             });
           }

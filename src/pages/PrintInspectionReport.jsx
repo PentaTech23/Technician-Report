@@ -46,6 +46,7 @@ const PrintInspectionReport = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchInspectionReportsData();
+    fetchServiceReportsData();
   }, [custodian, room]);
 
   const fetchInspectionReportsData = async () => {
@@ -68,13 +69,7 @@ const PrintInspectionReport = forwardRef((props, ref) => {
           (`${custodian.toLowerCase()}` === `${doc.data().FullName.toLowerCase()}` || `${custodian}` === '') &&
           (`${room.toLowerCase()}` === `${doc.data().LocationRoom.toLowerCase()}` || `${room}` === '')
         ) {
-          const myString = doc.data().status;
-
-          if (myString.includes('PENDING')) {
-            pendingRepairsCount.push(doc.data());
-          } else {
-            repairedCount.push(doc.data());
-          }
+          repairedCount.push(doc.data());
 
           const { inputField } = doc.data();
 
@@ -122,12 +117,41 @@ const PrintInspectionReport = forwardRef((props, ref) => {
       }
 
       setInspectionReportsData(inspectionData);
-      setPendingRepairsCount(pendingRepairsCount.length);
+      // setPendingRepairsCount(pendingRepairsCount.length);
       setRepairedCount(repairedCount.length);
       setAvailableCustodian(availableCustodian);
       setAvailableRoom(availableRoom);
     } catch (error) {
       console.error('Error fetching inspection reports data:', error);
+    }
+  };
+
+  const fetchServiceReportsData = async () => {
+    try {
+      // Replace 'INSPECTION-REPORT-FORM' with your actual collection name
+      const serviceRequestQuery = collectionGroup(db, 'SERVICE-REQUEST');
+
+      const serviceRequestSnapshot = await getDocs(serviceRequestQuery);
+
+      const pendingRepairsCount = [];
+
+      serviceRequestSnapshot.forEach((doc) => {
+        if (
+          (`${custodian.toLowerCase()}` === `${doc.data().FullName.toLowerCase()}` || `${custodian}` === '') &&
+          (`${room.toLowerCase()}` === `${doc.data().LocationRoom.toLowerCase()}` || `${room}` === '')
+        ) {
+          const myArray = doc.data().Services;
+          const myStatus = doc.data().status;
+
+          if ((myStatus.includes('PENDING') && myArray.includes(' Repair')) || myArray.includes('Repair')) {
+            pendingRepairsCount.push(doc.data());
+          }
+        }
+      });
+
+      setPendingRepairsCount(pendingRepairsCount.length);
+    } catch (error) {
+      console.error('Error fetching service request data:', error);
     }
   };
 
