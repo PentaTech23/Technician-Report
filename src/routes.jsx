@@ -106,7 +106,6 @@ export default function Router() {
         //  Reports Section
         { path: 'reports', element: <Reports/> },
           { path: 'reports_ptr', element: <ReportsPTR/> },
-          { path: 'reports_itr', element: <ReportsITR/> },
           { path: 'reports_marilf', element: <ReportsMARILF/> },
         //  Archives Section
         { path: 'archives', element: <Archives/> },

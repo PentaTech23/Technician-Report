@@ -22,18 +22,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
 
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage, firebaseApp } from '../firebase';
 
-const firebaseConfig  = {
-  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
-  authDomain: "wp4-technician-dms.firebaseapp.com",
-  projectId: "wp4-technician-dms",
-  storageBucket: "wp4-technician-dms.appspot.com",
-  messagingSenderId: "1065436189229",
-  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
-}
 
-const firebaseApp = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
 
@@ -458,7 +449,7 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
     const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
