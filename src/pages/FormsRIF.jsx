@@ -83,10 +83,9 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
-    ControlNum: null,
     Date: '',
     FullName: '',
-    LocationRoom: null,
+    LocationRoom: '',
     Requisitioner: '',
     Items: [], // If this is an array, it can be empty initially
     otherItems: '',
@@ -194,7 +193,7 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `RIF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
     const docSnapshot = await getDoc(doc(RequestCollectionRef, newDocumentName));
@@ -213,7 +212,7 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { ControlNum, Date, FullName, LocationRoom, Requisitioner, Items=[], otherItems, fileURL } = formData;
+    const { Date, FullName, LocationRoom, Requisitioner, Items=[], otherItems, fileURL } = formData;
   
     // Validation logic for required fields
     if (!Date || !FullName || !LocationRoom || !Requisitioner) {
@@ -792,17 +791,6 @@ const handleViewClose = () => {
                   >
                     <Grid item xs={8}>
                     <TextField
-                    type="text"
-                    name="ControlNum"
-                    label="Control Number"
-                    value={formData.ControlNum || ''}
-                    onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <TextField
                     type="date"
                     name="Date"
                     value={formData.Date || ''}
@@ -948,7 +936,7 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Control Number</TableCell>
+                <TableCell>Document ID</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Location/Room</TableCell>
@@ -970,7 +958,7 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.ControlNum}</TableCell>
+                  <TableCell>{item.id}</TableCell>
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>

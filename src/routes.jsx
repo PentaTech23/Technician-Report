@@ -86,31 +86,25 @@ export default function Router({ isFaculty }) {
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        // Forms Section
-        { path: 'form', element: <Forms /> },
-        { path: 'service_request', element: <FormsSRF /> },
-        { path: 'borrowers_item', element: <FormsBIF /> },
-        { path: 'request_item', element: <FormsRIF /> },
-        { path: 'inspection_report', element: <FormsIRF /> },
-        // Profiling Section
-        { path: 'profiling', element: <Profiling /> },
-        { path: 'profiling_mr', element: <ProfilingMR /> },
-        { path: 'profiling_ci', element: <ProfilingCI /> },
-        // Reports Section
-        { path: 'reports', element: <Reports /> },
-        { path: 'reports_ptr', element: <ReportsPTR /> },
-        { path: 'reports_itr', element: <ReportsITR /> },
-        { path: 'reports_marilf', element: <ReportsMARILF /> },
-        // Archives Section
-        { path: 'archives', element: <Archives /> },
-        // User Section
-        { path: 'user', element: <UserPage /> },
-        // Add the RequestReport route
-        { path: 'request_report', element: <RequestReport /> },
-        { path: 'inspection_report', element: <InspectionReport /> },
-        { path: 'inventory_report', element: <InventoryReport /> },
-        { path: 'profiling_report', element: <ProfilingReport /> },
-      ],
+        //  Forms Section
+        { path: 'form', element: <Forms/>}, 
+          { path: 'service_request', element: <FormsSRF/>}, 
+          { path: 'borrowers_item', element: <FormsBIF/>},
+          { path: 'request_item', element: <FormsRIF/>},
+          { path: 'inspection_report', element: <FormsIRF/>},
+        //  Profiling Section
+        { path: 'profiling', element: <Profiling/> },
+          { path: 'profiling_mr', element: <ProfilingMR/> },
+          { path: 'profiling_ci', element: <ProfilingCI/> },
+        //  Reports Section
+        { path: 'reports', element: <Reports/> },
+          { path: 'reports_ptr', element: <ReportsPTR/> },
+          { path: 'reports_marilf', element: <ReportsMARILF/> },
+        //  Archives Section
+        { path: 'archives', element: <Archives/> },
+        //  User Section
+        { path: 'user', element: <UserPage/> },
+      ]
     },
 
     {

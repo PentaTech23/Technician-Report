@@ -149,11 +149,7 @@ const navConfigFaculty = [
         title: 'Property Transfer Report',
         path: '/dashboard/reports_ptr',
       },
-
-      {
-        title: 'Inventory Transfer Report',
-        path: '/dashboard/reports_itr',
-      },
+      
       {
         title: 'Monthly Assessment Report & Inventory Laboratory Form',
         path: '/dashboard/reports_marilf',
