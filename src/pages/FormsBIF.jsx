@@ -984,7 +984,7 @@ const handleViewClose = () => {
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Borrower}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                  <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                  <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       <Link to={item.fileURL} target="_blank" download>
@@ -1182,7 +1182,7 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell style={{ color: 'white', backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
@@ -1389,7 +1389,7 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>

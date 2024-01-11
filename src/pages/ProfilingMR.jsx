@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   getFirestore,
@@ -55,6 +55,8 @@ import Grid from '@mui/material/Grid';
 // components
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -64,48 +66,230 @@ import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
 // mock
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, MemorandumCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+
+
 import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
-  authDomain: 'wp4-technician-dms.firebaseapp.com',
-  projectId: 'wp4-technician-dms',
-  storageBucket: 'wp4-technician-dms.appspot.com',
-  messagingSenderId: '1065436189229',
-  appId: '1:1065436189229:web:88094d3d71b15a0ab29ea4',
-};
+// const firebaseConfig = {
+//   apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
+//   authDomain: 'wp4-technician-dms.firebaseapp.com',
+//   projectId: 'wp4-technician-dms',
+//   storageBucket: 'wp4-technician-dms.appspot.com',
+//   messagingSenderId: '1065436189229',
+//   appId: '1:1065436189229:web:88094d3d71b15a0ab29ea4',
+// };
 
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
+// // Initialize Firebase
+// const firebaseApp = initializeApp(firebaseConfig);
 
-// Initialize Firestore db
-const db = getFirestore(firebaseApp);
+// // Initialize Firestore db
+// const db = getFirestore(firebaseApp);
 
-// Access main collection
-const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
+// // Access main collection
+// const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
 
-// Access FORMS document under main collection
-const formsDocRef = doc(mainCollectionRef, 'PROFILING');
+// // Access FORMS document under main collection
+// const formsDocRef = doc(mainCollectionRef, 'PROFILING');
 
-// Add to subcollection
-const MemorandumCollectionRef = collection(formsDocRef, 'MEMORANDUM-OF-RECEIPTS');
+// // Add to subcollection
+// const MemorandumCollectionRef = collection(formsDocRef, 'MEMORANDUM-OF-RECEIPTS');
 
-// Access ARCHIVES document under main collection
-const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
+// // Access ARCHIVES document under main collection
+// const archivesRef = doc(mainCollectionRef, 'ARCHIVES');
 
-const archivesCollectionRef = collection(archivesRef, 'ARCHIVES-FORMS');
+// const archivesCollectionRef = collection(archivesRef, 'ARCHIVES-FORMS');
 
-// Second declaration
-const storage = getStorage(firebaseApp);
+// // Second declaration
+// const storage = getStorage(firebaseApp);
 
 // ----------------------------------------------------------------------
 
 //  Clear the whole Form function
 export default function FormsIRF() {
   // -------------------------testing for the dynamic input fields ---------------------------------------------
+ 
+  // const fetchAllDocuments = async () => {
+  //   setIsLoading(true);
 
+  //   try {
+  //     const querySnapshot = await getDocs(MemorandumCollectionRef);
+  //     const dataFromFirestore = [];
+
+  //     querySnapshot.forEach((doc) => {
+  //       // Handle each document here
+  //       const data = doc.data();
+  //       data.id = doc.id; // Add the ID field
+  //       dataFromFirestore.push(data);
+  //     });
+
+  //     setFetchedDataTechnician(dataFromFirestore);
+  //   } catch (error) {
+  //     console.error("Error fetching data from Firestore: ", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  useEffect(() => {
+    fetchAllDocuments();
+   }, []);
+
+// Dean Show Query/table fetch from firestore
+
+const DeanfetchAllDocuments = async () => {
+  setIsLoading(true);
+
+  try {
+    const querySnapshot = await getDocs(
+      query(MemorandumCollectionRef, where('status', '!=', 'PENDING (Technician)'))
+    );
+
+    const dataFromFirestore = [];
+
+    querySnapshot.forEach((doc) => {
+      // Handle each document here
+      const data = doc.data();
+      data.id = doc.id; // Add the ID field
+      dataFromFirestore.push(data);
+    });
+
+    setFetchedDataDean(dataFromFirestore);
+  } catch (error) {
+    console.error("Error fetching data from Firestore: ", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+useEffect(() => {
+  DeanfetchAllDocuments();
+}, []);
+  const fetchUserDocuments = async (userUID) => {
+    setIsLoading(true);
+  
+    try {
+      // Ensure userUID is a string before proceeding
+      if (typeof userUID !== 'string') {
+        console.error('Invalid userUID:', userUID);
+        return;
+      }
+  
+      const querySnapshotuid = await getDocs(
+        query(MemorandumCollectionRef, where('uid', '==', userUID))
+      );
+  
+      const dataFromFirestore = [];
+  
+      querySnapshotuid.forEach((doc) => {
+        const data = doc.data();
+        data.id = doc.id;
+        dataFromFirestore.push(data);
+      });
+  
+      setFetchedData(dataFromFirestore);
+    } catch (error) {
+      console.error("Error fetching user's documents from Firestore: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
+  
+  const { user } = useAuthState();
+  const [username, setUsername] = useState(null);
+  const [userType, setUserType] = useState(null);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const db = getFirestore();
+        const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
+  
+        const querySnapshot = await getDocs(
+          query(pendingUsersCollection, where('uid', '==', user.uid))
+        );
+          
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          setUsername(userData.username);
+          setUserType(userData.userType);
+  
+          if (userData.uid && typeof userData.uid === 'string') {
+            fetchUserDocuments(userData.uid);
+          } else {
+            console.error('Invalid UID in userData:', userData.uid);
+          }
+        }
+      }
+    };
+  
+    fetchUserData();
+  }, [user]);
+
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const db = getFirestore();
+        const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
+  
+        const querySnapshot = await getDocs(
+          query(pendingUsersCollection, where('uid', '==', user.uid))
+        );
+          
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          setUsername(userData.username);
+          setUserType(userData.userType);
+  
+          if (userData.uid && typeof userData.uid === 'string') {
+            fetchUserDocuments(userData.uid);
+          } else {
+            console.error('Invalid UID in userData:', userData.uid);
+          }
+        }
+      }
+    };
+  
+    fetchUserData();
+  }, [user]);
+
+  useEffect(() => {
+    // Ensure that user data is available before fetching documents
+    if (user?.uid) {
+      fetchUserDocuments(user.uid);
+    }
+  }, [user]); // Trigger the fetch when the user object changes
+  
+  const isFaculty = userType === 'faculty';
+  const isTechnician = userType === 'technician';
+  const isDean = userType === 'dean';
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'PENDING (Technician)':
+        return 'orange';
+        case 'PENDING (Dean)':
+          return 'orange';
+      case 'APPROVED':
+        return 'green';
+      case 'REJECTED':
+        return 'red';
+      default:
+        return 'black'; // Default color if status doesn't match any case
+    }
+  };
+  
+  // Start of Code
+    // const [fetchedData, setFetchedData] = useState([]);
+    const [fetchedDataTechnician, setFetchedDataTechnician] = useState([]);
+    const [fetchedDataDean, setFetchedDataDean] = useState([]);
+    // const [isLoading, setIsLoading] = useState(false);
+  
   // -------------------------OFFICE FIELDS ---------------------------------------------
   const [inputFieldOffice, setInputFieldOffice] = useState([
     {
@@ -583,6 +767,8 @@ export default function FormsIRF() {
         fileURL: fileURL || '',
         archived: false, 
         originalLocation: 'MEMORANDUM-OF-RECEIPTS', 
+        uid: user?.uid || '',
+        status: "PENDING (Technician)",
       };
 
       await setDoc(docRef, docData);
@@ -1057,11 +1243,15 @@ export default function FormsIRF() {
           </Stack>
         </Stack>
 
+        {isTechnician && (
+          <Container>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
                 New Document
               </Button>
             </div>
+            </Container>
+        )}
 
             <Dialog open={open} onClose={handleClose} maxWidth="xl">
               {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -1771,6 +1961,8 @@ export default function FormsIRF() {
       </Container>
 
       <Container>
+      {isDean && ( 
+        <Container>
         {isLoading ? (
           <CircularProgress />
         ) : (
@@ -1786,6 +1978,8 @@ export default function FormsIRF() {
                   <TableCell>Entity Name</TableCell>
                   <TableCell>Acknowledged By</TableCell>
                   <TableCell>Inspected By</TableCell>
+                  <TableCell>File Status</TableCell>
+                  <TableCell>Action</TableCell>
                   <TableCell>File</TableCell>
                   <TableCell>Menu</TableCell>
                 </TableRow>
@@ -1802,6 +1996,17 @@ export default function FormsIRF() {
                     <TableCell>{item.EntityName}</TableCell>
                     <TableCell>{item.AcknowledgedBy}</TableCell>
                     <TableCell>{item.InspectedBy}</TableCell>
+                    <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell>
+                  <div style={{ display: 'flex' }}>
+                    <IconButton style={{ color: 'green' }}>
+                      <CheckIcon />
+                    </IconButton>
+                    <IconButton style={{ color: 'red' }}>
+                      <CloseIcon />
+                    </IconButton>
+                  </div>
+                </TableCell>
                     <TableCell>
                       {item.fileURL ? (
                         // Render a clickable link to download the file
@@ -1824,6 +2029,141 @@ export default function FormsIRF() {
             </Table>
           </TableContainer>
         )}
+        </Container>
+      )}
+
+{isFaculty && ( 
+        <Container>
+        {isLoading ? (
+          <CircularProgress />
+        ) : (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Checkbox checked={selectAll} onChange={handleSelectAll} color="primary" />
+                  </TableCell>
+                  <TableCell>SAIPAR No.</TableCell>
+                  <TableCell>College/Campus/Office</TableCell>
+                  <TableCell>Entity Name</TableCell>
+                  <TableCell>Acknowledged By</TableCell>
+                  <TableCell>Inspected By</TableCell>
+                  <TableCell>File Status</TableCell>
+                  <TableCell>File</TableCell>
+                  <TableCell>Menu</TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {displayedData.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Checkbox checked={selectedItems.includes(item.id)} onChange={() => handleSelection(item.id)} />
+                    </TableCell>
+                    <TableCell>{item.SAIPARNum}</TableCell>
+                    <TableCell>{item.CollegeCampusOffice}</TableCell>
+                    <TableCell>{item.EntityName}</TableCell>
+                    <TableCell>{item.AcknowledgedBy}</TableCell>
+                    <TableCell>{item.InspectedBy}</TableCell>
+                    <TableCell style={{color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                    <TableCell>
+                      {item.fileURL ? (
+                        // Render a clickable link to download the file
+                        <Link to={item.fileURL} target="_blank" download>
+                          Download
+                        </Link>
+                      ) : (
+                        // Display "No File" if there's no file URL
+                        'No File'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton aria-label="menu" onClick={(event) => handleMenuOpen(event, item)}>
+                        <MoreVertIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        </Container>
+      )}
+
+{isTechnician && ( 
+        <Container>
+        {isLoading ? (
+          <CircularProgress />
+        ) : (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Checkbox checked={selectAll} onChange={handleSelectAll} color="primary" />
+                  </TableCell>
+                  <TableCell>SAIPAR No.</TableCell>
+                  <TableCell>College/Campus/Office</TableCell>
+                  <TableCell>Entity Name</TableCell>
+                  <TableCell>Acknowledged By</TableCell>
+                  <TableCell>Inspected By</TableCell>
+                  <TableCell>File Status</TableCell>
+                  <TableCell>Action</TableCell>
+                  <TableCell>File</TableCell>
+                  <TableCell>Menu</TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {displayedData.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Checkbox checked={selectedItems.includes(item.id)} onChange={() => handleSelection(item.id)} />
+                    </TableCell>
+                    <TableCell>{item.SAIPARNum}</TableCell>
+                    <TableCell>{item.CollegeCampusOffice}</TableCell>
+                    <TableCell>{item.EntityName}</TableCell>
+                    <TableCell>{item.AcknowledgedBy}</TableCell>
+                    <TableCell>{item.InspectedBy}</TableCell>
+                    <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell>
+                  <div style={{ display: 'flex' }}>
+                    <IconButton style={{ color: 'green' }}>
+                      <CheckIcon />
+                    </IconButton>
+                    <IconButton style={{ color: 'red' }}>
+                      <CloseIcon />
+                    </IconButton>
+                  </div>
+                </TableCell>
+                    <TableCell>
+                      {item.fileURL ? (
+                        // Render a clickable link to download the file
+                        <Link to={item.fileURL} target="_blank" download>
+                          Download
+                        </Link>
+                      ) : (
+                        // Display "No File" if there's no file URL
+                        'No File'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton aria-label="menu" onClick={(event) => handleMenuOpen(event, item)}>
+                        <MoreVertIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        </Container>
+      )}
+
+
         <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
           <DialogTitle>Remove Document</DialogTitle>
           <DialogContent>Do you want to delete or archive this document?</DialogContent>

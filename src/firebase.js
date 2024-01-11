@@ -14,6 +14,7 @@ const firebaseConfig  = {
   appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
 }
 
+
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
@@ -26,6 +27,7 @@ const mainCollectionRef = collection(db, "WP4-TESTING-AREA");
 // Access FORMS document under main collection
 const formsDocRef = doc(mainCollectionRef, "FORMS");
 const profilingDocRef = doc(mainCollectionRef, "PROFILING");
+const reportDocRef = doc(mainCollectionRef, "REPORTS");
 
 // Add to subcollection 
 const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
@@ -33,6 +35,7 @@ const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
 const ServiceCollectionRef = collection(formsDocRef, "SERVICE-REQUEST");
 const InspectionCollectionRef = collection(formsDocRef, "INSPECTION-REPORT-FORM");
 const MemorandumCollectionRef = collection(profilingDocRef, 'MEMORANDUM-OF-RECEIPTS');
+const CondemnedCollectionRef = collection(profilingDocRef, 'CONDEMNED-ITEMS');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
@@ -78,6 +81,7 @@ export {
   ServiceCollectionRef,
   InspectionCollectionRef,
   MemorandumCollectionRef,
+  CondemnedCollectionRef,
   archivesRef,
   archivesCollectionRef,
   storage

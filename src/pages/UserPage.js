@@ -347,7 +347,7 @@ export default function UserPage() {
                             </Typography>
                           </Stack>
                         </TableCell>
-
+                        
                         <TableCell align="left">{company}</TableCell>
 
                         <TableCell align="left">{role}</TableCell>
