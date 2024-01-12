@@ -14,7 +14,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, InspectionCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
 export default function UserPage() {
 
@@ -97,7 +97,7 @@ const handleChange = (e) => {
     setIsLoading(true);
 
     try {
-      const querySnapshot = await getDocs(BorrowersCollectionRef);
+      const querySnapshot = await getDocs(InspectionCollectionRef);
       const dataFromFirestore = [];
 
       querySnapshot.forEach((doc) => {
@@ -126,7 +126,7 @@ const DeanfetchAllDocuments = async () => {
 
   try {
     const querySnapshot = await getDocs(
-      query(BorrowersCollectionRef, where('status', '!=', 'PENDING (Technician)'))
+      query(InspectionCollectionRef, where('status', '!=', 'PENDING (Technician)'))
     );
 
     const dataFromFirestore = [];
@@ -162,7 +162,7 @@ const fetchUserDocuments = async (userUID) => {
     }
 
     const querySnapshotuid = await getDocs(
-      query(BorrowersCollectionRef, where('uid', '==', userUID))
+      query(InspectionCollectionRef, where('uid', '==', userUID))
     );
 
     const dataFromFirestore = [];
@@ -192,10 +192,10 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `IRF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
-    const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
+    const docSnapshot = await getDoc(doc(InspectionCollectionRef, newDocumentName));
 
     if (docSnapshot.exists()) {
       // The document with the new name exists, so increment and try again
@@ -220,7 +220,7 @@ useEffect(() => {
     }
     try {
       const documentName = await incrementDocumentName();
-      const docRef = doc(BorrowersCollectionRef, documentName);
+      const docRef = doc(InspectionCollectionRef, documentName);
   
       const docData = {
         Date,
@@ -330,7 +330,7 @@ const handleEditSubmit = async () => {
       // Include other properties here
     };
 
-    const docRef = doc(BorrowersCollectionRef, formData.id);
+    const docRef = doc(InspectionCollectionRef, formData.id);
 
     // Update the editData object with the new file URL
     updatedEditData.fileURL = formData.fileURL;
@@ -350,10 +350,10 @@ const handleConfirmDeleteWithoutArchive = async () => {
   try {
 
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(InspectionCollectionRef, documentToDelete);
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
    
-    await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+    await deleteDoc(doc(InspectionCollectionRef, documentToDelete));
     
     // Update the UI by removing the deleted row
     setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -389,7 +389,7 @@ const [snackbarOpenArchive, setSnackbarOpenArchive] = useState(false);
 const handleConfirmDelete = async () => {
   try {
     if (documentToDelete) {
-      const sourceDocumentRef = doc(BorrowersCollectionRef, documentToDelete);
+      const sourceDocumentRef = doc(InspectionCollectionRef, documentToDelete);
       // Set the 'originalLocation' field to the current collection and update the Archive as true
       await updateDoc(sourceDocumentRef, { archived: true, originalLocation: "ITEM-BORROWERS" });
       const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
@@ -418,7 +418,7 @@ const handleConfirmDelete = async () => {
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
-      await deleteDoc(doc(BorrowersCollectionRef, documentToDelete));
+      await deleteDoc(doc(InspectionCollectionRef, documentToDelete));
 
       // Update the UI by removing the archived document
       setFetchedData((prevData) => prevData.filter((item) => item.id !== documentToDelete));
@@ -564,7 +564,7 @@ const handleConfirmDeleteAll = async () => {
   try {
     // Create an array of promises to delete each selected item
     const deletePromises = selectedItems.map(async (itemId) => {
-      return deleteDoc(doc(BorrowersCollectionRef, itemId));
+      return deleteDoc(doc(InspectionCollectionRef, itemId));
     });
 
     // Use Promise.all to await all the delete operations

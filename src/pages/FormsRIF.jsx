@@ -825,36 +825,36 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >ITEMS:</legend>
                     <Checkbox
-                      value=" Mouse,"
-                      checked={formData.Items.includes(' Mouse,')}
+                      value="Mouse"
+                      checked={formData.Items.includes('Mouse')}
                       onChange={handleServiceChange}
                     />
                     Mouse 
                     <br />
                     <Checkbox
-                      value=" Keyboard,"
-                      checked={formData.Items.includes(' Keyboard,')}
+                      value="Keyboard"
+                      checked={formData.Items.includes('Keyboard')}
                       onChange={handleServiceChange}
                     />
                     Keyboard
                     <br />
                     <Checkbox
-                      value=" Monitor,"
-                      checked={formData.Items.includes(' Monitor,')}
+                      value="Monitor"
+                      checked={formData.Items.includes('Monitor')}
                       onChange={handleServiceChange}
                     />
                     Monitor
                     <br />
                     <Checkbox
-                      value=" AVR,"
-                      checked={formData.Items.includes(' AVR,')}
+                      value="AVR"
+                      checked={formData.Items.includes('AVR')}
                       onChange={handleServiceChange}
                     />
                     AVR
                     <br />
                     <Checkbox
-                      value=" CPU,"
-                      checked={formData.Items.includes(' CPU,')}
+                      value="CPU"
+                      checked={formData.Items.includes('CPU')}
                       onChange={handleServiceChange}
                     />
                     CPU
@@ -942,7 +942,6 @@ const handleViewClose = () => {
                 <TableCell>Location/Room</TableCell>
                 <TableCell>Requisitioner</TableCell>
                 <TableCell>Items</TableCell>
-                <TableCell>Other Items</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
@@ -963,7 +962,6 @@ const handleViewClose = () => {
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Requisitioner}</TableCell>
-                  <TableCell>{item.Items}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                   <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
