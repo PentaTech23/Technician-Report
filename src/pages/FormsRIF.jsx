@@ -1138,7 +1138,6 @@ const handleViewClose = () => {
                 <TableCell>Location/Room</TableCell>
                 <TableCell>Requisitioner</TableCell>
                 <TableCell>Items</TableCell>
-                <TableCell>Other Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1156,13 +1155,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
+                <TableCell>{item.id}</TableCell>
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Requisitioner}</TableCell>
-                  <TableCell>{item.Items}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1347,7 +1345,6 @@ const handleViewClose = () => {
                 <TableCell>Location/Room</TableCell>
                 <TableCell>Requisitioner</TableCell>
                 <TableCell>Items</TableCell>
-                <TableCell>Other Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1365,13 +1362,12 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.ControlNum}</TableCell>
+                <TableCell>{item.id}</TableCell>
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Requisitioner}</TableCell>
-                  <TableCell>{item.Items}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 <TableCell style={{color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>

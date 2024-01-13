@@ -88,6 +88,7 @@ const handleChange = (e) => {
     Borrower: '',
     Items: [], // If this is an array, it can be empty initially
     otherItems: '',
+    Remarks: '',
     fileURL: '',
   });
 
@@ -211,7 +212,7 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, Remarks, fileURL } = formData;
   
     // Validation logic for required fields
     if (!Date || !FullName || !LocationRoom || !Borrower) {
@@ -229,6 +230,7 @@ useEffect(() => {
         Borrower,
         Items,
         otherItems,
+        Remarks,
         fileURL: fileURL || '',
         archived: false,
         originalLocation: "ITEM-BORROWERS",
@@ -306,6 +308,7 @@ const handleEditOpen = (data) => {
       LocationRoom: data.LocationRoom || '',
       Borrower: data.Borrower || '',
       Items: data.Items || '',
+      Remarks: data.Remarks || '',
       otherItems: data.otherItems || '',
       fileURL: data.fileURL || '',
       id: data.id, // Set the document ID here
@@ -824,25 +827,38 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >ITEMS:</legend>
                     <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
+                      value="Application Installation"
+                      checked={formData.Items.includes('Application Installation')}
                       onChange={handleServiceChange}
                     />
-                    HDMI 
+                    Application Installation 
                     <br />
                     <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
+                      value="Network"
+                      checked={formData.Items.includes('Network')}
                       onChange={handleServiceChange}
                     />
-                    Projector
+                    Network
                     <br />
                     <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
+                      value="Inventory"
+                      checked={formData.Items.includes('Inventory')}
                       onChange={handleServiceChange}
                     />
-                    TV
+                    Inventory
+                    <br />
+                    <Checkbox
+                      value="Reformat"
+                      checked={formData.Items.includes('Reformat')}
+                      onChange={handleServiceChange}
+                    />
+                    Reformat
+                    <br /><Checkbox
+                      value="Repair"
+                      checked={formData.Items.includes('Repair')}
+                      onChange={handleServiceChange}
+                    />
+                    Repair
                     <br />
                     <div style={{ marginLeft: '42px' }}> 
                     Others:
@@ -868,6 +884,22 @@ const handleViewClose = () => {
                   />
                         <br/>
                       </Grid>
+                      <Grid item xs={16} >
+                            <TextField
+                              type="text"
+                              name="Remarks"
+                              variant="outlined"
+                              placeholder="Remarks"
+                              multiline
+                              value={formData.Remarks || ''}
+                              onChange={(e) => setFormData({ ...formData, Remarks: e.target.value })}
+                              // minRows={5}
+                              fullWidth
+                              // maxRows={80}
+                              // marginBottom="10px"
+                            />
+                            <br />
+                          </Grid>
                       <Grid>
                       { <Typography variant="subtitle1">File:</Typography> }
                       <TextField
