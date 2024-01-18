@@ -18,6 +18,109 @@ import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, Inspecti
 
 export default function UserPage() {
 
+   // -------------------------testing for the dynamic input fields ---------------------------------------------
+
+   const [inputField, setInputField] = useState([
+  
+    {
+      Issue: '',
+      Description: '',
+      ActionTakenSolution: '',
+      Recommendation: '',
+    },
+  ]);
+
+  const handleChangeInput = (index, event) => {
+    console.log(index, event.target.name);
+    const values = [...inputField];
+    values[index][event.target.name] = event.target.value;
+    setInputField(values);
+  };
+
+  const handleAddField = () => {
+    setInputField([
+      ...inputField,
+      {
+        Issue: '',
+        Description: '',
+        ActionTakenSolution: '',
+        Recommendation: '',
+      },
+    ]);
+  };
+
+  const handleRemoveField = (index) => {
+    const values = [...inputField];
+    values.splice(index, 1);
+    setInputField(values);
+  };
+
+
+  const handleEditChangeInput = (index, event, fieldName) => {
+    setEditData((prevData) => {
+      const newInputField = [...prevData.inputField];
+      newInputField[index][fieldName] = event.target.value;
+      return {
+        ...prevData,
+        inputField: newInputField,
+      };
+    });
+  };
+
+  const handleEditAddField = () => {
+    const newField = {
+      Issue: '',
+      Description: '',
+      ActionTakenSolution: '',
+      Recommendation: '',
+    };
+  
+    // Modify editData to add a new field
+    setEditData((prevEditData) => ({
+      ...prevEditData,
+      inputField: [...prevEditData.inputField, newField],
+    }));
+  
+    console.log('After adding field:', editData);
+  };
+
+
+  const handleEditRemoveField = async (index) => {
+    try {
+      const docRef = doc(InspectionCollectionRef, formData.id); // Use the document ID for updating
+  
+      // Create a copy of the editData
+      const editDataCopy = { ...editData };
+  
+      // Remove the specific item from the inputField array in Firestore
+      editDataCopy.inputField.splice(index, 1);
+  
+      // Update Firestore document with the modified inputField
+      await updateDoc(docRef, editDataCopy); // Update the document in Firestore
+  
+      // Update the local state (formData) with the modified inputField
+      setFormData((prevData) => ({
+        ...prevData,
+        inputField: editDataCopy.inputField,
+      }));
+    } catch (error) {
+      console.error('Error updating data in Firestore: ', error);
+    }
+  };
+  
+ 
+
+  const handleRemoveAllField = () => {
+    const values = [...inputField];
+        // Remove all fields by splicing from the end of the array to the beginning
+    for (let i = values.length - 1; i >= 0; i-=1) {
+      values.splice(i, 1);
+    }
+    // Update the inputField state with the modified array
+    setInputField(values);
+  };
+  // ----------------------------------------------------------------------
+
 // Check the user's userType
 const { user } = useAuthState();
 const [username, setUsername] = useState(null);
@@ -66,29 +169,35 @@ const handleChange = (e) => {
 };
 
   const initialFormData = {
+    ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
-    Items: [],
-    otherItems: '',
+    inputField: [],
+    InspectedBy: '',
+    NotedBy: '',
     fileInput: '',
     fileURL: '',
   };
 
   const clearForm = () => {
+    // Remove all fields by calling handleRemoveField for each field in inputField
+    handleRemoveAllField();
+    // After removing all fields, set the entire form data to its initial state
     setFormData(initialFormData);
   };
 
-  // Handle change function
-  const [formData, setFormData] = useState({
+   // Handle change function
+   const [formData, setFormData] = useState({
+    ControlNum: '',
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
-    Items: [], // If this is an array, it can be empty initially
-    otherItems: '',
+    inputField: [],
+    InspectedBy: '',
+    NotedBy: '',
     fileURL: '',
+   
   });
 
 // Technician Show Query/table fetch from firestore
@@ -206,15 +315,22 @@ useEffect(() => {
     return newDocumentName; // Return the generated document name
   };
 
-  // Add function
-
-  const handleSubmit = async (e) => {
+   // function for Adding new documents
+   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const {
+      ControlNum,
+      Date,
+      FullName,
+      LocationRoom,
+      InspectedBy,
+      NotedBy,
+      fileURL,
+    } = formData;
   
     // Validation logic for required fields
-    if (!Date || !FullName || !LocationRoom || !Borrower) {
+    if (!Date || !FullName || !LocationRoom || !InspectedBy || !NotedBy ) {
       alert('Please fill out all required fields');
       return;
     }
@@ -223,17 +339,16 @@ useEffect(() => {
       const docRef = doc(InspectionCollectionRef, documentName);
   
       const docData = {
+        ControlNum,
         Date,
         FullName,
         LocationRoom,
-        Borrower,
-        Items,
-        otherItems,
+        InspectedBy,
+        NotedBy,
         fileURL: fileURL || '',
+        inputField, // Add the dynamic input fields here
         archived: false,
-        originalLocation: "ITEM-BORROWERS",
-        uid: user?.uid || '',
-        status: "PENDING (Technician)",
+        originalLocation: 'INSPECTION-REPORT',
       };
   
       await setDoc(docRef, docData);
@@ -260,7 +375,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'InspectedBy', 'NotedBy'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -271,7 +386,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'InspectedBy', 'NotedBy'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -282,7 +397,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['ControlNum', 'Date', 'FullName', 'LocationRoom', 'InspectedBy', 'NotedBy'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -301,12 +416,13 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
+      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
-      Borrower: data.Borrower || '',
-      Items: data.Items || '',
-      otherItems: data.otherItems || '',
+      inputField: data.inputField || '',
+      InspectedBy: data.InspectedBy || '',
+      Notedby: data.Notedby || '',
       fileURL: data.fileURL || '',
       id: data.id, // Set the document ID here
     });
@@ -323,23 +439,41 @@ const handleEditClose = () => {
 
 const handleEditSubmit = async () => {
   try {
-    // Include the checkbox values in editData
-    const updatedEditData = {
-      ...editData,
-      Items: formData.Items, // Update Services with checkbox values
-      // Include other properties here
-    };
-
-    const docRef = doc(InspectionCollectionRef, formData.id);
-
+    const docRef = doc(InspectionCollectionRef, formData.id); // Use the document ID for updating
     // Update the editData object with the new file URL
-    updatedEditData.fileURL = formData.fileURL;
+    editData.fileURL = formData.fileURL;
+    console.log('Data to be sent to Firestore:', formData);
 
-    await updateDoc(docRef, updatedEditData);
+  if (formData.id) {
+    // Update the existing document with editData
+    await updateDoc(docRef, editData);
+  } else {
+    // Create a new document with all fields from editData
+    await setDoc(docRef, editData);
+  }
+
     handleEditClose();
     setSnackbarOpen1(true);
   } catch (error) {
-    console.error("Error updating data in Firestore: ", error);
+    console.error('Error updating/adding data in Firestore: ', error);
+  }
+};
+
+ // This one is still for Edit button but for the file upload part
+
+ const handleFileEditUpload = async (file) => {
+  const docRef = doc(InspectionCollectionRef, formData.id); // Use the document ID for updating
+  try {
+    if (file) {
+      const storageRef = ref(storage, `documents/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Update the Firestore document here using 'updateDoc' or another method
+      await updateDoc(docRef, { fileURL: downloadURL });
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
   }
 };
 
@@ -402,7 +536,7 @@ const handleConfirmDelete = async () => {
       // Find the highest number and increment it by 1
       let nextNumber = 0;
       existingDocumentNames.forEach((docName) => {
-        const match = docName.match(/^SRF-(\d+)$/);
+        const match = docName.match(/^IRF-(\d+)$/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (!Number.isNaN(num) && num >= nextNumber) {
@@ -412,7 +546,7 @@ const handleConfirmDelete = async () => {
       });
 
       // Generate the new document name
-      const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+      const newDocumentName = `IRF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
@@ -771,118 +905,241 @@ const handleViewClose = () => {
           </Button>
         </div>
         
-        <Dialog open={open} onClose={handleClose}>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Dialog open={open} onClose={handleClose} maxWidth="xl">
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
               Inspection Report Form
               </Typography>
-              <DialogContent>
+              <DialogContent
+              // fullWidth
+              // maxWidth="lg"
+              // style={{ width: '1800px' }}
+              >
                 <form onSubmit={handleSubmit}>
-                <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-
-                    <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={formData.Date || ''}
-                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={formData.FullName || ''}
-                    onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >ITEMS:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI 
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}> 
-                    Others:
-                    <input
-                    type="text"
-                    name="Others:"
-                    value={formData.otherItems || ''}
-                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
-                    />
-                      </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
+                  <Grid container spacing={1} columns={8}>
+                  <Grid item xs={2}>
                       <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={formData.LocationRoom || ''}
-                    onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
-                      <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
+                        type="date"
+                        name="Date"
+                        variant="outlined"
+                        required
+                        size="small"
+                        value={formData.Date || ''}
+                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={4} >
+                      {/* <TextField
+                      type="date"
+                      name="Date"
+                      variant="filled"
+                      size="small"
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> */}
+                    </Grid>
+                    
+                    <Grid item xs={5}>
                       <TextField
-                          type="file"
-                          fullWidth
-                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                          onChange={(e) => handleFileUpload(e.target.files[0])}
-                          sx={{ width: '100%' }}
-                        />
-                        <br/>
-                      </Grid>
+                        type="text"
+                        name="FullName"
+                        variant="outlined"
+                        label="Full Name"
+                        size="small"
+                        value={formData.FullName || ''}
+                        onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      {/* <Item>xs=6 md=4</Item> */}
+                    </Grid>
+                    <Grid item xs={3} >
+                      <TextField
+                        type="text"
+                        name="LocationRoom"
+                        variant="outlined"
+                        size="small"
+                        required
+                        label="Location/Room"
+                        value={formData.LocationRoom || ''}
+                        onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      {/* <Item>xs=6 md=8</Item> */}
+                    </Grid>
+                    {/* <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="Inspection"
+                        variant="filled"
+                        label="Inspection"
+                        size="small"
+                        value={formData.Inspection || ''}
+                        onChange={(e) => setFormData({ ...formData, Inspection: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      
+                    </Grid> */}
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="InspectedBy"
+                        required
+                        variant="outlined"
+                        label="Inspection By"
+                        size="small"
+                        value={formData.InspectedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, InspectedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="NotedBy"
+                        required
+                        variant="outlined"
+                        label="Noted By"
+                        size="small"
+                        value={formData.NotedBy || ''}
+                        onChange={(e) => setFormData({ ...formData, NotedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
                   </Grid>
 
-                  <br />
+                  {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+                  <div>
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Inspection
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add Row
+                      </Button>
+                    </Grid>
+                  </Grid>
+                    
+                    {inputField.map((inputField, index) => (
+                      <div key={index}>
+                        <Grid container spacing={1} columns={13} 
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center">
+                          {/* First Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              type="text"
+                              name="Issue"
+                              label="Issue"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Issue}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                          </Grid>
+
+                          {/* Second Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="Description"
+                              label="Description"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.Description}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the second column */}
+                          </Grid>
+
+                          {/* Third Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="ActionTakenSolution"
+                              label="Action Taken/Solution"
+                              multiline
+                              fullWidth
+                              variant="outlined"
+                              size="small"
+                              value={inputField.ActionTakenSolution}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the third column */}
+                          </Grid>
+
+                          {/* Fourth Column */}
+                          <Grid item xs={3}>
+                            <TextField
+                              name="Recommendation"
+                              label="Recommendation"
+                              variant="outlined"
+                              multiline
+                              fullWidth
+                              size="small"
+                              value={inputField.Recommendation}
+                              onChange={(event) => handleChangeInput(index, event)}
+                            />
+                            {/* Content for the fourth column */}
+                          </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleRemoveField(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                        </Grid>
+                        <br/>
+                      </div>
+                    ))}
+                  </div>
+                  <br/>
+                  <Grid>
+                    <TextField
+                      type="file"
+                      variant="outlined"
+                      size="small"
+                      accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                      onChange={(e) => handleFileUpload(e.target.files[0])}
+                      sx={{ width: '100%' }}
+                    />
+                  </Grid>
                 </form>
               </DialogContent>
               <DialogActions>
@@ -898,8 +1155,6 @@ const handleViewClose = () => {
                   </Button>
                 </div>
               </DialogActions>
-            </div>
-          </div>
         </Dialog>
     </div>  
   </Stack> 
@@ -925,8 +1180,8 @@ const handleViewClose = () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Location/Room</TableCell>
-                <TableCell>Borrower</TableCell>
-                <TableCell>Items</TableCell>
+                <TableCell>Inspected By</TableCell>
+                <TableCell>Noted By</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
@@ -946,8 +1201,8 @@ const handleViewClose = () => {
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Borrower}</TableCell>
-                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell>{item.InspectedBy}</TableCell>
+                  <TableCell>{item.NotedBy}</TableCell>
                   <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
@@ -1010,7 +1265,7 @@ const handleViewClose = () => {
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower's Form
+       Inspection Report Form
       </Typography>
       </Stack>
 
@@ -1118,15 +1373,14 @@ const handleViewClose = () => {
               />
               </TableCell>
               <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Inspected By</TableCell>
+                <TableCell>Noted By</TableCell>
+                <TableCell>File Status</TableCell>
+                <TableCell>File</TableCell>
+                <TableCell>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1144,8 +1398,8 @@ const handleViewClose = () => {
                 <TableCell>{item.Date}</TableCell>
                 <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell>{item.InspectedBy}</TableCell>
+                  <TableCell>{item.NotedBy}</TableCell>
                 <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1237,7 +1491,7 @@ const handleViewClose = () => {
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
-        Borrower's Form
+        Inspection Report Form
       </Typography>
       </Stack>
 
@@ -1325,15 +1579,14 @@ const handleViewClose = () => {
               />
               </TableCell>
               <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Location/Room</TableCell>
+                <TableCell>Inspected By</TableCell>
+                <TableCell>Noted By</TableCell>
+                <TableCell>File Status</TableCell>
+                <TableCell>File</TableCell>
+                <TableCell>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1351,8 +1604,8 @@ const handleViewClose = () => {
                 <TableCell>{item.Date}</TableCell>
                 <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell>{item.InspectedBy}</TableCell>
+                  <TableCell>{item.NotedBy}</TableCell>
                 <TableCell style={{color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1439,119 +1692,261 @@ const handleViewClose = () => {
   {/* Start of public container for all user */}
     <Container> 
       {/* This is the dialog for the Edit button */}
-      <Dialog open={editOpen} onClose={handleEditClose}>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+      <Dialog open={editOpen} onClose={handleEditClose} maxWidth="xl"> 
+      
+          <Typography
+                variant="h3"
+                sx={{ mb: 5 }}
+                style={{
+                  alignSelf: 'center',
+                  color: '#ff5500',
+                  margin: 'auto',
+                  fontSize: '40px',
+                  fontWeight: 'bold',
+                  marginTop: '10px',
+                }}
+              >
+                INSPECTION REPORT
               </Typography>
-        <DialogContent>
-          <form onSubmit={handleEditSubmit}>
-            {/* Fields to edit */}
-            <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
+              <DialogContent>
+                <form onSubmit={handleEditSubmit}>
+                  {/* Fields to edit */}
+                  <Grid container spacing={1} columns={8}>
 
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >Items:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={editData  ? editData .otherItems :''}
-                      onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
-                    />
-                    </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
+                    <Grid item xs={2}>
                       <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
+                        type="date"
+                        name="Date"
+                        variant="outlined"
+                        size="small"
+                        label="Date"
+                        value={editData ? editData.Date : ''}
+                        onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={4} >
+                      {/* <TextField
+                      type="date"
+                      name="Date"
+                      variant="filled"
+                      size="small"
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> */}
+                    </Grid>
+
+                    <Grid item xs={5}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        label="Faculty Name"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.FullName : ''}
+                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={3}>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          label="Location/Room"
+                          variant="outlined"
+                          size="small"
+                          value={editData ? editData.LocationRoom : ''}
+                          onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
                       </Grid>
-                      <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
-                  />
-                        <br/>
-                      </Grid>
+
+                      <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="InspectedBy"
+                        label="Inspected By"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.InspectedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, InspectedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+
+                    <Grid item xs={6} md={4}>
+                      <TextField
+                        type="text"
+                        name="NotedBy"
+                        label="Noted By"
+                        variant="outlined"
+                        size="small"
+                        value={editData ? editData.NotedBy : ''}
+                        onChange={(e) => setEditData({ ...editData, NotedBy: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
+                    </Grid>
+                </Grid>
+                      {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+                  <div>
+                  <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                    <Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{ mb: 5 }}
+                        style={{
+                          alignSelf: 'center',
+                          color: '#ff5500',
+                          margin: 'auto',
+                          // fontSize: '40px',
+                          fontWeight: 'bold',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Inspection
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Button
+                        onClick={() => {
+                          handleEditAddField();
+                        }}
+                        variant="contained"
+                      >
+                        Add Row
+                      </Button>
                     </Grid>
                   </Grid>
+                    
+                  {editData && editData.inputField.map((input, index) => (
+  <div key={index}>
+    <Grid container spacing={1} columns={13} 
+      direction="row"
+      justifyContent="space-between"
+    >
+      {/* First Column */}
+      <Grid item xs={3}>
+        <TextField
+          type="text"
+          name="Issue"
+          label="Issue"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={
+        editData
+      ? editData.inputField[index]?.Issue
+      : input?.Issue // Use optional chaining to handle potential undefined values
+  }
+          onChange={(event) => handleEditChangeInput(index, event, 'Issue')}
+        />
+      </Grid>
 
+      {/* Second Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="Description"
+          label="Description"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={
+          editData 
+        ? editData.inputField[index]?.Description 
+        : input?.Description}
+          onChange={(event) => handleEditChangeInput(index, event, 'Description')}
+        />
+        {/* Content for the second column */}
+      </Grid>
+
+      {/* Third Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="ActionTakenSolution"
+          label="Action Taken/Solution"
+          multiline
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={
+          editData 
+        ? editData.inputField[index]?.ActionTakenSolution 
+        : input?.ActionTakenSolution}
+          onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
+        />
+        {/* Content for the third column */}
+      </Grid>
+
+      {/* Fourth Column */}
+      <Grid item xs={3}>
+        <TextField
+          name="Recommendation"
+          label="Recommendation"
+          variant="outlined"
+          multiline
+          fullWidth
+          size="small"
+          value={
+          editData 
+        ? editData.inputField[index]?.Recommendation 
+        : input?.Recommendation}
+          onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
+        />
+        {/* Content for the fourth column */}
+      </Grid>
+
+                          {/* Eighth Column */}
+                          <Grid item xs={1}>
+                            {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                            <Button
+                              onClick={() => {
+                                handleEditRemoveField(index);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                            {/* Content for the eighth column */}
+                          </Grid>
+                        </Grid>
+                        <br/>
+                      </div>
+                    ))}
+                  </div>
+
+                
+
+                {/*  END OF DYNAMIC FORM  END OF DYNAMIC FORM END OF DYANMIC FORM */}
+                      <Grid>
+                        <Typography variant="subtitle1">File:</Typography>
+                        <TextField
+                          type="file"
+                          variant="outlined"
+                          size="small"
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          sx={{ width: '100%' }}
+                        />
+                      </Grid>
+    
                   <br />
-          </form>
-        </DialogContent>
+                </form>
+              </DialogContent>
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
             <Button variant="contained" onClick={handleEditClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
@@ -1562,140 +1957,264 @@ const handleViewClose = () => {
             </Button>
           </div>
         </DialogActions>
-        </div>
-      </div>
       </Dialog>
 
     {/* Dialog for View button */}
-      <Dialog open={viewOpen} onClose={handleViewClose}>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER'S FORM
-            </Typography>
-            <DialogContent>
-            <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
-                  <TextField
-                    type="text"
-                    name="id"
-                    placeholder="Docuent ID:"
-                    value={viewItem  ? viewItem .id : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Date:</Typography>
+    <Dialog open={viewOpen} onClose={handleViewClose} maxWidth="xl">
+              <Typography
+                variant="h3"
+                sx={{ mb: 5 }}
+                style={{
+                  alignSelf: 'center',
+                  color: '#ff5500',
+                  margin: 'auto',
+                  fontSize: '40px',
+                  fontWeight: 'bold',
+                  marginTop: '10px',
+                }}
+              >
+                INSPECTION REPORT
+              </Typography>
+              <DialogContent>
+            <form onSubmit={handleEditSubmit}>
+              {/* Fields to edit */}
+              <Grid container spacing={1} columns={8}>
+                <Grid item xs={2}>
                   <TextField
                     type="date"
                     name="Date"
-                    placeholder="Date"
+                    variant="outlined"
+                    size="small"
+                    label="Date"
                     value={viewItem ? viewItem.Date : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                    </Grid>
+                </Grid>
 
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Faculty Name:</Typography>
+                <Grid item xs={4}>
+                  {/* <TextField
+                      type="date"
+                      name="Date"
+                      variant="filled"
+                      size="small"
+                      value={formData.Date || ''}
+                      onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                      sx={{ width: '100%', marginBottom: '10px' }}
+                    /> */}
+                </Grid>
+
+                <Grid item xs={2}>
+                  <TextField
+                    type="text"
+                    name="ControlNum"
+                    label="Control Number"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.id : ''}
+                      disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                </Grid>
+
+                <Grid item xs={5}>
                   <TextField
                     type="text"
                     name="FullName"
-                    placeholder="Faculty Name"
-                    value={viewItem  ? viewItem .FullName : ''}
-                    disabled
+                    label="Faculty Name"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.FullName : ''}
+                      disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                    </Grid>
+                </Grid>
 
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
-                  <TextField
-                    type="text"
-                    name="Borrower"
-                    placeholder="Borrower"
-                    value={viewItem  ? viewItem .Borrower : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items">ITEMS:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
-                      disabled
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
-                      disabled
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={viewItem && viewItem.Items.includes('TV')}
-                      disabled
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={viewItem ? viewItem.otherItems : ''}
-                      disabled
-                    />
-                    </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      <Typography variant="subtitle1">Location/Room:</Typography>
+                <Grid item xs={3}>
                   <TextField
                     type="text"
                     name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={viewItem  ? viewItem .LocationRoom : ''}
-                    disabled
+                    label="Location/Room"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.LocationRoom : ''}
+                        disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
-                        <br/>
+                  <br />
+                  <br />
+                </Grid>
+
+                <Grid item xs={6} md={4}>
+                  <TextField
+                    type="text"
+                    name="InspectedBy"
+                    label="Inspected By"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.InspectedBy : ''}
+                      disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <br />
+                </Grid>
+
+                <Grid item xs={6} md={4}>
+                  <TextField
+                    type="text"
+                    name="NotedBy"
+                    label="Noted By"
+                    variant="outlined"
+                    size="small"
+                    value={viewItem ? viewItem.NotedBy : ''}
+                      disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <br />
+                </Grid>
+              </Grid>
+              {/* // ------------------------------ testing the dynamic form---------------------------------------- */}
+              <div>
+                <Grid container spacing={0} direction="row" justifyContent="space-between" alignItems="center">
+                  <Grid>
+                    <Typography
+                      variant="h6"
+                      sx={{ mb: 5 }}
+                      style={{
+                        alignSelf: 'center',
+                        color: '#ff5500',
+                        margin: 'auto',
+                        // fontSize: '40px',
+                        fontWeight: 'bold',
+                        marginTop: '10px',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      Inspection
+                    </Typography>
+                  </Grid>
+                  {/* <Grid>
+                    <Button
+                      onClick={() => {
+                        handleEditAddField();
+                      }}
+                      variant="contained"
+                    >
+                      Add Row
+                    </Button>
+                  </Grid> */}
+                </Grid>
+
+                {formData.inputField.map((input, index) => (
+                  <div key={index}>
+                    <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between">
+                      {/* First Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          type="text"
+                          name="Issue"
+                          label="Issue"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={
+                            viewItem ? viewItem.inputField[index]?.Issue : input?.Issue // Use optional chaining to handle potential undefined values
+                          }
+                          disabled
+                        />
                       </Grid>
-                      <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                    {viewItem && viewItem.fileURL ? (
-                      <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                        View / Download File
-                      </a>
-                    ) : (
-                      "No File"
-                    )}
-                        <br/>
+
+                      {/* Second Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="Description"
+                          label="Description"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={viewItem ? viewItem.inputField[index]?.Description : input?.Description}
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'Description')}
+                        />
+                        {/* Content for the second column */}
+                      </Grid>
+
+                      {/* Third Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="ActionTakenSolution"
+                          label="Action Taken/Solution"
+                          multiline
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          value={
+                            viewItem ? viewItem.inputField[index]?.ActionTakenSolution : input?.ActionTakenSolution
+                          }
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
+                        />
+                        {/* Content for the third column */}
+                      </Grid>
+
+                      {/* Fourth Column */}
+                      <Grid item xs={3}>
+                        <TextField
+                          name="Recommendation"
+                          label="Recommendation"
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          size="small"
+                          value={viewItem ? viewItem.inputField[index]?.Recommendation : input?.Recommendation}
+                          disabled
+                          onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
+                        />
+                        {/* Content for the fourth column */}
+                      </Grid>
+
+                      {/* Eighth Column */}
+                      <Grid item xs={1}>
+                        {/* <Button
+                              onClick={() => {
+                                handleAddField();
+                              }}
+                            >
+                              Add
+                            </Button> */}
+                        {/* <Button
+                          onClick={() => {
+                            handleEditRemoveField(index);
+                          }}
+                        >
+                          Remove
+                        </Button> */}
+                        
                       </Grid>
                     </Grid>
-                  </Grid>
+                    <br />
+                  </div>
+                ))}
+              </div>
 
-                  <br />
-            </DialogContent>
-          </div>
-        </div>
+              {/*  END OF DYNAMIC FORM  END OF DYNAMIC FORM END OF DYANMIC FORM */}
+              <Grid>
+                <Typography variant="subtitle1">File:</Typography>
+                {viewItem && viewItem.fileURL ? (
+                        <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                          View / Download File
+                        </a>
+                      ) : (
+                        'No File'
+                      )}
+              </Grid>
+
+              <br />
+            </form>
+          </DialogContent>
+  
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
             <Button variant="contained" onClick={handleViewClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
