@@ -1458,7 +1458,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+                REQUEST ITEMS FORM
               </Typography>
         <DialogContent>
         <form onSubmit={handleEditSubmit}>
@@ -1471,16 +1471,7 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
-                    <Grid item xs={8}>
-                    <TextField
-                    type="text"
-                    name="ControlNum"
-                    label="Control Number"
-                    value={editData ? editData.ControlNum : ''}
-                    onChange={(e) => setEditData({ ...editData, ControlNum: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
+                  
 
                     <Grid item xs={8}>
                     <TextField
@@ -1518,36 +1509,36 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items" >Items:</legend>
                     <Checkbox
-                      value=" Mouse,"
-                      checked={formData.Items.includes(' Mouse,')}
+                      value="Mouse"
+                      checked={formData.Items.includes('Mouse')}
                       onChange={handleServiceChange}
                     />
                     Mouse
                     <br />
                     <Checkbox
-                      value=" Keyboard,"
-                      checked={formData.Items.includes(' Keyboard,')}
+                      value="Keyboard"
+                      checked={formData.Items.includes('Keyboard')}
                       onChange={handleServiceChange}
                     />
                     Keyboard
                     <br />
                     <Checkbox
-                      value=" Monitor,"
-                      checked={formData.Items.includes(' Monitor,')}
+                      value="Monitor"
+                      checked={formData.Items.includes('Monitor')}
                       onChange={handleServiceChange}
                     />
                     Monitor
                     <br />
                     <Checkbox
-                      value=" AVR,"
-                      checked={formData.Items.includes(' AVR,')}
+                      value="AVR"
+                      checked={formData.Items.includes('AVR')}
                       onChange={handleServiceChange}
                     />
                     AVR
                     <br />
                     <Checkbox
-                      value=" CPU,"
-                      checked={formData.Items.includes(' CPU,')}
+                      value="CPU"
+                      checked={formData.Items.includes('CPU')}
                       onChange={handleServiceChange}
                     />
                     CPU
@@ -1612,7 +1603,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               Request Item Form
+               REQUEST ITEMS FORM
             </Typography>
             <DialogContent>
             <Grid
@@ -1629,7 +1620,7 @@ const handleViewClose = () => {
                     type="text"
                     name="ControlNum"
                     placeholder="Control Number"
-                    value={viewItem  ? viewItem .ControlNum : ''}
+                    value={viewItem  ? viewItem .id : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1660,12 +1651,12 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
+                    <Typography variant="subtitle1">Requisitioner:</Typography>
                   <TextField
                     type="text"
-                    name="Borrower"
-                    placeholder="Borrower"
-                    value={viewItem  ? viewItem .Borrower : ''}
+                    name="Requisitioner"
+                    placeholder="Requisitioner"
+                    value={viewItem  ? viewItem .Requisitioner : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1675,36 +1666,36 @@ const handleViewClose = () => {
                     <fieldset>
                     <legend name="Items">ITEMS:</legend>
                     <Checkbox
-                      value=" Mouse,"
-                      checked={viewItem && viewItem.Items.includes(' Mouse,')}
+                      value="Mouse"
+                      checked={viewItem && viewItem.Items.includes('Mouse')}
                       disabled
                     />
                     Mouse
                     <br />
                     <Checkbox
-                      value=" Keyboard,"
-                      checked={viewItem && viewItem.Items.includes(' Keyboard,')}
+                      value="Keyboard"
+                      checked={viewItem && viewItem.Items.includes('Keyboard')}
                       disabled
                     />
                     Keyboard
                     <br />
                     <Checkbox
-                      value=" Monitor,"
-                      checked={viewItem && viewItem.Items.includes(' Monitor,')}
+                      value="Monitor"
+                      checked={viewItem && viewItem.Items.includes('Monitor')}
                       disabled
                     />
                     Monitor
                     <br />
                     <Checkbox
-                      value=" AVR,"
-                      checked={viewItem && viewItem.Items.includes(' AVR,')}
+                      value="AVR"
+                      checked={viewItem && viewItem.Items.includes('AVR')}
                       disabled
                     />
                     AVR
                     <br />
                     <Checkbox
-                      value=" CPU,"
-                      checked={viewItem && viewItem.Items.includes(' CPU,')}
+                      value="CPU"
+                      checked={viewItem && viewItem.Items.includes('CPU')}
                       disabled
                     />
                     CPU

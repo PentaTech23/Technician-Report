@@ -69,9 +69,9 @@ const handleChange = (e) => {
     Date: '',
     FullName: '',
     LocationRoom: '',
-    Borrower: '',
-    Items: [],
-    otherItems: '',
+    Requisitioner: '',
+    Services: [],
+    otherServices: '',
     fileInput: '',
     fileURL: '',
   };
@@ -82,12 +82,13 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
+    ControlNum: null,
     Date: '',
     FullName: '',
-    LocationRoom: '',
-    Borrower: '',
-    Items: [], // If this is an array, it can be empty initially
-    otherItems: '',
+    LocationRoom: null,
+    Requisitioner: '',
+    Services: [], // If this is an array, it can be empty initially
+    otherServices: '',
     Remarks: '',
     fileURL: '',
   });
@@ -212,10 +213,20 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, Remarks, fileURL } = formData;
+    const {
+      ControlNum,
+      Date,
+      FullName,
+      LocationRoom,
+      Requisitioner,
+      Services = [],
+      otherServices,
+      Remarks,
+      fileURL,
+    } = formData;
   
     // Validation logic for required fields
-    if (!Date || !FullName || !LocationRoom || !Borrower) {
+    if (!Date || !FullName || !LocationRoom || !Requisitioner) {
       alert('Please fill out all required fields');
       return;
     }
@@ -224,16 +235,17 @@ useEffect(() => {
       const docRef = doc(ServiceCollectionRef, documentName);
   
       const docData = {
+        ControlNum,
         Date,
         FullName,
         LocationRoom,
-        Borrower,
-        Items,
-        otherItems,
+        Requisitioner,
+        Services,
+        otherServices,
         Remarks,
         fileURL: fileURL || '',
-        archived: false,
-        originalLocation: "ITEM-BORROWERS",
+        archived: false, // Include the 'archived' field and set it to false for new documents
+        originalLocation: 'SERVICE-REQUEST', // Include the 'originalLocation' field
         uid: user?.uid || '',
         status: "PENDING (Technician)",
       };
@@ -262,7 +274,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -303,13 +315,13 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
+      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
-      Borrower: data.Borrower || '',
-      Items: data.Items || '',
-      Remarks: data.Remarks || '',
-      otherItems: data.otherItems || '',
+      Requisitioner: data.Requisitioner || '',
+      Services: data.Services || '',
+      otherServices: data.otherServices || '',
       fileURL: data.fileURL || '',
       id: data.id, // Set the document ID here
     });
@@ -329,7 +341,7 @@ const handleEditSubmit = async () => {
     // Include the checkbox values in editData
     const updatedEditData = {
       ...editData,
-      Items: formData.Items, // Update Services with checkbox values
+      Services: formData.Services, // Update Services with checkbox values
       // Include other properties here
     };
 
@@ -625,18 +637,18 @@ const handleViewClose = () => {
   const handleServiceChange = (e) => {
     const value = e.target.value;
     const isChecked = e.target.checked;
-  
+
     if (isChecked && value !== ' Others:') {
-      // Add the new value to the array
+      //  the new value to the array
       setFormData((prevData) => ({
         ...prevData,
-        Items: [...prevData.Items, value],
+        Services: [...prevData.Services, value],
       }));
     } else if (!isChecked && value !== ' Others:') {
       // Remove the selected service from the array
       setFormData((prevData) => ({
         ...prevData,
-        Items: prevData.Items.filter((service) => service !== value),
+        Services: prevData.Services.filter((service) => service !== value),
       }));
     }
   };
@@ -782,7 +794,7 @@ const handleViewClose = () => {
               </Typography>
               <DialogContent>
                 <form onSubmit={handleSubmit}>
-                <Grid
+                  <Grid
                     container
                     spacing={2}
                     columns={16}
@@ -790,101 +802,109 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
-
                     <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={formData.Date || ''}
-                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={formData.FullName || ''}
-                    onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >ITEMS:</legend>
-                    <Checkbox
-                      value="Application Installation"
-                      checked={formData.Items.includes('Application Installation')}
-                      onChange={handleServiceChange}
-                    />
-                    Application Installation 
-                    <br />
-                    <Checkbox
-                      value="Network"
-                      checked={formData.Items.includes('Network')}
-                      onChange={handleServiceChange}
-                    />
-                    Network
-                    <br />
-                    <Checkbox
-                      value="Inventory"
-                      checked={formData.Items.includes('Inventory')}
-                      onChange={handleServiceChange}
-                    />
-                    Inventory
-                    <br />
-                    <Checkbox
-                      value="Reformat"
-                      checked={formData.Items.includes('Reformat')}
-                      onChange={handleServiceChange}
-                    />
-                    Reformat
-                    <br /><Checkbox
-                      value="Repair"
-                      checked={formData.Items.includes('Repair')}
-                      onChange={handleServiceChange}
-                    />
-                    Repair
-                    <br />
-                    <div style={{ marginLeft: '42px' }}> 
-                    Others:
-                    <input
-                    type="text"
-                    name="Others:"
-                    value={formData.otherItems || ''}
-                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
-                    />
-                      </div>
-                  </fieldset>
-                    </Grid>
-
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
                       <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={formData.LocationRoom || ''}
-                    onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
-                      <Grid item xs={16} >
+                        type="date"
+                        name="Date"
+                        fullWidth
+                        placeholder='Date'
+                        value={formData.Date || ''}
+                        onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        fullWidth
+                        variant="outlined"
+                        placeholder="FullName"
+                        value={formData.FullName || ''}
+                        onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={16}>
+                      <TextField
+                        type="text"
+                        name="Requisitioner"
+                        placeholder="Requisitioner"
+                        fullWidth
+                        value={formData.Requisitioner || ''}
+                        onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
+                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <fieldset>
+                        <legend name="Services">SERVICES:</legend>
+                        <Checkbox
+                          value="Application Installation"
+                          checked={formData.Services.includes('Application Installation')}
+                          onChange={handleServiceChange}
+                        />
+                        Application Installation
+                        <br />
+                        <Checkbox
+                          value="Network"
+                          checked={formData.Services.includes('Network')}
+                          onChange={handleServiceChange}
+                        />
+                        Network
+                        <br />
+                        <Checkbox
+                          value="Inventory"
+                          checked={formData.Services.includes('Inventory')}
+                          onChange={handleServiceChange}
+                        />
+                        Inventory
+                        <br />
+                        <Checkbox
+                          value="Reformat"
+                          checked={formData.Services.includes('Reformat')}
+                          onChange={handleServiceChange}
+                        />
+                        Reformat
+                        <br />
+                        <Checkbox
+                          value="Repair"
+                          checked={formData.Services.includes('Repair')}
+                          onChange={handleServiceChange}
+                        />
+                        Repair
+                        <br />
+                        <div style={{ marginLeft: '42px' }}>
+                          Others:
+                          <br />
+                          <input
+                            type="text"
+                            name="Others:"
+                            value={formData.otherServices || ''}
+                            onChange={(e) => setFormData({ ...formData, otherServices: e.target.value })}
+                          />
+                        </div>
+                      </fieldset>
+                    </Grid>
+
+                    <Grid item xs={8} >
+                      <Grid container spacing={3} column={6}>
+                        <Grid item xs={12}>
+                          <TextField
+                            type="text"
+                            name="LocationRoom"
+                            placeholder="LocationRoom"
+                            fullWidth
+                            value={formData.LocationRoom || ''}
+                            onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                            // sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                          <br />
+                        </Grid>
+                          <Grid item xs={12}>
                             <TextField
                               type="text"
                               name="Remarks"
@@ -900,17 +920,19 @@ const handleViewClose = () => {
                             />
                             <br />
                           </Grid>
-                      <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
+                        
+                      <Grid item xs={12}>
+                        { <Typography variant="subtitle1">Document Upload:</Typography> }
                       <TextField
                           type="file"
                           fullWidth
                           accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
                           onChange={(e) => handleFileUpload(e.target.files[0])}
                           sx={{ width: '100%' }}
+                          
                         />
-                        <br/>
                       </Grid>
+                    </Grid>
                     </Grid>
                   </Grid>
 
@@ -957,7 +979,7 @@ const handleViewClose = () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Location/Room</TableCell>
-                <TableCell>Borrower</TableCell>
+                <TableCell>Requisitioner</TableCell>
                 <TableCell>Items</TableCell>
                 <TableCell>File Status</TableCell>
                 <TableCell>File</TableCell>
@@ -978,8 +1000,8 @@ const handleViewClose = () => {
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Borrower}</TableCell>
-                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell>{item.Requisitioner}</TableCell>
+                  <TableCell>{`${item.Services}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
                   <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
@@ -1153,8 +1175,8 @@ const handleViewClose = () => {
               <TableCell>Date</TableCell>
               <TableCell>Full Name</TableCell>
               <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Requisitioner</TableCell>
+              <TableCell>Services</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1176,8 +1198,8 @@ const handleViewClose = () => {
                 <TableCell>{item.Date}</TableCell>
                 <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell>{item.Requisitioner}</TableCell>
+                <TableCell>{`${item.Services}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
                 <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1360,8 +1382,8 @@ const handleViewClose = () => {
               <TableCell>Date</TableCell>
               <TableCell>Full Name</TableCell>
               <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
+              <TableCell>Requisitioner</TableCell>
+              <TableCell>Services</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
@@ -1383,8 +1405,8 @@ const handleViewClose = () => {
                 <TableCell>{item.Date}</TableCell>
                 <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell>{item.Requisitioner}</TableCell>
+                <TableCell>{`${item.Services}${item.otherServices? `, ${item.otherServices}` : ''}`}</TableCell>
                 <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
@@ -1475,12 +1497,12 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+                SERVICE REQUEST FORM
               </Typography>
-        <DialogContent>
-          <form onSubmit={handleEditSubmit}>
-            {/* Fields to edit */}
-            <Grid
+              <DialogContent>
+                <form onSubmit={handleEditSubmit}>
+                  {/* Fields to edit */}
+                  <Grid
                     container
                     spacing={2}
                     columns={16}
@@ -1488,102 +1510,137 @@ const handleViewClose = () => {
                     justifyContent="space-between"
                     alignItems="center"
                   >
+                   
                     <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="date"
+                        name="Date"
+                        label="Date"
+                        value={editData ? editData.Date : ''}
+                        onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
                     <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="FullName"
+                        label="Faculty Name"
+                        value={editData ? editData.FullName : ''}
+                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
                     <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    label="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="Requisitioner"
+                        label="Requisitioner"
+                        value={editData ? editData.Requisitioner : ''}
+                        onChange={(e) => setEditData({ ...editData, Requisitioner: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <br />
                     </Grid>
 
                     <Grid item xs={8}>
-                    <fieldset>
-                    <legend name="Items" >Items:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={editData  ? editData .otherItems :''}
-                      onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
-                    />
-                    </div>
-                  </fieldset>
+                      <fieldset>
+                        <legend name="Services">SERVICES:</legend>
+                        <Checkbox
+                          value="Application Installation"
+                          checked={formData.Services.includes('Application Installation')}
+                          onChange={handleServiceChange}
+                        />
+                        Application Installation
+                        <br />
+                        <Checkbox
+                          value="Network"
+                          checked={formData.Services.includes('Network')}
+                          onChange={handleServiceChange}
+                        />
+                        Network
+                        <br />
+                        <Checkbox
+                          value="Inventory"
+                          checked={formData.Services.includes('Inventory')}
+                          onChange={handleServiceChange}
+                        />
+                        Inventory
+                        <br />
+                        <Checkbox
+                          value="Reformat"
+                          checked={formData.Services.includes('Reformat')}
+                          onChange={handleServiceChange}
+                        />
+                        Reformat
+                        <br />
+                        <Checkbox
+                          value="Repair"
+                          checked={formData.Services.includes('Repair')}
+                          onChange={handleServiceChange}
+                        />
+                        Repair
+                        <br />
+                        <div style={{ marginLeft: '42px' }}>
+                          Others:
+                          <input
+                            type="text"
+                            value={editData ? editData.otherServices : ''}
+                            onChange={(e) => setEditData({ ...editData, otherServices: e.target.value })}
+                          />
+                        </div>
+                      </fieldset>
+                      <br />
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
                       <Grid>
-                      <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          label="Location/Room"
+                          value={editData ? editData.LocationRoom : ''}
+                          onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
                       </Grid>
                       <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
-                  />
-                        <br/>
+                        <Typography variant="subtitle1">Remarks:</Typography>
+                        <TextField
+                          type="text"
+                          name="Remarks"
+                         
+                          multiline
+                          value={editData ? editData.Remarks : ''}
+                          onChange={(e) => setEditData({ ...editData, Remarks: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                        <br />
+                        <br />
+                      </Grid>
+                      <Grid>
+                        <Typography variant="subtitle1">File:</Typography>
+                        <TextField
+                          type="file"
+                          name="fileInput"
+                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          inputProps={{
+                            className:
+                              'w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input',
+                          }}
+                        />
                       </Grid>
                     </Grid>
                   </Grid>
 
                   <br />
-          </form>
-        </DialogContent>
+                </form>
+              </DialogContent>
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
             <Button variant="contained" onClick={handleEditClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
@@ -1603,7 +1660,7 @@ const handleViewClose = () => {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER'S FORM
+               SERVICE REQUEST FORM
             </Typography>
             <DialogContent>
             <Grid
@@ -1619,7 +1676,7 @@ const handleViewClose = () => {
                   <TextField
                     type="text"
                     name="id"
-                    placeholder="Docuent ID:"
+                    placeholder="Document ID:"
                     value={viewItem  ? viewItem .id : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
@@ -1651,12 +1708,12 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
+                    <Typography variant="subtitle1">Requisitioner:</Typography>
                   <TextField
                     type="text"
-                    name="Borrower"
-                    placeholder="Borrower"
-                    value={viewItem  ? viewItem .Borrower : ''}
+                    name="Requisitioner"
+                    placeholder="Requisitioner"
+                    value={viewItem  ? viewItem .Requisitioner : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1664,38 +1721,48 @@ const handleViewClose = () => {
 
                     <Grid item xs={8}>
                     <fieldset>
-                    <legend name="Items">ITEMS:</legend>
-                    <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
-                      disabled
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
-                      disabled
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={viewItem && viewItem.Items.includes('TV')}
-                      disabled
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={viewItem ? viewItem.otherItems : ''}
-                      disabled
-                    />
-                    </div>
-                  </fieldset>
-                    </Grid>
+                      <legend name="Services">SERVICES:</legend>
+                      <Checkbox
+                        value="Application Installation"
+                        checked={viewItem && viewItem.Services.includes('Application Installation')}
+                        disabled
+                      />
+                      Application Installation
+                      <br />
+                      <Checkbox
+                        value="Network"
+                        checked={viewItem && viewItem.Services.includes('Network')}
+                        disabled
+                      />
+                      Network
+                      <br />
+                      <Checkbox
+                        value="Inventory"
+                        checked={viewItem && viewItem.Services.includes('Inventory')}
+                        disabled
+                      />
+                      Inventory
+                      <br />
+                      <Checkbox
+                        value="Reformat"
+                        checked={viewItem && viewItem.Services.includes('Reformat')}
+                        disabled
+                      />
+                      Reformat
+                      <br />
+                      <Checkbox
+                        value="Repair"
+                        checked={viewItem && viewItem.Services.includes('Repair')}
+                        disabled
+                      />
+                      Repair
+                      <br />
+                      <div style={{ marginLeft: '42px' }}>
+                        Others:
+                        <input type="text" value={viewItem ? viewItem.otherServices : ''} disabled />
+                      </div>
+                    </fieldset>
+                  </Grid>
 
                     <Grid item xs={8} spacing={1}>
                       <Grid>
@@ -1711,6 +1778,23 @@ const handleViewClose = () => {
                         <br/>
                       </Grid>
                       <Grid>
+                      <Typography variant="subtitle1">Remarks:</Typography>
+                            <TextField
+                              type="text"
+                              name="Remarks"
+                              variant="outlined"
+                              placeholder="Remarks"
+                              multiline
+                              value={viewItem ? viewItem.Remarks : ''}
+                              disabled
+                              // minRows={5}
+                              fullWidth
+                              // maxRows={80}
+                              // marginBottom="10px"
+                            />
+                            <br />
+                         
+                        
                       <Typography variant="subtitle1">File:</Typography>
                     {viewItem && viewItem.fileURL ? (
                       <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
