@@ -302,7 +302,6 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
-      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',

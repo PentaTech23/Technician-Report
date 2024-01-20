@@ -320,7 +320,6 @@ useEffect(() => {
     e.preventDefault();
   
     const {
-      ControlNum,
       Date,
       FullName,
       LocationRoom,
@@ -339,7 +338,6 @@ useEffect(() => {
       const docRef = doc(InspectionCollectionRef, documentName);
   
       const docData = {
-        ControlNum,
         Date,
         FullName,
         LocationRoom,
@@ -349,6 +347,8 @@ useEffect(() => {
         inputField, // Add the dynamic input fields here
         archived: false,
         originalLocation: 'INSPECTION-REPORT',
+        uid: user?.uid || '',
+        status: "PENDING (Technician)",
       };
   
       await setDoc(docRef, docData);
@@ -416,7 +416,6 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
-      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
@@ -727,9 +726,24 @@ const handleConfirmDeleteAll = async () => {
 const [viewItem, setViewItem] = useState(null);
 const [viewOpen, setViewOpen] = useState(false);
 
-const handleViewOpen = (item) => {
-  setViewItem(item);
-  setViewOpen(true);
+const handleViewOpen = (data) => {
+  if (data && data.id) {
+    // Populate the form fields with existing data
+    setFormData({
+      ...formData,
+      Date: data.Date || '',
+      FullName: data.FullName || '',
+      LocationRoom: data.LocationRoom || '',
+      inputField: data.inputField || '',
+      InspectedBy: data.InspectedBy || '',
+      Notedby: data.Notedby || '',
+      fileURL: data.fileURL || '',
+      id: data.id, // Set the document ID here
+    });
+    setViewItem(data);
+    setViewOpen(true);
+    handleMenuClose();
+  }
 };
 
 const handleViewClose = () => {
@@ -1973,7 +1987,7 @@ const handleViewClose = () => {
                   marginTop: '10px',
                 }}
               >
-                INSPECTION REPORT
+                INSPECTION REPORT (View)
               </Typography>
               <DialogContent>
             <form onSubmit={handleEditSubmit}>
@@ -2105,7 +2119,7 @@ const handleViewClose = () => {
                   </Grid> */}
                 </Grid>
 
-                {formData.inputField.map((input, index) => (
+                {viewItem && viewItem.inputField.map((input, index) => (
                   <div key={index}>
                     <Grid container spacing={1} columns={12} direction="row" justifyContent="space-between">
                       {/* First Column */}
@@ -2119,8 +2133,9 @@ const handleViewClose = () => {
                           variant="outlined"
                           size="small"
                           value={
-                            viewItem ? viewItem.inputField[index]?.Issue : input?.Issue // Use optional chaining to handle potential undefined values
-                          }
+                            editData
+                          ? editData.inputField[index]?.Issue
+                          : input?.Issue }
                           disabled
                         />
                       </Grid>
@@ -2134,9 +2149,12 @@ const handleViewClose = () => {
                           fullWidth
                           variant="outlined"
                           size="small"
-                          value={viewItem ? viewItem.inputField[index]?.Description : input?.Description}
+                          value={
+                            editData 
+                          ? editData.inputField[index]?.Description 
+                          : input?.Description}
                           disabled
-                          onChange={(event) => handleEditChangeInput(index, event, 'Description')}
+                          
                         />
                         {/* Content for the second column */}
                       </Grid>
@@ -2151,10 +2169,11 @@ const handleViewClose = () => {
                           variant="outlined"
                           size="small"
                           value={
-                            viewItem ? viewItem.inputField[index]?.ActionTakenSolution : input?.ActionTakenSolution
-                          }
+                            editData 
+                          ? editData.inputField[index]?.ActionTakenSolution 
+                          : input?.ActionTakenSolution}
                           disabled
-                          onChange={(event) => handleEditChangeInput(index, event, 'ActionTakenSolution')}
+                          
                         />
                         {/* Content for the third column */}
                       </Grid>
@@ -2168,9 +2187,12 @@ const handleViewClose = () => {
                           multiline
                           fullWidth
                           size="small"
-                          value={viewItem ? viewItem.inputField[index]?.Recommendation : input?.Recommendation}
+                          value={
+                            editData 
+                          ? editData.inputField[index]?.Recommendation 
+                          : input?.Recommendation}
                           disabled
-                          onChange={(event) => handleEditChangeInput(index, event, 'Recommendation')}
+                         
                         />
                         {/* Content for the fourth column */}
                       </Grid>
