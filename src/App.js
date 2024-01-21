@@ -51,8 +51,7 @@ export default function App() {
             <ScrollToTop />
             <StyledChart />
             {/* Show the Navbar (Nav) here */}
-            {isAuthenticated && <Nav isFaculty={isFaculty} />}
-            <div style={{ paddingTop: '20px', paddingLeft: '20px', paddingRight: '20px' }}>
+           
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpComponent />} />
@@ -80,7 +79,7 @@ export default function App() {
                 />
               )}
             </Routes>
-            </div>
+            
           </ThemeProvider>
         </BrowserRouter>
       </HelmetProvider>

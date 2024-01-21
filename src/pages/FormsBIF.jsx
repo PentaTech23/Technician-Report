@@ -228,7 +228,7 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
     const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
@@ -438,7 +438,7 @@ const handleConfirmDelete = async () => {
       // Find the highest number and increment it by 1
       let nextNumber = 0;
       existingDocumentNames.forEach((docName) => {
-        const match = docName.match(/^SRF-(\d+)$/);
+        const match = docName.match(/^BIF-(\d+)$/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (!Number.isNaN(num) && num >= nextNumber) {
@@ -448,7 +448,7 @@ const handleConfirmDelete = async () => {
       });
 
       // Generate the new document name
-      const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+      const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);

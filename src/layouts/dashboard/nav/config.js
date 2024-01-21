@@ -42,17 +42,22 @@ const navConfig = [
     icon: icon('profiling'),
     children: [
       {
-        title: 'Condemned Items',
-        path: '/dashboard/profiling_ci', // Replace with the actual path
-      },
-      {
         title: 'Memorandum of Receipts',
         path: '/dashboard/profiling_mr', // Replace with the actual path
+      },
+      {
+        title: 'Property Transfer Report',
+        path: '/dashboard/reports_ptr',
+      },
+      {
+        title: 'Condemned Items',
+        path: '/dashboard/profiling_ci', // Replace with the actual path
       },
       {
         title: 'Profiling Report',
         path: '/dashboard/ProfilingReport', // Replace with the actual path
       },
+      
     ],
   },
   //               REPORTS
@@ -61,15 +66,7 @@ const navConfig = [
     path: '/dashboard/reports',
     icon: icon('report'),
     children: [
-      {
-        title: 'Property Transfer Report',
-        path: '/dashboard/reports_ptr',
-      },
-
-      {
-        title: 'Inventory Transfer Report',
-        path: '/dashboard/reports_itr',
-      },
+      
 
       {
         title: 'Monthly Assessment Report & Inventory Laboratory Form',
@@ -130,29 +127,16 @@ const navConfigFaculty = [
     icon: icon('profiling'),
     children: [
       {
-        title: 'Condemned Items',
-        path: '/dashboard/profiling_ci', // Replace with the actual path
-      },
-      {
         title: 'Memorandum of Receipts',
         path: '/dashboard/profiling_mr', // Replace with the actual path
       },
-    ],
-  },
-  //               REPORTS
-  {
-    title: 'Reports',
-    path: '/dashboard/reports',
-    icon: icon('report'),
-    children: [
       {
         title: 'Property Transfer Report',
         path: '/dashboard/reports_ptr',
       },
-      
       {
-        title: 'Monthly Assessment Report & Inventory Laboratory Form',
-        path: '/dashboard/reports_marilf',
+        title: 'Condemned Items',
+        path: '/dashboard/profiling_ci', // Replace with the actual path
       },
     ],
   },
@@ -162,11 +146,7 @@ const navConfigFaculty = [
     path: '/dashboard/archives',
     icon: icon('archives'),
   },
-  {
-    title: 'Users',
-    path: '/dashboard/user',
-    icon: icon('userxd'),
-  },
+ 
   // {
   //   title: 'Error',
   //   path: '/404',
