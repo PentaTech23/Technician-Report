@@ -68,9 +68,9 @@ import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } fro
 // mock
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, MemorandumCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
-
 import USERLIST from '../_mock/user';
 
+const firestore = getFirestore(firebaseApp);
 // ----------------------------------------------------------------------
 
 // const firebaseConfig = {

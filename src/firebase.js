@@ -30,13 +30,15 @@ const formsDocRef = doc(mainCollectionRef, "FORMS");
 const profilingDocRef = doc(mainCollectionRef, "PROFILING");
 const reportDocRef = doc(mainCollectionRef, "REPORTS");
 
-// Add to subcollection 
+// Forms Sub-Collection
 const BorrowersCollectionRef = collection(formsDocRef, "ITEM-BORROWERS");
 const RequestCollectionRef = collection(formsDocRef, "ITEM-REQUEST");
 const ServiceCollectionRef = collection(formsDocRef, "SERVICE-REQUEST");
 const InspectionCollectionRef = collection(formsDocRef, "INSPECTION-REPORT-FORM");
+// Profiling Sub-Collection
 const MemorandumCollectionRef = collection(profilingDocRef, 'MEMORANDUM-OF-RECEIPTS');
 const CondemnedCollectionRef = collection(profilingDocRef, 'CONDEMNED-ITEMS');
+// Reports Sub-Collection
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");

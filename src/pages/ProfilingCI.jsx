@@ -86,7 +86,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 // Access main collection
-const mainCollectionRef = collection(db, 'WP4-TECHNICIAN-DMS');
+const mainCollectionRef = collection(db, 'WP4-TESTING-AREA');
 
 // Access FORMS document under main collection
 const formsDocRef = doc(mainCollectionRef, 'PROFILING');
