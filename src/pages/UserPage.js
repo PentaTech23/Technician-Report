@@ -1,8 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useTable } from 'react-table';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+
 // @mui
 import {
   Card,
@@ -34,19 +37,24 @@ import {
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import { db } from '../firebase'; // Adjust the path as needed
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
+// import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
+
+
+
+
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'username', label: 'Name', alignRight: false },
+  { id: 'email', label: 'Email', alignRight: false },
+  { id: 'userType', label: 'Role', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
+  // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -76,12 +84,47 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return array.filter((_user) => _user.name && _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    // return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
 export default function UserPage() {
+
+
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const db = getFirestore();
+      const myCollection = collection(db, 'WP4-pendingUsers'); // Replace 'your-collection' with your actual collection name
+
+      const querySnapshot = await getDocs(myCollection);
+      const newData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      setData(newData);
+    };
+
+    fetchData();
+  }, []);
+
+  const getStatusColor = (status) => {
+    if (status === 'registered') {
+      return 'success'; // Green color for 'approved'
+    }
+    if (status === 'pending') {
+      return 'warning'; // Orange color for 'pending'
+    }
+    if (status === 'REJECTED') {
+      return 'error'; // Red color for 'reject'
+    }
+    return 'info'; // Default color for other status values
+  };
+  
+
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -90,7 +133,7 @@ export default function UserPage() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('username');
 
   const [filterName, setFilterName] = useState('');
 
@@ -112,18 +155,18 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, username) => {
+    const selectedIndex = selected.indexOf(username);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, username);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -148,11 +191,11 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
-  // const [open, setOpen] = useState(false);
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+
+  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
@@ -278,7 +321,7 @@ export default function UserPage() {
                         // onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
                         // sx={{ width: '100%', marginBottom: '10px' }}
                       >
-                        <MenuItem value={"Dean"}>Dean</MenuItem>
+                        <MenuItem value={"Faculty"}>Dean</MenuItem>
                         <MenuItem value={"Technician"}>Technician</MenuItem>
                         {/* <MenuItem value={30}>Thirty</MenuItem> */}
                       </Select>
@@ -323,39 +366,39 @@ export default function UserPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
+                  {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { id, username, userType, status, email, avatarUrl } = row;
+                    const selectedUser = selected.indexOf(username) !== -1;
 
                     return (
                       <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, username)} />
                         </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
+                            <Avatar alt={username} src={avatarUrl} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {username}
                             </Typography>
                           </Stack>
                         </TableCell>
                         
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{email}</TableCell>
 
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align="left">{userType}</TableCell>
 
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
 
                         <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                        <Label color={getStatusColor(status)}>{(status)}</Label>
                         </TableCell>
 
                         <TableCell align="right">
@@ -403,7 +446,7 @@ export default function UserPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={data.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -412,7 +455,7 @@ export default function UserPage() {
         </Card>
       </Container>
 
-      {/* <Popover
+      <Popover
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleCloseMenu}
@@ -439,7 +482,7 @@ export default function UserPage() {
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
-      </Popover> */}
+      </Popover>
     </>
   );
 }

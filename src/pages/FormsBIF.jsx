@@ -1,25 +1,258 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+// import firebase from 'firebase/app';
 import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { initializeApp } from 'firebase/app';
+
+
+
 import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
         FormControl, InputLabel } from '@mui/material';
+        
         import jsPDF from 'jspdf';
+        
 import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
+import Label from '../components/label';
+
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
+import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
 
+const firebaseConfig  = {
+  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
+  authDomain: "wp4-technician-dms.firebaseapp.com",
+  projectId: "wp4-technician-dms",
+  storageBucket: "wp4-technician-dms.appspot.com",
+  messagingSenderId: "1065436189229",
+  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
+}
 
+const firebaseApp = initializeApp(firebaseConfig);
+const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
+
+  const [status, setStatus] = useState('initialStatus');
+  const [documentId, setDocumentId] = useState(null);
+
+  // useEffect(() => {
+  //   const fetchDocumentId = async () => {
+  //     try {
+  //       // Reference to the subcollection "ITEM-BORROWERS" within "WP4-TESTING-AREA"
+  //       const subcollectionRef = collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS');
+  //       const querySnapshot = await getDocs(subcollectionRef);
+
+  //       // Check if there are any documents in the subcollection
+  //       if (querySnapshot.size === 0) {
+  //         console.error('No documents found in the subcollection.');
+  //         return;
+  //       }
+
+  //       // Assuming there is only one document in the subcollection
+  //       const firstDocument = querySnapshot.docs[0];
+  //       setDocumentId(firstDocument.id);
+  //       console.log('Document ID:', firstDocument.id);
+  //     } catch (error) {
+  //       console.error('Error fetching document ID:', error);
+  //     }
+  //   };
+
+  //   fetchDocumentId();
+  // }, [firestore]);
+  const [documentIds, setDocumentIds] = useState([]);
+
+  useEffect(() => {
+    const fetchDocumentIds = async () => {
+      try {
+        // Reference to the subcollection "ITEM-BORROWERS" within "WP4-TESTING-AREA"
+        const subcollectionRef = collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS');
+        const querySnapshot = await getDocs(subcollectionRef);
+  
+        // Check if there are any documents in the subcollection
+        if (querySnapshot.size === 0) {
+          console.error('No documents found in the subcollection.');
+          return;
+        }
+  
+        // Extract all document IDs from the querySnapshot
+        const documentIds = querySnapshot.docs.map(doc => doc.id);
+  
+        // Set the document IDs state
+        setDocumentIds(documentIds);
+        console.log('Document IDs:', documentIds);
+      } catch (error) {
+        console.error('Error fetching document IDs:', error);
+      }
+    };
+  
+    fetchDocumentIds();
+  }, [firestore]);
+
+
+  // useEffect(() => {
+  //   const fetchDocumentId = async () => {
+  //     try {
+  //       // Reference to the subcollection "ITEM-BORROWERS" within "WP4-TESTING-AREA"
+  //       const subcollectionRef = collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS');
+  //       const querySnapshot = await getDocs(subcollectionRef);
+  
+  //       // Check if there are any documents in the subcollection
+  //       if (querySnapshot.size === 0) {
+  //         console.error('No documents found in the subcollection.');
+  //         return;
+  //       }
+  
+  //       // Find the document with a specific condition (e.g., where status is 'someValue')
+  //       const specificDocument = querySnapshot.docs.find(doc => doc.data().status === 'someValue');
+  
+  //       if (!specificDocument) {
+  //         console.error('No document found with the specified condition.');
+  //         return;
+  //       }
+  
+  //       // Set the document ID state
+  //       setDocumentId(specificDocument.id);
+  //       console.log('Document ID:', specificDocument.id);
+  //     } catch (error) {
+  //       console.error('Error fetching document ID:', error);
+  //     }
+  //   };
+  
+  //   fetchDocumentId();
+  // }, [firestore]);
+
+  // const updateStatusInFirebase = async () => {
+  //   try {
+  //     if (!documentId) {
+  //       console.error('Document ID is null. Cannot update status.');
+  //       return;
+  //     }
+  
+  //     // Reference to the specific document within the subcollection
+  //     const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+  
+  //     // Update the status field with the new value
+  //     await updateDoc(statusRef, { status: 'PENDING (Dean)' });
+  
+  //     console.log('Status updated successfully!');
+  //     setStatus('PENDING (Dean)'); // Update local state if needed
+  //   } catch (error) {
+  //     console.error('Error updating status:', error);
+  //   }
+  // };
+  const updateStatusInFirebase = async () => {
+    try {
+      if (documentIds.length === 0) {
+        console.error('No document IDs to update.');
+        return;
+      }
+  
+      // Update each document in the subcollection
+      const updatePromises = documentIds.map(async (documentId) => {
+        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+        await updateDoc(statusRef, { status: 'PENDING (Dean)' });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log('Status updated successfully!');
+      setStatus('PENDING (Dean)'); // Update local state if needed
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const updateStatusInFirebaseReject = async () => {
+    try {
+      if (documentIds.length === 0) {
+        console.error('No document IDs to update.');
+        return;
+      }
+  
+      // Update each document in the subcollection
+      const updatePromises = documentIds.map(async (documentId) => {
+        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+        await updateDoc(statusRef, { status: 'REJECTED' });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log('Status updated successfully!');
+      setStatus('REJECTED'); // Update local state if needed
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const updateStatusInFirebaseDean = async () => {
+    try {
+      if (documentIds.length === 0) {
+        console.error('No document IDs to update.');
+        return;
+      }
+  
+      // Update each document in the subcollection
+      const updatePromises = documentIds.map(async (documentId) => {
+        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+        await updateDoc(statusRef, { status: 'APPROVED' });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log('Status updated successfully!');
+      setStatus('APPROVED'); // Update local state if needed
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+
+
+
+
+
+  // const [status, setStatus] = useState('initialStatus');
+  // const [documentId, setDocumentId] = useState(null);
+
+  // useEffect(() => {
+  //   // Reference to the Firestore collection
+  //   const collectionRef = firebase.firestore().collection('yourCollection');
+
+  //   // Get documents from the collection
+  //   collectionRef.get().then((querySnapshot) => {
+  //     querySnapshot.forEach((doc) => {
+  //       // Assuming there is only one document in the collection
+  //       setDocumentId(doc.id);
+  //     });
+  //   });
+  // }, []);
+
+  // const updateStatusInFirebase = () => {
+  //   const firestore = firebase.firestore();
+  //   const statusRef = firestore.collection('mainCollectionRef').doc(documentId);
+
+  //   // Update the status field with a new value
+  //   statusRef.update({ status: 'PENDING (Dean)' })
+  //     .then(() => {
+  //       console.log('Status updated successfully!');
+  //       setStatus('PENDING (Dean)'); // Update local state if needed
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error updating status:', error);
+  //     });
+  // };
+
 
   const exportToPDF = (viewItem) => {
     // eslint-disable-next-line new-cap
@@ -228,7 +461,7 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
     const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
@@ -438,7 +671,7 @@ const handleConfirmDelete = async () => {
       // Find the highest number and increment it by 1
       let nextNumber = 0;
       existingDocumentNames.forEach((docName) => {
-        const match = docName.match(/^BIF-(\d+)$/);
+        const match = docName.match(/^SRF-(\d+)$/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (!Number.isNaN(num) && num >= nextNumber) {
@@ -448,7 +681,7 @@ const handleConfirmDelete = async () => {
       });
 
       // Generate the new document name
-      const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
+      const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
@@ -684,20 +917,50 @@ const handleViewClose = () => {
       setOpenFilter(false);
     };
 
+
+    // const getStatusColor = (status) => {
+    //   switch (status) {
+    //     case 'PENDING (Technician)':
+    //       return 'orange';
+    //       case 'PENDING (Dean)':
+    //         return 'blue';
+    //     case 'APPROVED':
+    //       return 'success';
+    //     case 'REJECTED':
+    //       return 'banned';
+    //     default:
+    //       return 'red'; // Default color if status doesn't match any case
+    //   }
+    // };
+
+    // const getStatusColor = (status) => {
+    //   if (status === 'APPROVED') {
+    //     return 'success'; // Green color for 'approved'
+    //   } else if (status === 'PENDING (Dean)') {
+    //     return 'warning'; // Orange color for 'pending'
+    //   } else if (status === 'REJECTED') {
+    //     return 'error'; // Red color for 'reject'
+    //   } else {
+    //     return 'info'; // Default color for other status values
+    //   }
+    // };
+
     const getStatusColor = (status) => {
-      switch (status) {
-        case 'PENDING (Technician)':
-          return 'orange';
-          case 'PENDING (Dean)':
-            return 'orange';
-        case 'APPROVED':
-          return 'green';
-        case 'REJECTED':
-          return 'red';
-        default:
-          return 'black'; // Default color if status doesn't match any case
+      if (status === 'APPROVED') {
+        return 'success'; // Green color for 'approved'
       }
+      if (status === 'PENDING (Dean)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'PENDING (Technician)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'REJECTED') {
+        return 'error'; // Red color for 'reject'
+      }
+      return 'info'; // Default color for other status values
     };
+    
     
 
 
@@ -984,7 +1247,9 @@ const handleViewClose = () => {
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Borrower}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                  <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                  <TableCell >
+                    <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                  </TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       <Link to={item.fileURL} target="_blank" download>
@@ -1182,14 +1447,16 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: 'white', backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell >
+                  <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                </TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
-                      <CheckIcon />
+                      <CheckIcon onClick={updateStatusInFirebase} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
+                      <CloseIcon onClick={updateStatusInFirebaseReject}/>
                     </IconButton>
                   </div>
                 </TableCell>
@@ -1389,14 +1656,17 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                {/* <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell> */}
+                <TableCell >
+                  <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                </TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
-                      <CheckIcon />
+                      <CheckIcon onClick={updateStatusInFirebaseDean} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon />
+                      <CloseIcon onClick={updateStatusInFirebaseReject} />
                     </IconButton>
                   </div>
                 </TableCell>
