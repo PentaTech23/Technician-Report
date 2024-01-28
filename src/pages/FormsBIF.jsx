@@ -14,12 +14,15 @@ import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
         FormControl, InputLabel } from '@mui/material';
+        
         import jsPDF from 'jspdf';
+        
 import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../components/iconify';
+import Label from '../components/label';
 
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products'
 import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../firebase';
@@ -914,20 +917,50 @@ const handleViewClose = () => {
       setOpenFilter(false);
     };
 
+
+    // const getStatusColor = (status) => {
+    //   switch (status) {
+    //     case 'PENDING (Technician)':
+    //       return 'orange';
+    //       case 'PENDING (Dean)':
+    //         return 'blue';
+    //     case 'APPROVED':
+    //       return 'success';
+    //     case 'REJECTED':
+    //       return 'banned';
+    //     default:
+    //       return 'red'; // Default color if status doesn't match any case
+    //   }
+    // };
+
+    // const getStatusColor = (status) => {
+    //   if (status === 'APPROVED') {
+    //     return 'success'; // Green color for 'approved'
+    //   } else if (status === 'PENDING (Dean)') {
+    //     return 'warning'; // Orange color for 'pending'
+    //   } else if (status === 'REJECTED') {
+    //     return 'error'; // Red color for 'reject'
+    //   } else {
+    //     return 'info'; // Default color for other status values
+    //   }
+    // };
+
     const getStatusColor = (status) => {
-      switch (status) {
-        case 'PENDING (Technician)':
-          return 'orange';
-          case 'PENDING (Dean)':
-            return 'blue';
-        case 'APPROVED':
-          return 'green';
-        case 'REJECTED':
-          return 'red';
-        default:
-          return 'black'; // Default color if status doesn't match any case
+      if (status === 'APPROVED') {
+        return 'success'; // Green color for 'approved'
       }
+      if (status === 'PENDING (Dean)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'PENDING (Technician)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'REJECTED') {
+        return 'error'; // Red color for 'reject'
+      }
+      return 'info'; // Default color for other status values
     };
+    
     
 
 
@@ -1214,7 +1247,9 @@ const handleViewClose = () => {
                   <TableCell>{item.LocationRoom}</TableCell>
                   <TableCell>{item.Borrower}</TableCell>
                   <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                  <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                  <TableCell >
+                    <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                  </TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       <Link to={item.fileURL} target="_blank" download>
@@ -1412,7 +1447,9 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                <TableCell >
+                  <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                </TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
@@ -1619,7 +1656,10 @@ const handleViewClose = () => {
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell>
+                {/* <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell> */}
+                <TableCell >
+                  <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                </TableCell>
                 <TableCell>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
