@@ -1,10 +1,9 @@
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { useTable } from 'react-table';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
 // @mui
 import {
@@ -32,7 +31,12 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  InputAdornment,
 } from '@mui/material';
+
+import {Visibility, VisibilityOff} from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import { LoadingButton } from '@mui/lab';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -45,9 +49,18 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 
 // ----------------------------------------------------------------------
 
+const firebaseConfig = {
+  apiKey: 'AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc',
+  authDomain: 'wp4-technician-dms.firebaseapp.com',
+  projectId: 'wp4-technician-dms',
+  storageBucket: 'wp4-technician-dms.appspot.com',
+  messagingSenderId: '1065436189229',
+  appId: '1:1065436189229:web:88094d3d71b15a0ab29ea4',
+};
 
+const app = initializeApp(firebaseConfig);
 
-
+const auth = getAuth(app);
 
 const TABLE_HEAD = [
   { id: 'username', label: 'Name', alignRight: false },
@@ -91,8 +104,6 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
-
-
 
   const [data, setData] = useState([]);
 
@@ -216,8 +227,61 @@ export default function UserPage() {
   //   navigate('/dashboard', { replace: true });
   // };
 
+  // Password Textfield code here
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
  
+  // Account Creation code here!
   
+  const [username, setUsername] = useState('');
+  const [userType, setUserType] = useState('');
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      const email = document.getElementById('email');
+      const password = document.getElementById('password');
+
+      // Check if the email matches the desired format
+      const emailRegex = /^[a-zA-Z0-9._-]+@bulsu\.edu\.ph$/;
+      if (!emailRegex.test(email.value)) {
+        alert('Please use a valid email address.');
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+        const user = userCredential.user;
+
+        // Send email verification
+        await sendEmailVerification(user);
+
+        // Store user data in the "WP4-pendingUsers" collection in Firestore
+        const db = getFirestore(app);
+        const pendingUsersCollection = collection(db, 'WP4-pendingUsers');
+
+        await addDoc(pendingUsersCollection, {
+          username,
+          email: email.value,
+          userType,
+          status: 'pending',
+          timestamp: new Date(),
+          uid: user.uid,
+        });
+
+        // Show a message to the user that they need to check their email for verification
+        alert('Please check your email for verification.');
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        alert(error.message);
+      }
+    },
+    [username, userType]
+  );
 
   return (
     <>
@@ -262,73 +326,65 @@ export default function UserPage() {
                     justifyContent="space-between"
                     alignItems="center"
                   >
-                    <Grid item xs={8}>
-                      <TextField
-                        type="text"
-                        name="Full Name"
-                        variant="outlined"
-                        label="Full Name"
-                        // value={formData.ControlNum || ''}
-                        fullWidth
-                        // onChange={(e) => setFormData({ ...formData, ControlNum: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
 
-                    <Grid item xs={8}>
+                    <Grid item xs={16}>
                       <TextField
+                        id="username"
                         type="text"
                         name="username"
-                        label="Username"
+                        label="User Name"
                         fullWidth
-                        // value={formData.Date || ''}
-                        // onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    
                       />
                     </Grid>
 
                     <Grid item xs={16}>
                       <TextField
+                        id="email"
                         type="text"
                         name="email"
                         label="Email Address"
                         fullWidth
                         variant="outlined"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         
-                        // value={formData.FullName || ''}
-                        // onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
+                      
                       />
                     </Grid>
 
                     <Grid item xs={16}>
-                      <TextField
-                        type="text"
-                        name="password"
-                        label="Password"
-                        fullWidth
-                        // value={formData.Requisitioner || ''}
-                        // onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
-                      />
+                    <TextField
+                    id="password"
+                    label="Password"
+                    placeholder="Password"
+                    fullWidth
+                    type={showPassword ? 'text' : 'password'}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                            <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
                     </Grid>
 
                     <Grid item xs={8}>
                     <Typography variant="h6" style={{ color: '#ff5500' }}>
                       Account Type
                     </Typography>
-                    <Select
-                        type="text"
-                        name="password"
-                        fullWidth
-                        defaultValue={"Select"}
-                        // value={formData.Requisitioner || ''}
-                        // onChange={(e) => setFormData({ ...formData, Requisitioner: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
-                      >
-                        <MenuItem value={"Faculty"}>Dean</MenuItem>
-                        <MenuItem value={"Technician"}>Technician</MenuItem>
-                        {/* <MenuItem value={30}>Thirty</MenuItem> */}
+                    <Select id="userType" value={userType}
+                            onChange={(e) => setUserType(e.target.value)} 
+                            fullWidth>
+                        <MenuItem disabled value="">Select Role</MenuItem>
+                        <MenuItem value={"faculty"}>Faculty</MenuItem>
+                        <MenuItem value={"technician"}>Technician</MenuItem>
+                     
                       </Select>
                     </Grid>
                     
@@ -342,13 +398,15 @@ export default function UserPage() {
                   <Button variant="contained"  sx={{ marginRight: '5px', marginLeft: '5px' }}>
                     Clear
                   </Button>
-                  <Button variant="contained" onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+                  <Button variant="contained"  onClick={handleClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
                     Cancel
                   </Button>
                   <Button
                     variant="contained"
-                    // onClick={handleSubmit}
-                    type="submit"
+                    onClick={handleSubmit}
+                    type="button"
+                    loading={isLoading}
+                    
                     sx={{ marginRight: '5px', marginLeft: '5px' }}
                   >
                     Create

@@ -135,10 +135,6 @@ const navConfigDean = [
         title: 'Condemned Items',
         path: '/dashboard/profiling_ci', // Replace with the actual path
       },
-      {
-        title: 'Profiling Report',
-        path: '/dashboard/ProfilingReport', // Replace with the actual path
-      },
       
     ],
   },
