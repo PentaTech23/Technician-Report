@@ -11,26 +11,27 @@ import BlogPage from './pages/BlogPage';
 
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-import Nav from './layouts/dashboard/nav'; // Import the Nav component
 //  Forms Section
 import Forms from './pages/Form';
 import FormsSRF from './pages/FormsSRF';
 import FormsBIF from './pages/FormsBIF';
 import FormsRIF from './pages/FormsRIF';
 import FormsIRF from './pages/FormsIRF';
+
 //  Profiling Section
 import Profiling from './pages/Profiling';
 import ProfilingMR from './pages/ProfilingMR';
 import ProfilingCI from './pages/ProfilingCI';
-import ProfilingReport from './pages/ProfilingReport';
-import InspectionReport from './pages/InspectionReport';
+import ReportsPTR from './pages/ReportsPTR';
+
 //  Reports Section
 import Reports from './pages/Report';
-import ReportsPTR from './pages/ReportsPTR';
-import ReportsITR from './pages/ReportsITR';
 import ReportsMARILF from './pages/ReportsMARILF';
-import RequestReport from './pages/RequestReport';
-import InventoryReport from './pages/InventoryReport';
+
+import DashbRequestReport from './pages/RequestReport';
+import DashbProfilingReport from './pages/ProfilingReport';
+import DashbInspectionReport from './pages/InspectionReport';
+import DashbInventoryReport from './pages/InventoryReport';
 //  Archives Section
 import Archives from './pages/Archive';
 //  Users Section
@@ -84,11 +85,11 @@ export function useAuth() {
 }
 
 // ----------------------------------------------------------------------
-export default function RoutesFaculty({ isFaculty }) {
+export default function RoutesDean({ isDean}) {
   const routes = useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout isFaculty={isFaculty} />,
+      element: <DashboardLayout isDean={isDean} />,
       children: [
         { element: <Navigate to="/dashboard/form" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
@@ -100,23 +101,24 @@ export default function RoutesFaculty({ isFaculty }) {
         { path: 'borrowers_item', element: <FormsBIF /> },
         { path: 'request_item', element: <FormsRIF /> },
         { path: 'inspection_report', element: <FormsIRF /> },
+        
         //  Profiling Section
         { path: 'profiling', element: <Profiling /> },
         { path: 'profiling_mr', element: <ProfilingMR /> },
         { path: 'profiling_ci', element: <ProfilingCI /> },
+        { path: 'reports_ptr', element: <ReportsPTR /> },
         //  Reports Section
         { path: 'reports', element: <Reports /> },
-        { path: 'reports_ptr', element: <ReportsPTR /> },
-        { path: 'reports_itr', element: <ReportsITR /> },
         { path: 'reports_marilf', element: <ReportsMARILF /> },
-        { path: 'request_report', element: <RequestReport /> },
+        { path: 'dashb_request_report', element: <DashbRequestReport /> },
+        { path: 'dashb_InspectionReport', element: <DashbInspectionReport />},
+        { path: 'dashb_inventory_report', element: <DashbInventoryReport /> },
+        { path: 'dashb_profiling_report', element: <DashbProfilingReport /> },
         //  Archives Section
         { path: 'archives', element: <Archives /> },
         //  User Section
         { path: 'user', element: <UserPage /> },
-        { path: 'inspection_report', element: <InspectionReport /> },
-        { path: 'inventory_report', element: <InventoryReport /> },
-        { path: 'profiling_report', element: <ProfilingReport /> },
+      
       ],
     },
 

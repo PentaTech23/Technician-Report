@@ -76,11 +76,11 @@ export function useAuth() {
 }
 
 // ----------------------------------------------------------------------
-export default function Router({ isFaculty }) {
+export default function Router({ isTechnician }) {
   const routes = useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout isFaculty={isFaculty} />,
+      element: <DashboardLayout isTechnician={isTechnician} />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },

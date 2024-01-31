@@ -127,6 +127,8 @@ export default function UserPage() {
 
   const [open, setOpen] = useState(null);
 
+  const [MenuOpen, setMenuOpen] = useState(null);
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -140,12 +142,21 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
+    setMenuOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setOpen(null);
+    setMenuOpen(null);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -205,13 +216,7 @@ export default function UserPage() {
   //   navigate('/dashboard', { replace: true });
   // };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
+ 
   
 
   return (
@@ -327,8 +332,6 @@ export default function UserPage() {
                       </Select>
                     </Grid>
                     
-
-                    
                   </Grid>
 
                   <br />
@@ -406,6 +409,7 @@ export default function UserPage() {
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                         </TableCell>
+
                       </TableRow>
                     );
                   })}
@@ -456,8 +460,8 @@ export default function UserPage() {
       </Container>
 
       <Popover
-        open={Boolean(open)}
-        anchorEl={open}
+        open={Boolean(MenuOpen)}
+        anchorEl={MenuOpen}
         onClose={handleCloseMenu}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}

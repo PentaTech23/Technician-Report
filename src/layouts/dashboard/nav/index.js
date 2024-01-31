@@ -14,7 +14,7 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 
 //
-import { navConfig, navConfigFaculty } from './config';
+import { navConfig, navConfigFaculty, navConfigDean } from './config';
 
 // ----------------------------------------------------------------------
 
@@ -32,12 +32,13 @@ const NAV_WIDTH = 280;
 
 Nav.propTypes = {
   isFaculty: PropTypes.bool, // Add prop type for isFaculty
+  isDean: PropTypes.bool,
   openNav: PropTypes.bool,
   onCloseNav: PropTypes.func,
   setOpenNav: PropTypes.func,
 };
 
-export default function Nav({ isFaculty, openNav, onCloseNav, setOpenNav }) {
+export default function Nav({ isFaculty, isDean, openNav, onCloseNav, setOpenNav }) {
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -62,7 +63,7 @@ export default function Nav({ isFaculty, openNav, onCloseNav, setOpenNav }) {
         <Logo />
       </Box>
 
-      <NavSection data={isFaculty ? navConfigFaculty : navConfig} />
+      <NavSection data={isFaculty ? navConfigFaculty : isDean ? navConfigDean : navConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>

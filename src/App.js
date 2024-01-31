@@ -20,11 +20,13 @@ import RequestReport from './pages/RequestReport';
 // ----------------------------------------------------------------------
 import SignUpComponent from './sections/auth/login/SignUp';
 import RoutesFaculty from './RoutesFaculty';
+import RoutesDean from './RoutesDean';
 import Nav from './layouts/dashboard/nav'; // Import the Nav component
 
 export default function App() {
   const { isAuthenticated, user } = useAuthState(); // Get the authentication state
   const [isFaculty, setIsFaculty] = useState(false);
+  const [isDean, setIsDean] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -36,6 +38,7 @@ export default function App() {
         if (!querySnapshot.empty) {
           const userData = querySnapshot.docs[0].data();
           setIsFaculty(userData.userType === 'faculty');
+          setIsDean(userData.userType === 'dean');
         }
       }
     };
@@ -55,18 +58,21 @@ export default function App() {
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpComponent />} />
-              <Route path="/dashboard/InspectionReport" element={<InspectionReport />} />
-              <Route path="/dashboard/ProfilingReport" element={<ProfilingReport />} />
-              <Route path="/dashboard/RequestReport" element={<RequestReport />} />
-              <Route path="/dashboard/InventoryReport" element={<InventoryReport />} />
               {/* Authenticated users can access additional routes */}
               {isAuthenticated && (
                 <Route
-                  path="/*"
-                  element={isFaculty ? <RoutesFaculty isFaculty={isFaculty} /> : <Router isFaculty={isFaculty} />}
-                />
+                path="/*"
+                element={
+                  isFaculty ? (
+                    <RoutesFaculty isFaculty={isFaculty} />
+                  ) : isDean ? (
+                    <RoutesDean isDean={isDean} />
+                  ) : (
+                    <Router isFaculty={isFaculty} />
+                  )
+                }
+              />
               )}
-
               {/* Redirect unauthenticated users to the login page for all unmatched paths */}
               {!isAuthenticated && (
                 <Route
@@ -86,3 +92,5 @@ export default function App() {
     </AuthContextProvider>
   );
 }
+
+
