@@ -7,34 +7,34 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
-import BlogPage from './pages/BlogPage';
+import BlogPage from './pages/OtherPages/BlogPage';
 
-import ProductsPage from './pages/ProductsPage';
-import DashboardAppPage from './pages/DashboardAppPage';
+import ProductsPage from './pages/OtherPages/ProductsPage';
+import DashboardAppPage from './pages/Dashboard/DashboardAppPage';
 import Nav from './layouts/dashboard/nav'; // Import the Nav component
 //  Forms Section
-import Forms from './pages/Form';
-import FormsSRF from './pages/FormsSRF';
-import FormsBIF from './pages/FormsBIF';
-import FormsRIF from './pages/FormsRIF';
-import FormsIRF from './pages/FormsIRF';
+import Forms from './pages/Dashboard/Form';
+import FormsSRF from './pages/Forms/FormsSRF';
+import FormsBIF from './pages/Forms/FormsBIF';
+import FormsRIF from './pages/Forms/FormsRIF';
+import FormsIRF from './pages/Forms/FormsIRF';
 //  Profiling Section
-import Profiling from './pages/Profiling';
-import ProfilingMR from './pages/ProfilingMR';
-import ProfilingCI from './pages/ProfilingCI';
-import ProfilingReport from './pages/ProfilingReport';
-import InspectionReport from './pages/InspectionReport';
+import Profiling from './pages/Dashboard/Profiling';
+import ProfilingMR from './pages/Profiling/ProfilingMR';
+import ProfilingCI from './pages/Profiling/ProfilingCI';
+import ProfilingReport from './pages/Dashboard/ProfilingReport';
+import InspectionReport from './pages/Dashboard/InspectionReport';
 //  Reports Section
-import Reports from './pages/Report';
-import ReportsPTR from './pages/ReportsPTR';
-import ReportsITR from './pages/ReportsITR';
-import ReportsMARILF from './pages/ReportsMARILF';
-import RequestReport from './pages/RequestReport';
-import InventoryReport from './pages/InventoryReport';
+import Reports from './pages/Dashboard/Report';
+import ReportsPTR from './pages/Profiling/ProfilingPTR';
+import ReportsITR from './pages/Reports/ReportsITR';
+import ReportsMARILF from './pages/OtherPages/ReportsMARILF';
+import RequestReport from './pages/Dashboard/RequestReport';
+import InventoryReport from './pages/Dashboard/InventoryReport';
 //  Archives Section
-import Archives from './pages/Archive';
+import Archives from './pages/Archives/Archive';
 //  Users Section
-import UserPage from './pages/UserPage';
+import UserPage from './pages/UsersPage/UserPage';
 
 // ----------------------------------------------------------------------
 
@@ -107,16 +107,9 @@ export default function RoutesFaculty({ isFaculty }) {
         //  Reports Section
         { path: 'reports', element: <Reports /> },
         { path: 'reports_ptr', element: <ReportsPTR /> },
-        { path: 'reports_itr', element: <ReportsITR /> },
         { path: 'reports_marilf', element: <ReportsMARILF /> },
-        { path: 'request_report', element: <RequestReport /> },
         //  Archives Section
         { path: 'archives', element: <Archives /> },
-        //  User Section
-        { path: 'user', element: <UserPage /> },
-        { path: 'inspection_report', element: <InspectionReport /> },
-        { path: 'inventory_report', element: <InventoryReport /> },
-        { path: 'profiling_report', element: <ProfilingReport /> },
       ],
     },
 

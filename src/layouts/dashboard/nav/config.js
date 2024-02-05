@@ -4,7 +4,7 @@ import SvgColor from '../../../components/svg-color';
 
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
-// This is the navConfig for Technician and Dean primarily! :/ 
+// This is the navConfig for Technician 
 const navConfig = [
   {
     title: 'dashboard',
@@ -68,7 +68,27 @@ const navConfig = [
         title: 'Monthly Assessment Report & Inventory Laboratory Form',
         path: '/dashboard/reports_marilf',
       },
-     
+       
+      { 
+        title: 'Inspection Report',
+        path: '/dashboard/dashb_InspectionReport'
+      },
+
+      {
+        title: 'Request Report',
+        path: '/dashboard/dashb_request_report',
+      },
+
+      {
+        title: 'Inventory Report',
+        path: '/dashboard/dashb_inventory_report', 
+        },
+
+      {
+        title: 'Profiling Report',
+        path: '/dashboard/dashb_profiling_report', 
+      },
+
     ],
   },
 

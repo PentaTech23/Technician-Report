@@ -6,7 +6,7 @@ import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover 
 // mocks_
 import { getAuth, signOut }  from 'firebase/auth' 
 import account from '../../../_mock/account';
-import Login from '../../../pages/LoginPage';
+import Login from '../../../pages/Login-Signup/LoginPage';
 
 import { useAuthState } from '../../../firebase'
 // ----------------------------------------------------------------------

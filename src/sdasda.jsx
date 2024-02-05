@@ -4,32 +4,32 @@ import PrivateRoute from './PrivateRoute'; // Adjust the path as needed
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
-import BlogPage from './pages/BlogPage';
+import BlogPage from './pages/OtherPages/BlogPage';
 
-import LoginPage from './pages/LoginPage';
-import Page404 from './pages/Page404';
-import ProductsPage from './pages/ProductsPage';
-import DashboardAppPage from './pages/DashboardAppPage';
+import LoginPage from './pages/Login-Signup/LoginPage';
+import Page404 from './pages/OtherPages/Page404';
+import ProductsPage from './pages/OtherPages/ProductsPage';
+import DashboardAppPage from './pages/Dashboard/DashboardAppPage';
 //  Forms Section
-import Forms from './pages/Form';
-    import FormsSRF from './pages/FormsSRF';
-    import FormsBIF from './pages/FormsBIF';
-    import FormsRIF from './pages/FormsRIF';
-    import FormsIRF from './pages/FormsIRF';
+import Forms from './pages/Dashboard/Form';
+    import FormsSRF from './pages/Forms/FormsSRF';
+    import FormsBIF from './pages/Forms/FormsBIF';
+    import FormsRIF from './pages/Forms/FormsRIF';
+    import FormsIRF from './pages/Forms/FormsIRF';
 //  Profiling Section
-import Profiling from './pages/Profiling';
-    import ProfilingMR from './pages/ProfilingMR';
-    import ProfilingCI from './pages/ProfilingCI';
+import Profiling from './pages/Dashboard/Profiling';
+    import ProfilingMR from './pages/Profiling/ProfilingMR';
+    import ProfilingCI from './pages/Profiling/ProfilingCI';
 //  Reports Section
-import Reports from './pages/Report';
-    import ReportsPTR from './pages/ReportsPTR';
-    import ReportsITR from './pages/ReportsPTR';
-    import ReportsMAR from './pages/ReportsMARILF';
+import Reports from './pages/Dashboard/Report';
+    import ReportsPTR from './pages/Profiling/ProfilingPTR';
+    import ReportsITR from './pages/Profiling/ProfilingPTR';
+    import ReportsMAR from './pages/OtherPages/ReportsMARILF';
     import ReportsILF from './pages/ReportsILF';
 //  Archives Section
-import Archives from './pages/Archive';
+import Archives from './pages/Archives/Archive';
 //  Users Section
-import UserPage from './pages/UserPage';
+import UserPage from './pages/UsersPage/UserPage';
 
 // ----------------------------------------------------------------------
 

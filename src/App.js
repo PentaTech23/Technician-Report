@@ -11,14 +11,14 @@ import { StyledChart } from './components/chart';
 import ScrollToTop from './components/scroll-to-top';
 
 // Your route components
-import Router from './routes';
-import LoginPage from './pages/LoginPage';
-import InspectionReport from './pages/InspectionReport';
-import ProfilingReport from './pages/ProfilingReport';
-import InventoryReport from './pages/InventoryReport';
-import RequestReport from './pages/RequestReport';
+import Router from './RoutesTechnician';
+import LoginPage from './pages/Login-Signup/LoginPage';
+import InspectionReport from './pages/Dashboard/InspectionReport';
+import ProfilingReport from './pages/Dashboard/ProfilingReport';
+import InventoryReport from './pages/Dashboard/InventoryReport';
+import RequestReport from './pages/Dashboard/RequestReport';
 // ----------------------------------------------------------------------
-import SignUpComponent from './sections/auth/login/SignUp';
+import SignUpComponent from './pages/Login-Signup/SignUp';
 import RoutesFaculty from './RoutesFaculty';
 import RoutesDean from './RoutesDean';
 import Nav from './layouts/dashboard/nav'; // Import the Nav component

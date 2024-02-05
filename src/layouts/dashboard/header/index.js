@@ -11,7 +11,7 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
-import { Home } from '../../../sections/auth/login/Home';
+import { Home } from '../../../pages/Login-Signup/Home';
 
 
 

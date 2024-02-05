@@ -8,34 +8,36 @@ import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
 import BlogPage from './pages/OtherPages/BlogPage';
-
 import ProductsPage from './pages/OtherPages/ProductsPage';
 import DashboardAppPage from './pages/Dashboard/DashboardAppPage';
-//  Forms Section
+
+// Forms
 import Forms from './pages/Dashboard/Form';
 import FormsSRF from './pages/Forms/FormsSRF';
 import FormsBIF from './pages/Forms/FormsBIF';
 import FormsRIF from './pages/Forms/FormsRIF';
 import FormsIRF from './pages/Forms/FormsIRF';
 
-//  Profiling Section
+// Profiling
 import Profiling from './pages/Dashboard/Profiling';
 import ProfilingMR from './pages/Profiling/ProfilingMR';
 import ProfilingCI from './pages/Profiling/ProfilingCI';
-import ReportsPTR from './pages/Profiling/ProfilingPTR';
 
-//  Reports Section
+// Reports
 import Reports from './pages/Dashboard/Report';
+import ReportsPTR from './pages/Profiling/ProfilingPTR';
+import ReportsITR from './pages/Reports/ReportsITR';
 import ReportsMARILF from './pages/OtherPages/ReportsMARILF';
-
+// Dashboard
 import DashbRequestReport from './pages/Dashboard/RequestReport';
 import DashbProfilingReport from './pages/Dashboard/ProfilingReport';
 import DashbInspectionReport from './pages/Dashboard/InspectionReport';
 import DashbInventoryReport from './pages/Dashboard/InventoryReport';
-//  Archives Section
+
+// Others
 import Archives from './pages/Archives/Archive';
-//  Users Section
 import UserPage from './pages/UsersPage/UserPage';
+
 
 // ----------------------------------------------------------------------
 
@@ -85,61 +87,46 @@ export function useAuth() {
 }
 
 // ----------------------------------------------------------------------
-export default function RoutesDean({ isDean}) {
+export default function Router({ isTechnician }) {
   const routes = useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout isDean={isDean} />,
+      element: <DashboardLayout isTechnician={isTechnician} />,
       children: [
-        { element: <Navigate to="/dashboard/form" />, index: true },
+        { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         //  Forms Section
-        { path: 'form', element: <Forms /> },
-        { path: 'service_request', element: <FormsSRF /> },
-        { path: 'borrowers_item', element: <FormsBIF /> },
-        { path: 'request_item', element: <FormsRIF /> },
-        { path: 'inspection_report', element: <FormsIRF /> },
-        
+        { path: 'form', element: <Forms/>}, 
+        { path: 'service_request', element: <FormsSRF/>}, 
+        { path: 'borrowers_item', element: <FormsBIF/>},
+        { path: 'request_item', element: <FormsRIF/>},
+        { path: 'inspection_report', element: <FormsIRF/>},
         //  Profiling Section
-        { path: 'profiling', element: <Profiling /> },
-        { path: 'profiling_mr', element: <ProfilingMR /> },
-        { path: 'profiling_ci', element: <ProfilingCI /> },
-        { path: 'reports_ptr', element: <ReportsPTR /> },
+        { path: 'profiling', element: <Profiling/> },
+        { path: 'profiling_mr', element: <ProfilingMR/> },
+        { path: 'profiling_ci', element: <ProfilingCI/> },
+        { path: 'reports_ptr', element: <ReportsPTR/> },
         //  Reports Section
-        { path: 'reports', element: <Reports /> },
-        { path: 'reports_marilf', element: <ReportsMARILF /> },
+        { path: 'reports', element: <Reports/> },
+        { path: 'reports_marilf', element: <ReportsMARILF/> },
         { path: 'dashb_request_report', element: <DashbRequestReport /> },
         { path: 'dashb_InspectionReport', element: <DashbInspectionReport />},
         { path: 'dashb_inventory_report', element: <DashbInventoryReport /> },
         { path: 'dashb_profiling_report', element: <DashbProfilingReport /> },
         //  Archives Section
-        { path: 'archives', element: <Archives /> },
+        { path: 'archives', element: <Archives/> },
         //  User Section
-        { path: 'user', element: <UserPage /> },
-      
-      ],
+        { path: 'user', element: <UserPage/> },
+      ]
     },
 
     {
       element: <SimpleLayout />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
-        // { path: '404', element: <Page404 /> },
-        // { path: '*', element: <Navigate to="/404" /> },
       ],
-    },
-    // {
-    //   path: '*',
-    //   element: <Navigate to="/404" replace />,
-    // },
-
-    {
-      /* <Route path="/login" element={<LoginPage /> } >
-              
-                <Route path="signup/*" element={<SignUpComponent />} />
-              </Route> */
     },
   ]);
 
