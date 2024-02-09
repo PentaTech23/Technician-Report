@@ -9,13 +9,13 @@ import { initializeApp } from 'firebase/app';
 
 
 
-import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
+import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
         FormControl, InputLabel } from '@mui/material';
-        
-        import jsPDF from 'jspdf';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import jsPDF from 'jspdf';
         
 import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -336,7 +336,6 @@ const handleChange = (e) => {
 
   const initialFormData = {
     Date: '',
-    FullName: '',
     LocationRoom: '',
     Borrower: '',
     Items: [],
@@ -352,7 +351,6 @@ const handleChange = (e) => {
   // Handle change function
   const [formData, setFormData] = useState({
     Date: '',
-    FullName: '',
     LocationRoom: '',
     Borrower: '',
     Items: [], // If this is an array, it can be empty initially
@@ -461,7 +459,7 @@ useEffect(() => {
 // Function to increment the document name
 
   const incrementDocumentName = async (nextNumber = 0) => {
-    const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+    const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
 
     // Check if the document with the new name already exists
     const docSnapshot = await getDoc(doc(BorrowersCollectionRef, newDocumentName));
@@ -480,10 +478,10 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, FullName, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const { Date, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
   
     // Validation logic for required fields
-    if (!Date || !FullName || !LocationRoom || !Borrower) {
+    if (!Date || !LocationRoom || !Borrower) {
       alert('Please fill out all required fields');
       return;
     }
@@ -493,7 +491,6 @@ useEffect(() => {
   
       const docData = {
         Date,
-        FullName,
         LocationRoom,
         Borrower,
         Items,
@@ -529,7 +526,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -540,7 +537,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date', 'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -551,7 +548,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date','LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -571,7 +568,6 @@ const handleEditOpen = (data) => {
     setFormData({
       ...formData,
       Date: data.Date || '',
-      FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
       Borrower: data.Borrower || '',
       Items: data.Items || '',
@@ -981,47 +977,57 @@ const handleViewClose = () => {
         {isFaculty && ( 
       <Container>
   
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
+
+      <p>Selected Option: {selectedOption}</p>
+
+        
     </Stack>
 
     <Stack
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      mb={5}
+      mb={3}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
 
         <div>
-        <Button
-          onClick={() => fetchUserDocuments(user?.uid)}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
+        <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Document
+          </Button>
         </div>
-        <div>
+
+        
+
+        
+      </div>
+
+      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
+        </div>
+
+     
+
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <div style={{ marginLeft: '1px'}}>
+      <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
-          <InputLabel id="options-label">Select an option</InputLabel>
+          <InputLabel id="options-label">File Status:</InputLabel>
           <Select
             labelId="options-label"
             id="options"
@@ -1037,39 +1043,43 @@ const handleViewClose = () => {
             <MenuItem value="Archived">Archived</MenuItem>
           </Select>
         </FormControl>
-        <p>Selected Option: {selectedOption}</p>
-      </div>
-      </div>
+        </Box>
+       
+        </div>
+     
+      </Stack>
 
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-<Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
+      <div style={{ marginLeft: 'auto', display: 'flex' }}>
+        <ProductFilterSidebar 
+              alignItems="center"
               openFilter={openFilter}
               onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
+              onCloseFilter={handleCloseFilter} 
             />
-            <ProductSort />
-          </Stack>
-        </Stack>
-
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-          <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Document
-          </Button>
-        </div>
+        <Button
+          onClick={() => fetchUserDocuments(user?.uid)}
+          variant="contained"
+          size="large"
         
+          style={{
+            margin: '0 8px',
+            paddingRight: '10px',
+            display: 'flex',
+            alignContent: 'center',
+            justifyContent: 'center',
+          }}
+          startIcon= {<RefreshIcon />}
+        />
+  
+        <TextField
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleFilterByName}
+            sx={{ width: '%' }}
+          />
+        </div>
+
         <Dialog open={open} onClose={handleClose}>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1100,18 +1110,7 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                     <TextField
                     type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={formData.FullName || ''}
-                    onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="Borrower"
+                    name="Borrower's Name"
                     label="Borrower"
                     value={formData.Borrower || ''}
                     onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
@@ -1200,8 +1199,11 @@ const handleViewClose = () => {
             </div>
           </div>
         </Dialog>
-    </div>  
+   
   </Stack> 
+
+
+
 {/* End of Faculty userType "New Document" function */}
     
 {/* Start of Faculty userType "Table" function */}
@@ -1209,7 +1211,7 @@ const handleViewClose = () => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} style={{ maxHeight: 400 }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -1220,15 +1222,14 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Document ID</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Location/Room</TableCell>
-                <TableCell>Borrower</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>File Status</TableCell>
-                <TableCell>File</TableCell>
-                <TableCell>Menu</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>File</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             
@@ -1241,16 +1242,15 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.Date}</TableCell>
-                  <TableCell>{item.FullName}</TableCell>
-                  <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Borrower}</TableCell>
-                  <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                  <TableCell >
+                  <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
                     <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
                     {item.fileURL ? (
                       <Link to={item.fileURL} target="_blank" download>
                         Download 
@@ -1259,7 +1259,7 @@ const handleViewClose = () => {
                       "No File"
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
                     <IconButton
                       aria-label="menu"
                       onClick={(event) => handleMenuOpen(event, item)}
@@ -1420,14 +1420,13 @@ const handleViewClose = () => {
               </TableCell>
               <TableCell>Document ID</TableCell>
               <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
               <TableCell>Location/Room</TableCell>
               <TableCell>Borrower</TableCell>
               <TableCell>Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
+              <TableCell>Actions</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1443,7 +1442,6 @@ const handleViewClose = () => {
                 </TableCell>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
@@ -1629,14 +1627,13 @@ const handleViewClose = () => {
               </TableCell>
               <TableCell>Document ID</TableCell>
               <TableCell>Date</TableCell>
-              <TableCell>Full Name</TableCell>
               <TableCell>Location/Room</TableCell>
               <TableCell>Borrower</TableCell>
               <TableCell>Items</TableCell>
               <TableCell>File Status</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>File</TableCell>
-              <TableCell>Menu</TableCell>
+              <TableCell>Actions</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1652,7 +1649,6 @@ const handleViewClose = () => {
                 </TableCell>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.FullName}</TableCell>
                 <TableCell>{item.LocationRoom}</TableCell>
                 <TableCell>{item.Borrower}</TableCell>
                 <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
@@ -1768,17 +1764,6 @@ const handleViewClose = () => {
                     name="Date"
                     value={editData ? editData.Date : ''}
                     onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <TextField
-                    type="text"
-                    name="FullName"
-                    label="Faculty Name"
-                    value={editData ? editData.FullName : ''}
-                    onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -1907,18 +1892,6 @@ const handleViewClose = () => {
                     name="Date"
                     placeholder="Date"
                     value={viewItem ? viewItem.Date : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Faculty Name:</Typography>
-                  <TextField
-                    type="text"
-                    name="FullName"
-                    placeholder="Faculty Name"
-                    value={viewItem  ? viewItem .FullName : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />

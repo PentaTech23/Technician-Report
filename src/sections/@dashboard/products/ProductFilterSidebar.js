@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import {
@@ -15,6 +16,8 @@ import {
   Typography,
   RadioGroup,
   FormControlLabel,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 // components
 import Iconify from '../../../components/iconify';
@@ -61,7 +64,24 @@ ShopFilterSidebar.propTypes = {
   onCloseFilter: PropTypes.func,
 };
 
+// ----------------------------------------------------------------------
 export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFilter }) {
+  
+
+
+  
+    const [open, setOpen] = useState(null);
+  
+    const handleOpen = (event) => {
+      setOpen(event.currentTarget);
+    };
+  
+    const handleClose = () => {
+      setOpen(null);
+    };
+  
+
+    
   return (
     <>
       <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={onOpenFilter}>
@@ -87,7 +107,44 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
 
         <Divider />
 
+        
+
         <Scrollbar>
+
+        
+        <Button
+        variant="subtitle1" sx={{ ml: 1}}
+        alignItems="left"
+        display="flex"
+        color="inherit"
+        onClick={handleOpen}
+        endIcon={<Iconify icon={open ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+      >
+        Sort By:&nbsp;
+        <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+          Newest
+        </Typography>
+      </Button>
+      <Menu
+        keepMounted
+        anchorEl={open}
+        open={Boolean(open)}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        {SORT_BY_OPTIONS.map((option) => (
+          <MenuItem
+            key={option.value}
+            selected={option.value === 'newest'}
+            onClick={handleClose}
+            sx={{ typography: 'body2' }}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
+      </Menu>
+      
           <Stack spacing={3} sx={{ p: 3 }}>
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
               Date From:
