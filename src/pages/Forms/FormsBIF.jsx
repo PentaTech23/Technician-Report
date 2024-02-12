@@ -6,9 +6,6 @@ import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, updat
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { initializeApp } from 'firebase/app';
-
-
-
 import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
@@ -16,14 +13,12 @@ import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
         FormControl, InputLabel } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import jsPDF from 'jspdf';
-        
 import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
-
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
 import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
 

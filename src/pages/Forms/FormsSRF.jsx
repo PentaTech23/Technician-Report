@@ -8,11 +8,14 @@ import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
-        FormControl, InputLabel } from '@mui/material';
+        FormControl, InputLabel, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import jsPDF from 'jspdf';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import Iconify from '../../components/iconify';
+import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, ServiceCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
 
@@ -67,7 +70,6 @@ const handleChange = (e) => {
 
   const initialFormData = {
     Date: '',
-    FullName: '',
     LocationRoom: '',
     Requisitioner: '',
     Services: [],
@@ -84,7 +86,6 @@ const handleChange = (e) => {
   const [formData, setFormData] = useState({
     ControlNum: null,
     Date: '',
-    FullName: '',
     LocationRoom: null,
     Requisitioner: '',
     Services: [], // If this is an array, it can be empty initially
@@ -216,7 +217,6 @@ useEffect(() => {
     const {
       ControlNum,
       Date,
-      FullName,
       LocationRoom,
       Requisitioner,
       Services = [],
@@ -226,7 +226,7 @@ useEffect(() => {
     } = formData;
   
     // Validation logic for required fields
-    if (!Date || !FullName || !LocationRoom || !Requisitioner) {
+    if (!Date || !LocationRoom || !Requisitioner) {
       alert('Please fill out all required fields');
       return;
     }
@@ -237,7 +237,6 @@ useEffect(() => {
       const docData = {
         ControlNum,
         Date,
-        FullName,
         LocationRoom,
         Requisitioner,
         Services,
@@ -274,7 +273,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Requisitioner'];
+  const fieldsToSearchIn = ['id', 'Date', 'LocationRoom', 'Requisitioner'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -285,7 +284,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date',  'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -296,7 +295,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'FullName', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'Date',  'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -317,7 +316,6 @@ const handleEditOpen = (data) => {
       ...formData,
       ControlNum: data.ControlNum || '',
       Date: data.Date || '',
-      FullName: data.FullName || '',
       LocationRoom: data.LocationRoom || '',
       Requisitioner: data.Requisitioner || '',
       Services: data.Services || '',
@@ -664,18 +662,19 @@ const handleViewClose = () => {
     };
 
     const getStatusColor = (status) => {
-      switch (status) {
-        case 'PENDING (Technician)':
-          return 'orange';
-          case 'PENDING (Dean)':
-            return 'orange';
-        case 'APPROVED':
-          return 'green';
-        case 'REJECTED':
-          return 'red';
-        default:
-          return 'black'; // Default color if status doesn't match any case
+      if (status === 'APPROVED') {
+        return 'success'; // Green color for 'approved'
       }
+      if (status === 'PENDING (Dean)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'PENDING (Technician)') {
+        return 'warning'; // Orange color for 'pending'
+      }
+      if (status === 'REJECTED') {
+        return 'error'; // Red color for 'reject'
+      }
+      return 'info'; // Default color for other status values
     };
     
 
@@ -693,51 +692,61 @@ const handleViewClose = () => {
         <title> Service Request Form | Minimal UI </title>
       </Helmet>
 
-        {/* This is the beginning of the Container for Faculty */}
+         {/* This is the beginning of the Container for Faculty */}
         {isFaculty && ( 
       <Container>
   
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Service Request Form
       </Typography>
+
+      <p>Selected Option: {selectedOption}</p>
+
+        
     </Stack>
 
     <Stack
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      mb={5}
+      mb={3}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
 
         <div>
-        <Button
-          onClick={() => fetchUserDocuments(user?.uid)}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
+        <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Document
+          </Button>
         </div>
-        <div>
+
+        
+
+        
+      </div>
+
+      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
+        </div>
+
+     
+
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <div style={{ marginLeft: '1px'}}>
+      <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
-          <InputLabel id="options-label">Select an option</InputLabel>
+          <InputLabel id="options-label">File Status:</InputLabel>
           <Select
             labelId="options-label"
             id="options"
@@ -753,39 +762,43 @@ const handleViewClose = () => {
             <MenuItem value="Archived">Archived</MenuItem>
           </Select>
         </FormControl>
-        <p>Selected Option: {selectedOption}</p>
-      </div>
-      </div>
+        </Box>
+       
+        </div>
+     
+      </Stack>
 
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-<Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
+      <div style={{ marginLeft: 'auto', display: 'flex' }}>
+        <ProductFilterSidebar 
+              alignItems="center"
               openFilter={openFilter}
               onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
+              onCloseFilter={handleCloseFilter} 
             />
-            <ProductSort />
-          </Stack>
-        </Stack>
-
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-          <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Document
-          </Button>
-        </div>
+        <Button
+          onClick={() => fetchUserDocuments(user?.uid)}
+          variant="contained"
+          size="large"
         
+          style={{
+            margin: '0 8px',
+            paddingRight: '10px',
+            display: 'flex',
+            alignContent: 'center',
+            justifyContent: 'center',
+          }}
+          startIcon= {<RefreshIcon />}
+        />
+  
+        <TextField
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleFilterByName}
+            sx={{ width: '%' }}
+          />
+        </div>
+
         <Dialog open={open} onClose={handleClose}>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -810,19 +823,6 @@ const handleViewClose = () => {
                         placeholder='Date'
                         value={formData.Date || ''}
                         onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
-                        // sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                      <TextField
-                        type="text"
-                        name="FullName"
-                        fullWidth
-                        variant="outlined"
-                        placeholder="Full Name"
-                        value={formData.FullName || ''}
-                        onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
                         // sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
@@ -955,7 +955,7 @@ const handleViewClose = () => {
             </div>
           </div>
         </Dialog>
-    </div>  
+    
   </Stack> 
 {/* End of Faculty userType "New Document" function */}
     
@@ -975,15 +975,14 @@ const handleViewClose = () => {
                   color="primary"
                 />
                 </TableCell>
-                <TableCell>Document ID</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Location/Room</TableCell>
-                <TableCell>Requisitioner</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>File Status</TableCell>
-                <TableCell>File</TableCell>
-                <TableCell>Menu</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Document ID</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Date</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Location/Room</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Requisitioner</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Items</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>File Status</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>File</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>Menu</TableCell>
               </TableRow>
             </TableHead>
             
@@ -996,13 +995,14 @@ const handleViewClose = () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.Date}</TableCell>
-                  <TableCell>{item.FullName}</TableCell>
-                  <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Requisitioner}</TableCell>
-                  <TableCell>{`${item.Services}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
-                  <TableCell style={{ color: 'white' , backgroundColor: getStatusColor(item.status) }}>{item.status}</TableCell>
+                  <TableCell  style={{ textAlign: 'center' }}>{item.id}</TableCell>
+                  <TableCell  style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                  <TableCell  style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
+                  <TableCell  style={{ textAlign: 'center' }}>{item.Requisitioner}</TableCell>
+                  <TableCell  style={{ textAlign: 'center' }}>{`${item.Services}${item.otherServices ? `, ${item.otherServices}` : ''}`}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
+                    <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                  </TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       <Link to={item.fileURL} target="_blank" download>
@@ -1525,17 +1525,6 @@ const handleViewClose = () => {
                     <Grid item xs={16}>
                       <TextField
                         type="text"
-                        name="FullName"
-                        label="Faculty Name"
-                        value={editData ? editData.FullName : ''}
-                        onChange={(e) => setEditData({ ...editData, FullName: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                      <TextField
-                        type="text"
                         name="Requisitioner"
                         label="Requisitioner"
                         value={editData ? editData.Requisitioner : ''}
@@ -1595,7 +1584,7 @@ const handleViewClose = () => {
                       <br />
                     </Grid>
 
-                    <Grid item xs={8} spacing={1}>
+                    <Grid item xs={8} >
                       <Grid>
                         <TextField
                           type="text"
@@ -1690,18 +1679,6 @@ const handleViewClose = () => {
                     name="Date"
                     placeholder="Date"
                     value={viewItem ? viewItem.Date : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Faculty Name:</Typography>
-                  <TextField
-                    type="text"
-                    name="FullName"
-                    placeholder="Faculty Name"
-                    value={viewItem  ? viewItem .FullName : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
