@@ -66,7 +66,7 @@ import Scrollbar from '../../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
 // mock
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, MemorandumCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, MemorandumCollectionRef, archivesRef, storage } from '../../firebase';
 
 
 import USERLIST from '../../_mock/user';
@@ -943,13 +943,13 @@ useEffect(() => {
         const sourceDocumentData = (await getDoc(sourceDocumentRef)).data();
 
         // Fetch existing document names from the Archives collection
-        const archivesQuerySnapshot = await getDocs(archivesCollectionRef);
+        const archivesQuerySnapshot = await getDocs(archivesRef);
         const existingDocumentNames = archivesQuerySnapshot.docs.map((doc) => doc.id);
 
         // Find the highest number and increment it by 1
         let nextNumber = 0;
         existingDocumentNames.forEach((docName) => {
-          const match = docName.match(/^SRF-(\d+)$/);
+          const match = docName.match(/^MR-(\d+)$/);
           if (match) {
             const num = parseInt(match[1], 10);
             if (!Number.isNaN(num) && num >= nextNumber) {
@@ -959,10 +959,10 @@ useEffect(() => {
         });
 
         // Generate the new document name
-        const newDocumentName = `SRF-${nextNumber.toString().padStart(2, '0')}`;
+        const newDocumentName = `MR-${nextNumber.toString().padStart(2, '0')}`;
 
         // Add the document to the "Archives" collection with the new document name
-        await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
+        await setDoc(doc(archivesRef, newDocumentName), sourceDocumentData);
 
         // Delete the original document from the Service Request collection
         await deleteDoc(doc(MemorandumCollectionRef, documentToDelete));

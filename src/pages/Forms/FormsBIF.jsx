@@ -20,18 +20,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
-import { useAuthState, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
 
-const firebaseConfig  = {
-  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
-  authDomain: "wp4-technician-dms.firebaseapp.com",
-  projectId: "wp4-technician-dms",
-  storageBucket: "wp4-technician-dms.appspot.com",
-  messagingSenderId: "1065436189229",
-  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
-}
 
-const firebaseApp = initializeApp(firebaseConfig);
+
+
 const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
 
@@ -487,6 +480,7 @@ useEffect(() => {
       const docData = {
         Date,
         LocationRoom,
+        FullName : Borrower || '',
         Borrower,
         Items,
         otherItems,
@@ -564,6 +558,7 @@ const handleEditOpen = (data) => {
       ...formData,
       Date: data.Date || '',
       LocationRoom: data.LocationRoom || '',
+      FullName: data.Borrower || '',
       Borrower: data.Borrower || '',
       Items: data.Items || '',
       otherItems: data.otherItems || '',
@@ -662,7 +657,7 @@ const handleConfirmDelete = async () => {
       // Find the highest number and increment it by 1
       let nextNumber = 0;
       existingDocumentNames.forEach((docName) => {
-        const match = docName.match(/^SRF-(\d+)$/);
+        const match = docName.match(/^BIF-(\d+)$/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (!Number.isNaN(num) && num >= nextNumber) {
@@ -672,7 +667,7 @@ const handleConfirmDelete = async () => {
       });
 
       // Generate the new document name
-      const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+      const newDocumentName = `BIF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
       await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
@@ -996,30 +991,10 @@ const handleViewClose = () => {
             New Document
           </Button>
         </div>
-
-        
-
-        
       </div>
 
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-        </div>
-
-     
-
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <div style={{ marginLeft: '1px'}}>
+      <div style={{ marginLeft: '10px'}}>
       <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
           <InputLabel id="options-label">File Status:</InputLabel>
@@ -1041,7 +1016,20 @@ const handleViewClose = () => {
         </Box>
        
         </div>
-     
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
+        </div>
+
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
@@ -1055,16 +1043,16 @@ const handleViewClose = () => {
           onClick={() => fetchUserDocuments(user?.uid)}
           variant="contained"
           size="large"
-        
           style={{
-            margin: '0 8px',
-            paddingRight: '10px',
-            display: 'flex',
-            alignContent: 'center',
-            justifyContent: 'center',
+              margin: '0 8px',
+              paddingRight: '10px',
+              display: 'flex',
+              alignContent: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#ff5500',
           }}
-          startIcon= {<RefreshIcon />}
-        />
+          startIcon={<RefreshIcon />}
+      />
   
         <TextField
             type="text"

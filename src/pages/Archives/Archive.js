@@ -24,35 +24,9 @@ import Scrollbar from '../../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 import USERLIST from '../../_mock/user';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDHFEWRU949STT98iEDSYe9Rc-WxcL3fcc",
-  authDomain: "wp4-technician-dms.firebaseapp.com",
-  projectId: "wp4-technician-dms",
-  storageBucket: "wp4-technician-dms.appspot.com",
-  messagingSenderId: "1065436189229",
-  appId: "1:1065436189229:web:88094d3d71b15a0ab29ea4"
-};
-
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-
-// Initialize Firestore db
-const db = getFirestore(firebaseApp);
-
-// Access main collection
-const mainCollectionRef = collection(db, "WP4-TECHNICIAN-DMS");
-
-// Access FORMS document under main collection
-const formsDocRef = doc(mainCollectionRef, "FORMS");
-
-// Add to subcollection 
-const serviceRequestCollectionRef = collection(formsDocRef, "SERVICE-REQUEST");
-
-// Access ARCHIVES document under main collection
-const archivesRef = doc(mainCollectionRef, "ARCHIVES");
-
-const archivesCollectionRef = collection(archivesRef, "ARCHIVES-FORMS");
+import {useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef,
+        userCollectionRef,RequestCollectionRef, archivesRef, archivesCollectionRef, storage, ServiceCollectionRef,
+        InspectionCollectionRef, MemorandumCollectionRef, CondemnedCollectionRef} from '../../firebase';
 
 export default function UserPage() {
   const [fetchedData, setFetchedData] = useState([]);
@@ -452,8 +426,6 @@ const handleConfirmDeleteAll = async () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Location/Room</TableCell>
-                <TableCell>Requesitioner</TableCell>
-                <TableCell>Services</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Menu</TableCell>
               </TableRow>
@@ -468,12 +440,10 @@ const handleConfirmDeleteAll = async () => {
                         onChange={() => handleSelection(item.id)}
                       />
                   </TableCell>
-                  <TableCell>{item.ControlNum}</TableCell>
+                  <TableCell>{item.id}</TableCell>
                   <TableCell>{item.Date}</TableCell>
                   <TableCell>{item.FullName}</TableCell>
                   <TableCell>{item.LocationRoom}</TableCell>
-                  <TableCell>{item.Requisitioner}</TableCell>
-                  <TableCell>{item.Services}</TableCell>
                   <TableCell>
                     {item.fileURL ? (
                       // Render a clickable link to download the file

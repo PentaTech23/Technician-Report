@@ -48,7 +48,7 @@ import Label from '../../components/label';
 import Scrollbar from '../../components/scrollbar';
 // sections
 
-import { userCollectionRef, firebaseApp, db, useAuthState, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { userCollectionRef, firebaseApp, db, useAuthState, archivesRef, storage } from '../../firebase';
 
 // ----------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ const handleConfirmDelete = async () => {
 
 
       // Fetch existing document names from the Archives collection
-      const archivesQuerySnapshot = await getDocs(archivesCollectionRef);
+      const archivesQuerySnapshot = await getDocs(archivesRef);
       const existingDocumentNames = archivesQuerySnapshot.docs.map((doc) => doc.id);
 
       // Find the highest number and increment it by 1
@@ -233,7 +233,7 @@ const handleConfirmDelete = async () => {
       const newDocumentName = `USERS-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
-      await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
+      await setDoc(doc(archivesRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
       await deleteDoc(doc(userCollectionRef, documentToDelete));

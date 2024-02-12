@@ -17,7 +17,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, InspectionCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, InspectionCollectionRef, archivesRef, storage } from '../../firebase';
 
 export default function UserPage() {
 
@@ -532,7 +532,7 @@ const handleConfirmDelete = async () => {
 
 
       // Fetch existing document names from the Archives collection
-      const archivesQuerySnapshot = await getDocs(archivesCollectionRef);
+      const archivesQuerySnapshot = await getDocs(archivesRef);
       const existingDocumentNames = archivesQuerySnapshot.docs.map((doc) => doc.id);
 
       // Find the highest number and increment it by 1
@@ -551,7 +551,7 @@ const handleConfirmDelete = async () => {
       const newDocumentName = `IRF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
-      await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
+      await setDoc(doc(archivesRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
       await deleteDoc(doc(InspectionCollectionRef, documentToDelete));
@@ -852,37 +852,9 @@ const handleViewClose = () => {
       mb={3}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-
-        <div>
-        <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Document
-          </Button>
-        </div>
-
-        
-
-        
-      </div>
-
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-        </div>
-
-     
-
+      
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <div style={{ marginLeft: '1px'}}>
+      <div style={{ marginLeft: '10px'}}>
       <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
           <InputLabel id="options-label">File Status:</InputLabel>
@@ -903,6 +875,20 @@ const handleViewClose = () => {
         </FormControl>
         </Box>
        
+        </div>
+
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
         </div>
      
       </Stack>
@@ -925,6 +911,7 @@ const handleViewClose = () => {
             display: 'flex',
             alignContent: 'center',
             justifyContent: 'center',
+            backgroundColor: '#ff5500',
           }}
           startIcon= {<RefreshIcon />}
         />

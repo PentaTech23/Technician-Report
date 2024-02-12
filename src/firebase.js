@@ -42,8 +42,8 @@ const CondemnedCollectionRef = collection(profilingDocRef, 'CONDEMNED-ITEMS');
 
 // Access ARCHIVES document under main collection
 const archivesRef = doc(mainCollectionRef, "ARCHIVES");
+const archivesCollectionRef = collection(archivesRef, "ARCHIVES-COLLECTION");
 
-const archivesCollectionRef = collection(archivesRef, "ARCHIVES-FORMS");
 
 // Initialize Storage
 const storage = getStorage(firebaseApp);

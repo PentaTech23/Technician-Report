@@ -17,7 +17,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, ServiceCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, ServiceCollectionRef, archivesRef, storage } from '../../firebase';
 
 export default function UserPage() {
 
@@ -84,7 +84,6 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
-    ControlNum: null,
     Date: '',
     LocationRoom: null,
     Requisitioner: '',
@@ -215,7 +214,6 @@ useEffect(() => {
     e.preventDefault();
   
     const {
-      ControlNum,
       Date,
       LocationRoom,
       Requisitioner,
@@ -235,9 +233,9 @@ useEffect(() => {
       const docRef = doc(ServiceCollectionRef, documentName);
   
       const docData = {
-        ControlNum,
         Date,
         LocationRoom,
+        FullName: Requisitioner || '',
         Requisitioner,
         Services,
         otherServices,
@@ -314,9 +312,9 @@ const handleEditOpen = (data) => {
     // Populate the form fields with existing data
     setFormData({
       ...formData,
-      ControlNum: data.ControlNum || '',
       Date: data.Date || '',
       LocationRoom: data.LocationRoom || '',
+      FullName: data.Requisitioner || '',
       Requisitioner: data.Requisitioner || '',
       Services: data.Services || '',
       otherServices: data.otherServices || '',
@@ -409,7 +407,7 @@ const handleConfirmDelete = async () => {
 
 
       // Fetch existing document names from the Archives collection
-      const archivesQuerySnapshot = await getDocs(archivesCollectionRef);
+      const archivesQuerySnapshot = await getDocs(archivesRef);
       const existingDocumentNames = archivesQuerySnapshot.docs.map((doc) => doc.id);
 
       // Find the highest number and increment it by 1
@@ -428,7 +426,7 @@ const handleConfirmDelete = async () => {
       const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
-      await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
+      await setDoc(doc(archivesRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
       await deleteDoc(doc(ServiceCollectionRef, documentToDelete));
@@ -726,24 +724,12 @@ const handleViewClose = () => {
         
       </div>
 
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-        </div>
+      
 
      
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <div style={{ marginLeft: '1px'}}>
+      <div style={{ marginLeft: '10px'}}>
       <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
           <InputLabel id="options-label">File Status:</InputLabel>
@@ -765,7 +751,19 @@ const handleViewClose = () => {
         </Box>
        
         </div>
-     
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
+        </div>
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
@@ -786,6 +784,7 @@ const handleViewClose = () => {
             display: 'flex',
             alignContent: 'center',
             justifyContent: 'center',
+            backgroundColor: '#ff5500',
           }}
           startIcon= {<RefreshIcon />}
         />

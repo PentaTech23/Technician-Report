@@ -17,7 +17,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, RequestCollectionRef, BorrowersCollectionRef, archivesRef, archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, RequestCollectionRef, BorrowersCollectionRef, archivesRef, storage } from '../../firebase';
 
 export default function UserPage() {
 
@@ -227,6 +227,7 @@ useEffect(() => {
       const docData = {
         Date,
         LocationRoom,
+        FullName: Requisitioner || '',
         Requisitioner,
         Items,
         otherItems,
@@ -304,6 +305,7 @@ const handleEditOpen = (data) => {
       ...formData,
       Date: data.Date || '',
       LocationRoom: data.LocationRoom || '',
+      FullName: data.Requisitioner || '',
       Requisitioner: data.Requisitioner || '',
       Items: data.Items || '',
       otherItems: data.otherItems || '',
@@ -396,13 +398,13 @@ const handleConfirmDelete = async () => {
 
 
       // Fetch existing document names from the Archives collection
-      const archivesQuerySnapshot = await getDocs(archivesCollectionRef);
+      const archivesQuerySnapshot = await getDocs(archivesRef);
       const existingDocumentNames = archivesQuerySnapshot.docs.map((doc) => doc.id);
 
       // Find the highest number and increment it by 1
       let nextNumber = 0;
       existingDocumentNames.forEach((docName) => {
-        const match = docName.match(/^SRF-(\d+)$/);
+        const match = docName.match(/^RIF-(\d+)$/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (!Number.isNaN(num) && num >= nextNumber) {
@@ -412,10 +414,10 @@ const handleConfirmDelete = async () => {
       });
 
       // Generate the new document name
-      const newDocumentName = `SRF-${nextNumber.toString().padStart(2, "0")}`;
+      const newDocumentName = `RIF-${nextNumber.toString().padStart(2, "0")}`;
 
       // Add the document to the "Archives" collection with the new document name
-      await setDoc(doc(archivesCollectionRef, newDocumentName), sourceDocumentData);
+      await setDoc(doc(archivesRef, newDocumentName), sourceDocumentData);
 
       // Delete the original document from the Service Request collection
       await deleteDoc(doc(RequestCollectionRef, documentToDelete));
@@ -711,22 +713,10 @@ const handleViewClose = () => {
         </div>
       </div>
 
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
-        {selectedItems.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleTrashIconClick} >
-              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
-            </IconButton>
-            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
-              {selectedItems.length} items selected
-            </Typography>
-          </div>
-        )}
-
-        </div>
+     
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <div style={{ marginLeft: '1px'}}>
+      <div style={{ marginLeft: '10px'}}>
       <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
           <InputLabel id="options-label">File Status:</InputLabel>
@@ -747,6 +737,19 @@ const handleViewClose = () => {
         </FormControl>
         </Box>
        
+        </div>
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
+        {selectedItems.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleTrashIconClick} >
+              <Iconify icon="material-symbols:delete-forever-outline-rounded" color="red" width={42} height={42} />
+            </IconButton>
+            <Typography variant="subtitle1" style={{ paddingRight: '16px' }}>
+              {selectedItems.length} items selected
+            </Typography>
+          </div>
+        )}
+
         </div>
      
       </Stack>
@@ -769,6 +772,7 @@ const handleViewClose = () => {
             display: 'flex',
             alignContent: 'center',
             justifyContent: 'center',
+            backgroundColor: '#ff5500',
           }}
           startIcon= {<RefreshIcon />}
         />

@@ -209,9 +209,9 @@ export default function DashboardAppPage() {
      
       <Container sx={{ backgroundColor: '#F0EFF6', borderRadius: '10px', paddingBottom: '20px' }}>
       <Grid container spacing={3}>
-          <Grid item xs={3} sm={3} md={3}>
-            { <AppWidgetSummary title="SERVICE REQUEST FORMS" total={totalServices} color="error" />}
-          </Grid>
+              <Grid item xs={3} sm={3} md={3}>
+                  {<AppWidgetSummary title="SERVICE REQUEST FORMS" total={totalServices} color="error" />}
+              </Grid>
 
           <Grid item xs={3} sm={3} md={3}>
             { <AppWidgetSummary title="BORROWERS ITEM FORMS" total={totalBrequest} color="error" /> }
