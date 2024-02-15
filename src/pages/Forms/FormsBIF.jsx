@@ -22,9 +22,6 @@ import Label from '../../components/label';
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
 
-
-
-
 const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
 
@@ -136,51 +133,28 @@ export default function UserPage() {
   //     console.error('Error updating status:', error);
   //   }
   // };
-  const updateStatusInFirebase = async () => {
+  const updateStatusInFirebase = async (documentId) => {
     try {
-      if (documentIds.length === 0) {
-        console.error('No document IDs to update.');
-        return;
-      }
-  
-      // Update each document in the subcollection
-      const updatePromises = documentIds.map(async (documentId) => {
-        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
-        await updateDoc(statusRef, { status: 'PENDING (Dean)' });
-      });
-  
-      // Wait for all updates to complete
-      await Promise.all(updatePromises);
-  
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'PENDING (Dean)' });
       console.log('Status updated successfully!');
       setStatus('PENDING (Dean)'); // Update local state if needed
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
-
-  const updateStatusInFirebaseReject = async () => {
+  
+  const updateStatusInFirebaseReject = async (documentId) => {
     try {
-      if (documentIds.length === 0) {
-        console.error('No document IDs to update.');
-        return;
-      }
-  
-      // Update each document in the subcollection
-      const updatePromises = documentIds.map(async (documentId) => {
-        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
-        await updateDoc(statusRef, { status: 'REJECTED' });
-      });
-  
-      // Wait for all updates to complete
-      await Promise.all(updatePromises);
-  
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'REJECTED' });
       console.log('Status updated successfully!');
       setStatus('REJECTED'); // Update local state if needed
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
+
 
   const updateStatusInFirebaseDean = async () => {
     try {
@@ -780,7 +754,7 @@ const handleSelection = (documentId) => {
   });
 };
 
-const handleSelectAll = () => {
+const handleSelectAllFaculty = () => {
   if (bulkDeleteMode) {
     // If bulk delete mode is already active, clear the selected items
     setSelectedItems([]);
@@ -793,7 +767,31 @@ const handleSelectAll = () => {
   setSelectAll(!selectAll); // Toggle the selectAll state
 };
 
+const handleSelectAllTechnician = () => {
+  if (bulkDeleteMode) {
+    // If bulk delete mode is already active, clear the selected items
+    setSelectedItems([]);
+  } else {
+    // If bulk delete mode is not active, select all items
+    const allDocumentIds = fetchedDataTechnician.map((item) => item.id);
+    setSelectedItems(allDocumentIds);
+  }
+  setBulkDeleteMode(!bulkDeleteMode);
+  setSelectAll(!selectAll); // Toggle the selectAll state
+};
 
+const handleSelectAllDean = () => {
+  if (bulkDeleteMode) {
+    // If bulk delete mode is already active, clear the selected items
+    setSelectedItems([]);
+  } else {
+    // If bulk delete mode is not active, select all items
+    const allDocumentIds = fetchedDataDean.map((item) => item.id);
+    setSelectedItems(allDocumentIds);
+  }
+  setBulkDeleteMode(!bulkDeleteMode);
+  setSelectAll(!selectAll); // Toggle the selectAll state
+};
 
 // Checkbox bulk deletion
 
@@ -967,14 +965,11 @@ const handleViewClose = () => {
         {isFaculty && ( 
       <Container>
   
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
-
       <p>Selected Option: {selectedOption}</p>
-
-        
     </Stack>
 
     <Stack
@@ -984,16 +979,12 @@ const handleViewClose = () => {
       mb={3}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
 
-        <div>
         <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Document
-          </Button>
-        </div>
-      </div>
-
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+          New Document
+        </Button>
+ 
+     <Stack direction="row" alignItems="center" justifyContent="space-between">
       <div style={{ marginLeft: '10px'}}>
       <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
@@ -1014,8 +1005,8 @@ const handleViewClose = () => {
           </Select>
         </FormControl>
         </Box>
-       
         </div>
+
         <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
         {selectedItems.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -1027,9 +1018,7 @@ const handleViewClose = () => {
             </Typography>
           </div>
         )}
-
         </div>
-
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
@@ -1051,9 +1040,8 @@ const handleViewClose = () => {
               justifyContent: 'center',
               backgroundColor: '#ff5500',
           }}
-          startIcon={<RefreshIcon />}
-      />
-  
+          startIcon={<RefreshIcon />} />
+
         <TextField
             type="text"
             placeholder="Search..."
@@ -1201,7 +1189,7 @@ const handleViewClose = () => {
                 <TableCell>
                 <Checkbox
                   checked={selectAll}
-                  onChange={handleSelectAll}
+                  onChange={handleSelectAllFaculty}
                   color="primary"
                 />
                 </TableCell>
@@ -1296,6 +1284,7 @@ const handleViewClose = () => {
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
+      <p>Selected Option: {selectedOption}</p>
       </Stack>
 
       <Stack
@@ -1305,33 +1294,13 @@ const handleViewClose = () => {
       mb={5}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
       >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div>
-        <Button
-          onClick={() => fetchAllDocuments()}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
-        </div>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
-        </div>
-        <div style={{ margin: '0 8px' }}>
+
+
+<Stack direction="row" alignItems="center" justifyContent="space-between">
+      <div style={{ marginLeft: '10px'}}>
+      <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
-          <InputLabel id="options-label">Select an option</InputLabel>
+          <InputLabel id="options-label">File Status:</InputLabel>
           <Select
             labelId="options-label"
             id="options"
@@ -1347,12 +1316,10 @@ const handleViewClose = () => {
             <MenuItem value="Archived">Archived</MenuItem>
           </Select>
         </FormControl>
-      </div>
-      </div>
+        </Box>
+        </div>
 
-    
-
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
         {selectedItems.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <IconButton onClick={handleTrashIconClick} >
@@ -1363,24 +1330,38 @@ const handleViewClose = () => {
             </Typography>
           </div>
         )}
+        </div>
+      </Stack>
 
-      <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
+      <div style={{ marginLeft: 'auto', display: 'flex' }}>
+        <ProductFilterSidebar 
+              alignItems="center"
               openFilter={openFilter}
               onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
+              onCloseFilter={handleCloseFilter} 
             />
-            <ProductSort />
-          </Stack>
-        </Stack>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
-      />
-      </div>  
+        <Button
+          onClick={() => fetchAllDocuments()}
+          variant="contained"
+          size="large"
+          style={{
+              margin: '0 8px',
+              paddingRight: '10px',
+              display: 'flex',
+              alignContent: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#ff5500',
+          }}
+          startIcon={<RefreshIcon />} />
+
+        <TextField
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleFilterByName}
+            sx={{ width: '%' }}
+          />
+        </div>
       </Stack> 
       
   {/* End of Technician usertype view for Search bar (top side) */}
@@ -1390,26 +1371,26 @@ const handleViewClose = () => {
     {isLoading ? (
       <CircularProgress />
     ) : (
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ maxHeight: 400 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>
               <Checkbox
                 checked={selectAll}
-                onChange={handleSelectAll}
+                onChange={handleSelectAllTechnician}
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Document ID</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Date</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Location/Room</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Borrower</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Items</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>File Status</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Action</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>File</TableCell>
+              <TableCell  style={{ textAlign: 'center' }}>Actions</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1423,25 +1404,25 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell >
+                <TableCell  style={{ textAlign: 'center' }}>{item.id}</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
-                <TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
-                      <CheckIcon onClick={updateStatusInFirebase} />
+                      <CheckIcon onClick={() => updateStatusInFirebase(item.id)} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon onClick={updateStatusInFirebaseReject}/>
+                      <CloseIcon onClick={() => updateStatusInFirebaseReject(item.id)} />
                     </IconButton>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>
                   {item.fileURL ? (
                     // Render a clickable link to download the file
                     <Link to={item.fileURL} target="_blank" download>
@@ -1452,7 +1433,7 @@ const handleViewClose = () => {
                     "No File"
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell  style={{ textAlign: 'center' }}>
                   <IconButton
                     aria-label="menu"
                     onClick={(event) => handleMenuOpen(event, item)}
@@ -1523,6 +1504,7 @@ const handleViewClose = () => {
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
+      <p>Selected Option: {selectedOption}</p>
       </Stack>
 
       <Stack
@@ -1532,34 +1514,32 @@ const handleViewClose = () => {
       mb={5}
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
       >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>
-          <TextField
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleFilterByName}
-            sx={{ width: '%' }}
-          />
+
+
+<Stack direction="row" alignItems="center" justifyContent="space-between">
+      <div style={{ marginLeft: '10px'}}>
+      <Box sx={{ minWidth: 200 }}>
+        <FormControl fullWidth>
+          <InputLabel id="options-label">File Status:</InputLabel>
+          <Select
+            labelId="options-label"
+            id="options"
+            value={selectedOption}
+            onChange={handleOptionChange}
+            label="Select an option"
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="Approved">Approved</MenuItem>
+            <MenuItem value="Rejected">Rejected</MenuItem>
+            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
+            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
+            <MenuItem value="Archived">Archived</MenuItem>
+          </Select>
+        </FormControl>
+        </Box>
         </div>
 
-        <div>
-        <Button
-          onClick={() => DeanfetchAllDocuments()}
-          variant="contained"
-          size="large"
-          style={{
-            margin: '0 8px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          Refresh
-        </Button>
-        </div>
-      </div>
-
-      <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center' }}>
+        <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center'}}>
         {selectedItems.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <IconButton onClick={handleTrashIconClick} >
@@ -1570,24 +1550,38 @@ const handleViewClose = () => {
             </Typography>
           </div>
         )}
+        </div>
+      </Stack>
 
-      <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
+      <div style={{ marginLeft: 'auto', display: 'flex' }}>
+        <ProductFilterSidebar 
+              alignItems="center"
               openFilter={openFilter}
               onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
+              onCloseFilter={handleCloseFilter} 
             />
-            <ProductSort />
-          </Stack>
-        </Stack>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
-      />
-      </div>  
+        <Button
+          onClick={() => DeanfetchAllDocuments()}
+          variant="contained"
+          size="large"
+          style={{
+              margin: '0 8px',
+              paddingRight: '10px',
+              display: 'flex',
+              alignContent: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#ff5500',
+          }}
+          startIcon={<RefreshIcon />} />
+
+        <TextField
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleFilterByName}
+            sx={{ width: '%' }}
+          />
+        </div>
       </Stack> 
       
   {/* End of Dean usertype view for Search bar (top side) */}
@@ -1597,26 +1591,26 @@ const handleViewClose = () => {
     {isLoading ? (
       <CircularProgress />
     ) : (
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ maxHeight: 400 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>
               <Checkbox
                 checked={selectAll}
-                onChange={handleSelectAll}
+                onChange={handleSelectAllDean}
                 color="primary"
               />
               </TableCell>
-              <TableCell>Document ID</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Location/Room</TableCell>
-              <TableCell>Borrower</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>File Status</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>File</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Action</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>File</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Actions</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1630,16 +1624,16 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.Date}</TableCell>
-                <TableCell>{item.LocationRoom}</TableCell>
-                <TableCell>{item.Borrower}</TableCell>
-                <TableCell>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                 {/* <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell> */}
-                <TableCell >
+                <TableCell style={{ textAlign: 'center' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
                   <div style={{ display: 'flex' }}>
                     <IconButton style={{ color: 'green' }}>
                       <CheckIcon onClick={updateStatusInFirebaseDean} />
@@ -1649,7 +1643,7 @@ const handleViewClose = () => {
                     </IconButton>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
                   {item.fileURL ? (
                     // Render a clickable link to download the file
                     <Link to={item.fileURL} target="_blank" download>
@@ -1660,7 +1654,7 @@ const handleViewClose = () => {
                     "No File"
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
                   <IconButton
                     aria-label="menu"
                     onClick={(event) => handleMenuOpen(event, item)}
