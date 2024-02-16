@@ -139,6 +139,7 @@ export default function UserPage() {
       await updateDoc(statusRef, { status: 'PENDING (Dean)' });
       console.log('Status updated successfully!');
       setStatus('PENDING (Dean)'); // Update local state if needed
+      fetchAllDocuments();
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -150,30 +151,33 @@ export default function UserPage() {
       await updateDoc(statusRef, { status: 'REJECTED' });
       console.log('Status updated successfully!');
       setStatus('REJECTED'); // Update local state if needed
+      fetchAllDocuments();
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
 
 
-  const updateStatusInFirebaseDean = async () => {
+
+  const updateStatusInFirebaseDean = async (documentId) => {
     try {
-      if (documentIds.length === 0) {
-        console.error('No document IDs to update.');
-        return;
-      }
-  
-      // Update each document in the subcollection
-      const updatePromises = documentIds.map(async (documentId) => {
-        const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
-        await updateDoc(statusRef, { status: 'APPROVED' });
-      });
-  
-      // Wait for all updates to complete
-      await Promise.all(updatePromises);
-  
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'APPROVED' });
       console.log('Status updated successfully!');
       setStatus('APPROVED'); // Update local state if needed
+      DeanfetchAllDocuments();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const updateStatusInFirebaseRejectDean = async (documentId) => {
+    try {
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'REJECTED' });
+      console.log('Status updated successfully!');
+      setStatus('REJECTED'); // Update local state if needed
+      DeanfetchAllDocuments();
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -297,7 +301,7 @@ const handleChange = (e) => {
 };
 
   const initialFormData = {
-    Date: '',
+    userDate: '',
     LocationRoom: '',
     Borrower: '',
     Items: [],
@@ -312,7 +316,7 @@ const handleChange = (e) => {
 
   // Handle change function
   const [formData, setFormData] = useState({
-    Date: '',
+    userDate: '',
     LocationRoom: '',
     Borrower: '',
     Items: [], // If this is an array, it can be empty initially
@@ -440,10 +444,10 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { Date, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const { userDate, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
   
     // Validation logic for required fields
-    if (!Date || !LocationRoom || !Borrower) {
+    if (!userDate || !LocationRoom || !Borrower) {
       alert('Please fill out all required fields');
       return;
     }
@@ -452,7 +456,8 @@ useEffect(() => {
       const docRef = doc(BorrowersCollectionRef, documentName);
   
       const docData = {
-        Date,
+        userDate,
+        timestamp: new Date(),
         LocationRoom,
         FullName : Borrower || '',
         Borrower,
@@ -472,6 +477,7 @@ useEffect(() => {
   
       setOpen(false);
       setSnackbarOpen(true);
+      fetchUserDocuments(user?.uid);
     } catch (error) {
       console.error(error);
       alert("Input cannot be incomplete");
@@ -521,7 +527,7 @@ const filteredDataDean = fetchedDataDean.filter((item) => {
   });
 });
 
-// This one is for the Edit button
+// This one is for the Edit button for Faculty only
 const [editData, setEditData] = useState(null);
 const [editOpen, setEditOpen] = useState(false);
 
@@ -531,6 +537,7 @@ const handleEditOpen = (data) => {
     setFormData({
       ...formData,
       Date: data.Date || '',
+      timestamp: data.timestamp ? new Date(data.timestamp) : '',
       LocationRoom: data.LocationRoom || '',
       FullName: data.Borrower || '',
       Borrower: data.Borrower || '',
@@ -541,7 +548,7 @@ const handleEditOpen = (data) => {
     });
     setEditData(data);
     setEditOpen(true);
-    handleMenuClose();
+    handleMenuClose(); 
   }
 };
 
@@ -567,6 +574,7 @@ const handleEditSubmit = async () => {
     await updateDoc(docRef, updatedEditData);
     handleEditClose();
     setSnackbarOpen1(true);
+    fetchUserDocuments(user?.uid);
   } catch (error) {
     console.error("Error updating data in Firestore: ", error);
   }
@@ -704,7 +712,7 @@ const handleConfirmDelete = async () => {
 
 
 const [page, setPage] = useState(0); // Add these state variables for pagination
-const [rowsPerPage, setRowsPerPage] = useState(4);
+const [rowsPerPage, setRowsPerPage] = useState(5);
 
 const startIndex = page * rowsPerPage;
 const endIndex = startIndex + rowsPerPage;
@@ -712,14 +720,12 @@ const displayedData = filteredData.slice(startIndex, endIndex);
 const displayedDataTechnician = filteredDataTechnician.slice(startIndex, endIndex);
 const displayedDataDean = filteredDataDean.slice(startIndex, endIndex);
 
-const handlePageChange = (event, newPage) => {
-  console.log("Page changed to:", newPage); // Log the new page number
+const handlePageChange = (event, newPage) => { 
   setPage(newPage);
 };
 
 const handleRowsPerPageChange = (event) => {
   const newRowsPerPage = parseInt(event.target.value, 10);
-  console.log("Rows per page changed to:", newRowsPerPage); // Log the new rows per page value
   setRowsPerPage(newRowsPerPage);
   setPage(0); // Reset to the first page when changing rows per page
 };
@@ -963,7 +969,7 @@ const handleViewClose = () => {
 
         {/* This is the beginning of the Container for Faculty */}
         {isFaculty && ( 
-      <Container>
+      <Container  maxWidth='xl' >
   
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
@@ -1072,8 +1078,8 @@ const handleViewClose = () => {
                     <TextField
                     type="date"
                     name="Date"
-                    value={formData.Date || ''}
-                    onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+                    value={formData.userDate || ''}
+                    onChange={(e) => setFormData({ ...formData, userDate: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
@@ -1182,7 +1188,7 @@ const handleViewClose = () => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <TableContainer component={Paper} style={{ maxHeight: 400 }}>
+        <TableContainer component={Paper} style={{ maxHeight: 500 }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -1195,12 +1201,12 @@ const handleViewClose = () => {
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>File</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Actions</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
               </TableRow>
             </TableHead>
             
@@ -1214,22 +1220,17 @@ const handleViewClose = () => {
                       />
                   </TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
+                    {item.timestamp && item.timestamp.toDate().toLocaleString()}
+                  </TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
                   <TableCell style={{ textAlign: 'center' }}>
                     <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                   </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {item.fileURL ? (
-                      <Link to={item.fileURL} target="_blank" download>
-                        Download 
-                      </Link>
-                    ) : (
-                      "No File"
-                    )}
-                  </TableCell>
+            
                   <TableCell style={{ textAlign: 'center' }}>
                     <IconButton
                       aria-label="menu"
@@ -1245,7 +1246,7 @@ const handleViewClose = () => {
         </TableContainer>
       )}
        <TablePagination
-        rowsPerPageOptions={[4, 10, 25]}
+        rowsPerPageOptions={[5, 10, 25]}
         component="div"
         count={filteredData.length} 
         rowsPerPage={rowsPerPage}
@@ -1278,7 +1279,7 @@ const handleViewClose = () => {
   
   {/* Start of Technician usertype view for Search bar (top side) */}
   {isTechnician && ( 
-  <Container>
+  <Container  maxWidth='xl' >
 
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
@@ -1371,7 +1372,7 @@ const handleViewClose = () => {
     {isLoading ? (
       <CircularProgress />
     ) : (
-      <TableContainer component={Paper} style={{ maxHeight: 400 }}>
+      <TableContainer component={Paper} style={{ maxHeight: 500 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -1382,15 +1383,15 @@ const handleViewClose = () => {
                 color="primary"
               />
               </TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Document ID</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Date</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Location/Room</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Borrower</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Items</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>File Status</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Action</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>File</TableCell>
-              <TableCell  style={{ textAlign: 'center' }}>Actions</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Action</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1404,16 +1405,19 @@ const handleViewClose = () => {
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>{item.Date}</TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
+                  {item.timestamp && item.timestamp.toDate().toLocaleString()}
+                </TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>
-                  <div style={{ display: 'flex' }}>
+                <TableCell style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'center' }}>
                     <IconButton style={{ color: 'green' }}>
                       <CheckIcon onClick={() => updateStatusInFirebase(item.id)} />
                     </IconButton>
@@ -1422,17 +1426,7 @@ const handleViewClose = () => {
                     </IconButton>
                   </div>
                 </TableCell>
-                <TableCell  style={{ textAlign: 'center' }}>
-                  {item.fileURL ? (
-                    // Render a clickable link to download the file
-                    <Link to={item.fileURL} target="_blank" download>
-                      Download 
-                    </Link>
-                  ) : (
-                    // Display "No File" if there's no file URL
-                    "No File"
-                  )}
-                </TableCell>
+                
                 <TableCell  style={{ textAlign: 'center' }}>
                   <IconButton
                     aria-label="menu"
@@ -1441,7 +1435,6 @@ const handleViewClose = () => {
                     <MoreVertIcon />
                   </IconButton>
                 </TableCell>
-             
             </TableRow>
 
             ))}
@@ -1463,7 +1456,7 @@ const handleViewClose = () => {
     </Dialog>
     
      <TablePagination
-      rowsPerPageOptions={[4, 10, 25]}
+      rowsPerPageOptions={[5, 10, 25]}
       component="div"
       count={filteredDataTechnician.length} // Make sure this reflects the total number of rows
       rowsPerPage={rowsPerPage}
@@ -1498,8 +1491,7 @@ const handleViewClose = () => {
 
  {/* Start of Dean usertype view for Search bar (top side) */}
  {isDean && ( 
-  <Container>
-
+  <Container  maxWidth='xl' >
     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
@@ -1591,7 +1583,7 @@ const handleViewClose = () => {
     {isLoading ? (
       <CircularProgress />
     ) : (
-      <TableContainer component={Paper} style={{ maxHeight: 400 }}>
+      <TableContainer component={Paper} style={{ maxHeight: 500 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -1604,13 +1596,13 @@ const handleViewClose = () => {
               </TableCell>
               <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
               <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
               <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
               <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
               <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
               <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
               <TableCell style={{ textAlign: 'center' }}>Action</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>File</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Actions</TableCell>
+              <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -1625,7 +1617,10 @@ const handleViewClose = () => {
                     />
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.Date}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
+                  {item.timestamp && item.timestamp.toDate().toLocaleString()}
+                </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
@@ -1634,26 +1629,16 @@ const handleViewClose = () => {
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
-                  <div style={{ display: 'flex' }}>
+                  <div style={{ display: 'center' }}>
                     <IconButton style={{ color: 'green' }}>
-                      <CheckIcon onClick={updateStatusInFirebaseDean} />
+                      <CheckIcon onClick={() => updateStatusInFirebaseDean(item.id)} />
                     </IconButton>
                     <IconButton style={{ color: 'red' }}>
-                      <CloseIcon onClick={updateStatusInFirebaseReject} />
+                      <CloseIcon onClick={() => updateStatusInFirebaseRejectDean(item.id)} />
                     </IconButton>
                   </div>
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
-                  {item.fileURL ? (
-                    // Render a clickable link to download the file
-                    <Link to={item.fileURL} target="_blank" download>
-                      Download 
-                    </Link>
-                  ) : (
-                    // Display "No File" if there's no file URL
-                    "No File"
-                  )}
-                </TableCell>
+              
                 <TableCell style={{ textAlign: 'center' }}>
                   <IconButton
                     aria-label="menu"
@@ -1684,7 +1669,7 @@ const handleViewClose = () => {
     </Dialog>
     
      <TablePagination
-      rowsPerPageOptions={[4, 10, 25]}
+      rowsPerPageOptions={[5, 10, 25]}
       component="div"
       count={filteredDataTechnician.length} // Make sure this reflects the total number of rows
       rowsPerPage={rowsPerPage}
@@ -1736,20 +1721,54 @@ const handleViewClose = () => {
                     alignItems="center"
                   >
                     <Grid item xs={8}>
+                    <Typography variant="subtitle1">Document ID:</Typography>
                     <TextField
-                    type="date"
-                    name="Date"
-                    value={editData ? editData.Date : ''}
-                    onChange={(e) => setEditData({ ...editData, Date: e.target.value })}
+                    type="text"
+                    name="id"
+                    value={editData ? editData.id : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Location/Room:</Typography>
+                      <TextField
+                        type="text"
+                        name="LocationRoom"
+                        value={editData ? editData.LocationRoom : ''}
+                        onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      <Typography variant="subtitle1">Date:</Typography>
+                        <TextField
+                          type="date"
+                          name="Date"
+                          value={editData ? editData.userDate : ''}
+                          onChange={(e) => setEditData({ ...editData, userDate: e.target.value })}
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Timestamp:</Typography>
+                    <TextField
+                    type="timestamp"
+                    name="timestamp"
+                    value={editData ? editData.timestamp.toDate().toLocaleString() : ''}
+                    disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
                     </Grid>
 
                     <Grid item xs={16}>
+                    <Typography variant="subtitle1">Borrower:</Typography>
                     <TextField
                     type="text"
                     name="Borrower"
-                    label="Borrower"
                     value={editData ? editData.Borrower : ''}
                     onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
@@ -1757,8 +1776,8 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={8}>
+                    <Typography variant="subtitle1">Items:</Typography>
                     <fieldset>
-                    <legend name="Items" >Items:</legend>
                     <Checkbox
                       value="HDMI"
                       checked={formData.Items.includes('HDMI')}
@@ -1792,17 +1811,6 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={editData ? editData.LocationRoom : ''}
-                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
                       <Grid>
                       <Typography variant="subtitle1">File:</Typography>
                   <TextField
@@ -1851,15 +1859,27 @@ const handleViewClose = () => {
                     alignItems="center"
                   >
                     <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
-                  <TextField
-                    type="text"
-                    name="id"
-                    placeholder="Docuent ID:"
-                    value={viewItem  ? viewItem .id : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <Typography variant="subtitle1">Document ID:</Typography>
+                        <TextField
+                          type="text"
+                          name="id"
+                          placeholder="Document ID:"
+                          value={viewItem  ? viewItem .id : ''}
+                          disabled
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
+                      </Grid>
+
+                    <Grid item xs={8}>
+                      <Typography variant="subtitle1">Location/Room:</Typography>
+                        <TextField
+                          type="text"
+                          name="LocationRoom"
+                          placeholder="Location/Room"
+                          value={viewItem  ? viewItem .LocationRoom : ''}
+                          disabled
+                          sx={{ width: '100%', marginBottom: '10px' }}
+                        />
                     </Grid>
 
                     <Grid item xs={8}>
@@ -1868,7 +1888,19 @@ const handleViewClose = () => {
                     type="date"
                     name="Date"
                     placeholder="Date"
-                    value={viewItem ? viewItem.Date : ''}
+                    value={viewItem ? viewItem.userDate : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Timestamp:</Typography>
+                  <TextField
+                    type="text"
+                    name="id"
+                    placeholder="Timestamp"
+                    value={viewItem  ? viewItem .timestamp.toDate().toLocaleString() : ''}
                     disabled
                     sx={{ width: '100%', marginBottom: '10px' }}
                   />
@@ -1887,8 +1919,8 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={8}>
+                    <Typography variant="subtitle1">Items:</Typography>
                     <fieldset>
-                    <legend name="Items">ITEMS:</legend>
                     <Checkbox
                       value="HDMI"
                       checked={viewItem && viewItem.Items.includes('HDMI')}
@@ -1922,18 +1954,6 @@ const handleViewClose = () => {
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      <Typography variant="subtitle1">Location/Room:</Typography>
-                  <TextField
-                    type="text"
-                    name="LocationRoom"
-                    placeholder="Location/Room"
-                    value={viewItem  ? viewItem .LocationRoom : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
                       <Grid>
                       <Typography variant="subtitle1">File:</Typography>
                     {viewItem && viewItem.fileURL ? (
