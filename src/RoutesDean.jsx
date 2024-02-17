@@ -91,7 +91,7 @@ export default function RoutesDean({ isDean}) {
       path: '/dashboard',
       element: <DashboardLayout isDean={isDean} />,
       children: [
-        { element: <Navigate to="/dashboard/form" />, index: true },
+        { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
@@ -126,22 +126,8 @@ export default function RoutesDean({ isDean}) {
       element: <SimpleLayout />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
-        // { path: '404', element: <Page404 /> },
-        // { path: '*', element: <Navigate to="/404" /> },
       ],
     },
-    // {
-    //   path: '*',
-    //   element: <Navigate to="/404" replace />,
-    // },
-
-    {
-      /* <Route path="/login" element={<LoginPage /> } >
-              
-                <Route path="signup/*" element={<SignUpComponent />} />
-              </Route> */
-    },
   ]);
-
   return routes;
 }

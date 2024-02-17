@@ -27,6 +27,7 @@ export default function App() {
   const { isAuthenticated, user } = useAuthState(); // Get the authentication state
   const [isFaculty, setIsFaculty] = useState(false);
   const [isDean, setIsDean] = useState(false);
+  const [isTechnician, setIsTechnician] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -39,6 +40,7 @@ export default function App() {
           const userData = querySnapshot.docs[0].data();
           setIsFaculty(userData.userType === 'faculty');
           setIsDean(userData.userType === 'dean');
+          setIsTechnician(userData.userType === 'technician');
         }
       }
     };
@@ -68,7 +70,7 @@ export default function App() {
                   ) : isDean ? (
                     <RoutesDean isDean={isDean} />
                   ) : (
-                    <Router isFaculty={isFaculty} />
+                    <Router isTechnician={isTechnician} />
                   )
                 }
               />

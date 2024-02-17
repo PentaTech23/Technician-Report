@@ -1438,6 +1438,7 @@ const handleViewClose = () => {
             </TableRow>
 
             ))}
+
           </TableBody>
         </Table>
       </TableContainer>
