@@ -55,8 +55,6 @@ export default function App() {
           <ThemeProvider>
             <ScrollToTop />
             <StyledChart />
-            {/* Show the Navbar (Nav) here */}
-           
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpComponent />} />

@@ -319,91 +319,49 @@ const handleChange = (e) => {
     userDate: '',
     LocationRoom: '',
     Borrower: '',
-    Items: [], // If this is an array, it can be empty initially
+    Items: [],
     otherItems: '',
     fileURL: '',
   });
 
-// Technician Show Query/table fetch from firestore
-
-  const fetchAllDocuments = async () => {
-    setIsLoading(true);
-
-    try {
-      const querySnapshot = await getDocs(BorrowersCollectionRef);
-      const dataFromFirestore = [];
-
-      querySnapshot.forEach((doc) => {
-        // Handle each document here
-        const data = doc.data();
-        data.id = doc.id; // Add the ID field
-        dataFromFirestore.push(data);
-      });
-
-      setFetchedDataTechnician(dataFromFirestore);
-    } catch (error) {
-      console.error("Error fetching data from Firestore: ", error);
-    } finally {
-      setIsLoading(false);
-    }
+// Faculty Code for filter, status type:
+  
+  const [selectedOption, setSelectedOption] = useState('All');
+    
+  const handleOptionChange = (e) => {
+    const selectedStatus = e.target.value;
+    setSelectedOption(selectedStatus);
+    fetchUserDocuments(user?.uid, selectedStatus);
   };
+  
 
-  useEffect(() => {
-    fetchAllDocuments();
-   }, []);
 
-// Dean Show Query/table fetch from firestore
 
-const DeanfetchAllDocuments = async () => {
+// Faculty data fetch from firestore 
+const fetchUserDocuments = async (userUID, selectedStatus) => {
   setIsLoading(true);
-
   try {
-    const querySnapshot = await getDocs(
-      query(BorrowersCollectionRef, where('status', '!=', 'PENDING (Technician)'))
-    );
-
-    const dataFromFirestore = [];
-
-    querySnapshot.forEach((doc) => {
-      // Handle each document here
-      const data = doc.data();
-      data.id = doc.id; // Add the ID field
-      dataFromFirestore.push(data);
-    });
-
-    setFetchedDataDean(dataFromFirestore);
-  } catch (error) {
-    console.error("Error fetching data from Firestore: ", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-useEffect(() => {
-  DeanfetchAllDocuments();
-}, []);
-
-// Show Query based on UID: 
-const fetchUserDocuments = async (userUID) => {
-  setIsLoading(true);
-
-  try {
-    // Ensure userUID is a string before proceeding
     if (typeof userUID !== 'string') {
       console.error('Invalid userUID:', userUID);
       return;
     }
 
-    const querySnapshotuid = await getDocs(
-      query(BorrowersCollectionRef, where('uid', '==', userUID))
-    );
+    let queryRef = query(BorrowersCollectionRef, where('uid', '==', userUID));
 
+    // Exclude filter condition when selectedStatus is undefined or 'All'
+    if (selectedStatus && selectedStatus !== 'All') {
+      queryRef = query(queryRef, where('status', '==', selectedStatus));
+    }
+
+    const querySnapshotuid = await getDocs(queryRef);
     const dataFromFirestore = [];
 
     querySnapshotuid.forEach((doc) => {
       const data = doc.data();
-      data.id = doc.id;
-      dataFromFirestore.push(data);
+      if (data) {
+        data.id = doc.id;
+        dataFromFirestore.push(data);
+      }
     });
 
     setFetchedData(dataFromFirestore);
@@ -415,11 +373,98 @@ const fetchUserDocuments = async (userUID) => {
 };
 
 useEffect(() => {
-  // Ensure that user data is available before fetching documents
-  if (user?.uid) {
-    fetchUserDocuments(user.uid);
+  if (user?.uid && selectedOption !== undefined) {
+    fetchUserDocuments(user.uid, selectedOption);
   }
-}, [user]); // Trigger the fetch when the user object changes
+}, [user, selectedOption]);
+
+// Technician Code for filter, status type:
+  
+const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
+    
+const handleOptionChangeTechnician = (e) => {
+  const selectedStatusTechnician = e.target.value;
+  setSelectedOptionTechnician(selectedStatusTechnician);
+  fetchAllDocuments(selectedStatusTechnician);
+};
+
+
+// Technician data fetch from firestore
+  const fetchAllDocuments = async (selectedStatusTechnician) => {
+    setIsLoading(true);
+    try {
+      let queryRefTechnician = BorrowersCollectionRef; // Remove 'where' clause here
+
+      // Exclude filter condition when selectedStatus is undefined or 'All'
+    if (selectedStatusTechnician && selectedStatusTechnician !== 'All') 
+        {
+          queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician));
+        }
+
+      const querySnapshot = await getDocs(queryRefTechnician);
+      const dataFromFirestore = [];
+
+      querySnapshot.forEach((doc) => {  
+        const data = doc.data();
+         if (data) {
+          data.id = doc.id;
+          dataFromFirestore.push(data);
+        }
+      });
+      setFetchedDataTechnician(dataFromFirestore);
+    } catch (error) {
+      console.error("Error fetching data from Firestore: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchAllDocuments(selectedOptionTechnician);
+   }, []);
+
+// Dean Code for filter, status type:
+  
+const [selectedOptionDean, setSelectedOptionDean] = useState('PENDING (Dean)');
+    
+const handleOptionChangeDean = (e) => {
+  const selectedStatusDean = e.target.value;
+  setSelectedOptionDean(selectedStatusDean);
+  DeanfetchAllDocuments(selectedStatusDean);
+};
+
+// Dean fetch data from firestore
+const DeanfetchAllDocuments = async (selectedStatusDean) => {
+  setIsLoading(true);
+  try {
+    let queryRefDean = BorrowersCollectionRef; // Remove 'where' clause here
+
+     // Exclude filter condition when selectedStatus is undefined or 'All'
+     if (selectedStatusDean && selectedStatusDean !== 'All') 
+     {
+      queryRefDean = query(queryRefDean, where('status', '==', selectedStatusDean));
+     }
+
+   const querySnapshot = await getDocs(queryRefDean);
+   const dataFromFirestore = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        data.id = doc.id;
+        dataFromFirestore.push(data);
+      }
+    });
+    setFetchedDataDean(dataFromFirestore);
+  } catch (error) {
+    console.error("Error fetching data from Firestore: ", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+useEffect(() => {
+  DeanfetchAllDocuments(selectedOptionDean);
+}, []);
+
 
 
 // Function to increment the document name
@@ -937,29 +982,24 @@ const handleViewClose = () => {
 
     const getStatusColor = (status) => {
       if (status === 'APPROVED') {
-        return 'success'; // Green color for 'approved'
+        return 'success'; // Green color for 'APPROVED'
       }
       if (status === 'PENDING (Dean)') {
-        return 'warning'; // Orange color for 'pending'
+        return 'warning'; // Orange color for 'Pending (Dean)'
       }
       if (status === 'PENDING (Technician)') {
-        return 'warning'; // Orange color for 'pending'
+        return 'warning'; // Orange color for 'Pending (Technician)'
       }
       if (status === 'REJECTED') {
-        return 'error'; // Red color for 'reject'
+        return 'error'; // Red color for 'REJECTED'
+      }
+      if (status === 'ARCHIVED') {
+        return 'info'; // Blue/Default color for 'ARCHIVED'
       }
       return 'info'; // Default color for other status values
     };
     
-    
 
-
-      const [selectedOption, setSelectedOption] = useState('All');
-    
-      const handleOptionChange = (e) => {
-        setSelectedOption(e.target.value);
-      };
-  
 
   return (
     <>
@@ -1003,11 +1043,11 @@ const handleViewClose = () => {
             label="Select an option"
           >
             <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Approved">Approved</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
-            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
-            <MenuItem value="Archived">Archived</MenuItem>
+            <MenuItem value="APPROVED">APPROVED</MenuItem>
+            <MenuItem value="REJECTED">REJECTED</MenuItem>
+            <MenuItem value="PENDING (Technician)">PENDING (Technician)</MenuItem>
+            <MenuItem value="PENDING (Dean)">PENDING (Dean)</MenuItem>
+            <MenuItem value="ARCHIVED">ARCHIVED</MenuItem>
           </Select>
         </FormControl>
         </Box>
@@ -1035,7 +1075,7 @@ const handleViewClose = () => {
               onCloseFilter={handleCloseFilter} 
             />
         <Button
-          onClick={() => fetchUserDocuments(user?.uid)}
+          onClick={() => fetchUserDocuments(user?.uid, selectedOption)}
           variant="contained"
           size="large"
           style={{
@@ -1285,7 +1325,7 @@ const handleViewClose = () => {
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
-      <p>Selected Option: {selectedOption}</p>
+      <p>Selected Option: {selectedOptionTechnician}</p>
       </Stack>
 
       <Stack
@@ -1305,16 +1345,16 @@ const handleViewClose = () => {
           <Select
             labelId="options-label"
             id="options"
-            value={selectedOption}
-            onChange={handleOptionChange}
+            value={selectedOptionTechnician}
+            onChange={handleOptionChangeTechnician}
             label="Select an option"
           >
             <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Approved">Approved</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
-            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
-            <MenuItem value="Archived">Archived</MenuItem>
+            <MenuItem value="APPROVED">APPROVED</MenuItem>
+            <MenuItem value="REJECTED">REJECTED</MenuItem>
+            <MenuItem value="PENDING (Technician)">PENDING (Technician)</MenuItem>
+            <MenuItem value="PENDING (Dean)">PENDING (Dean)</MenuItem>
+            <MenuItem value="ARCHIVED">ARCHIVED</MenuItem>
           </Select>
         </FormControl>
         </Box>
@@ -1342,7 +1382,7 @@ const handleViewClose = () => {
               onCloseFilter={handleCloseFilter} 
             />
         <Button
-          onClick={() => fetchAllDocuments()}
+          onClick={() => fetchAllDocuments(selectedOptionTechnician)}
           variant="contained"
           size="large"
           style={{
@@ -1418,11 +1458,11 @@ const handleViewClose = () => {
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
                   <div style={{ display: 'center' }}>
-                    <IconButton style={{ color: 'green' }}>
-                      <CheckIcon onClick={() => updateStatusInFirebase(item.id)} />
+                    <IconButton style={{ color: 'green' }}  onClick={() => updateStatusInFirebase(item.id)}>
+                      <CheckIcon />
                     </IconButton>
-                    <IconButton style={{ color: 'red' }}>
-                      <CloseIcon onClick={() => updateStatusInFirebaseReject(item.id)} />
+                    <IconButton style={{ color: 'red' }} onClick={() => updateStatusInFirebaseReject(item.id)} >
+                      <CloseIcon />
                     </IconButton>
                   </div>
                 </TableCell>
@@ -1517,16 +1557,16 @@ const handleViewClose = () => {
           <Select
             labelId="options-label"
             id="options"
-            value={selectedOption}
-            onChange={handleOptionChange}
+            value={selectedOptionDean}
+            onChange={handleOptionChangeDean}
             label="Select an option"
           >
             <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Approved">Approved</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-            <MenuItem value="Pending (Technician)">Pending (Technician)</MenuItem>
-            <MenuItem value="Pending (Dean)">Pending (Dean)</MenuItem>
-            <MenuItem value="Archived">Archived</MenuItem>
+            <MenuItem value="APPROVED">APPROVED</MenuItem>
+            <MenuItem value="REJECTED">REJECTED</MenuItem>
+            <MenuItem value="PENDING (Technician)">PENDING (Technician)</MenuItem>
+            <MenuItem value="PENDING (Dean)">PENDING (Dean)</MenuItem>
+            <MenuItem value="ARCHIVED">ARCHIVED</MenuItem>
           </Select>
         </FormControl>
         </Box>
@@ -1554,7 +1594,7 @@ const handleViewClose = () => {
               onCloseFilter={handleCloseFilter} 
             />
         <Button
-          onClick={() => DeanfetchAllDocuments()}
+          onClick={() => DeanfetchAllDocuments(selectedOptionDean)}
           variant="contained"
           size="large"
           style={{
@@ -1672,7 +1712,7 @@ const handleViewClose = () => {
      <TablePagination
       rowsPerPageOptions={[5, 10, 25]}
       component="div"
-      count={filteredDataTechnician.length} // Make sure this reflects the total number of rows
+      count={filteredDataDean.length} // Make sure this reflects the total number of rows
       rowsPerPage={rowsPerPage}
       page={page}
       onPageChange={handlePageChange}
