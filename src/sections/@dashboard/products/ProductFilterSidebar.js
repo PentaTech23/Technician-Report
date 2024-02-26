@@ -84,10 +84,10 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
     
   return (
     <>
+      
       <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={onOpenFilter}>
         Filters&nbsp;
       </Button>
-
       <Drawer
         anchor="right"
         open={openFilter}
@@ -104,35 +104,31 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
             <Iconify icon="eva:close-fill" />
           </IconButton>
         </Stack>
-
-        <Divider />
-
-        
-
+        <Divider/>
         <Scrollbar>
-
-        
-        <Button
-        variant="subtitle1" sx={{ ml: 1}}
-        alignItems="left"
-        display="flex"
-        color="inherit"
-        onClick={handleOpen}
-        endIcon={<Iconify icon={open ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
-      >
-        Sort By:&nbsp;
-        <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
-          Newest
-        </Typography>
-      </Button>
-      <Menu
-        keepMounted
-        anchorEl={open}
-        open={Boolean(open)}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
+          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
+            Sort By:
+              <Button
+                variant="subtitle1" sx={{ ml: 1}}
+                alignItems="left"
+                display="flex"
+                color="inherit"
+                onClick={handleOpen}
+                endIcon={<Iconify icon={open ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+              >
+              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                Newest
+              </Typography>
+            </Button>
+          </Typography>
+        <Menu
+          keepMounted
+          anchorEl={open}
+          open={Boolean(open)}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
         {SORT_BY_OPTIONS.map((option) => (
           <MenuItem
             key={option.value}
@@ -143,7 +139,7 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
             {option.label}
           </MenuItem>
         ))}
-      </Menu>
+        </Menu>
       
           <Stack spacing={3} sx={{ p: 3 }}>
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
@@ -152,7 +148,6 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
             <TextField
               id="dateFrom"
               size="small"
-              // label="Date From"
               type="date"
             />
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
@@ -161,7 +156,6 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
             <TextField
               id="dateTo"
               size="small"
-              // label="Date From"
               type="date"
             />
 
@@ -171,21 +165,8 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
             <TextField
               id="location"
               size="small"
-              // label="Date From"
               type="text"
             />
-
-            {/* <div>
-              <Typography variant="subtitle1" gutterBottom>
-                Gender
-              </Typography>
-              <FormGroup>
-                {FILTER_GENDER_OPTIONS.map((item) => (
-                  <FormControlLabel key={item} control={<Checkbox />} label={item} />
-                ))}
-              </FormGroup>
-            </div> */}
-
             <div>
               <Typography variant="subtitle1" gutterBottom>
                 Service
@@ -196,64 +177,8 @@ export default function ShopFilterSidebar({ openFilter, onOpenFilter, onCloseFil
                 ))}
               </RadioGroup>
             </div>
-
-            {/* <div>
-              <Typography variant="subtitle1" gutterBottom>
-                Colors
-              </Typography>
-              <ColorMultiPicker
-                name="colors"
-                selected={[]}
-                colors={FILTER_COLOR_OPTIONS}
-                onChangeColor={(color) => [].includes(color)}
-                sx={{ maxWidth: 38 * 4 }}
-              />
-            </div> */}
-
-            {/* <div>
-              <Typography variant="subtitle1" gutterBottom>
-                Price
-              </Typography>
-              <RadioGroup>
-                {FILTER_PRICE_OPTIONS.map((item) => (
-                  <FormControlLabel key={item.value} value={item.value} control={<Radio />} label={item.label} />
-                ))}
-              </RadioGroup>
-            </div> */}
-
-            {/* <div>
-              <Typography variant="subtitle1" gutterBottom>
-                Rating
-              </Typography>
-              <RadioGroup>
-                {FILTER_RATING_OPTIONS.map((item, index) => (
-                  <FormControlLabel
-                    key={item}
-                    value={item}
-                    control={
-                      <Radio
-                        disableRipple
-                        color="default"
-                        icon={<Rating readOnly value={4 - index} />}
-                        checkedIcon={<Rating readOnly value={4 - index} />}
-                        sx={{
-                          '&:hover': { bgcolor: 'transparent' },
-                        }}
-                      />
-                    }
-                    label="& Up"
-                    sx={{
-                      my: 0.5,
-                      borderRadius: 1,
-                      '&:hover': { opacity: 0.48 },
-                    }}
-                  />
-                ))}
-              </RadioGroup>
-            </div> */}
           </Stack>
         </Scrollbar>
-
         <Box sx={{ p: 3 }}>
           <Button
             fullWidth

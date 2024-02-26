@@ -1,8 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useState, useEffect, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
 // import firebase from 'firebase/app';
-import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, orderBy, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { initializeApp } from 'firebase/app';
@@ -10,7 +11,7 @@ import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
-        FormControl, InputLabel } from '@mui/material';
+        FormControl, InputLabel, Menu, Radio, RadioGroup, FormControlLabel, Drawer, Divider } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -19,8 +20,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
-import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../../sections/@dashboard/products'
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
+
+import Scrollbar from '../../components/scrollbar';
 
 const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
@@ -28,6 +30,7 @@ export default function UserPage() {
   const [status, setStatus] = useState('initialStatus');
   const [documentId, setDocumentId] = useState(null);
 
+  
   // useEffect(() => {
   //   const fetchDocumentId = async () => {
   //     try {
@@ -381,46 +384,84 @@ useEffect(() => {
 // Technician Code for filter, status type:
   
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
+
+const [sortBy, setSortBy] = useState('newest'); // Default to 'newest'
+const handleSortByChange = (value) => {
+  setSortBy(value);
+};
+
+const [dateFrom, setDateFrom] = useState('');
+
+
+const [dateTo, setDateTo] = useState('');
+
+
+const [location, setLocation] = useState('');
+
+
+const [service, setService] = useState('');
+
+
     
 const handleOptionChangeTechnician = (e) => {
   const selectedStatusTechnician = e.target.value;
+  console.log('Selected Status Technician:', selectedStatusTechnician); // Log the value
   setSelectedOptionTechnician(selectedStatusTechnician);
-  fetchAllDocuments(selectedStatusTechnician);
+  fetchAllDocuments(selectedStatusTechnician, sortBy);
 };
 
 
 // Technician data fetch from firestore
-  const fetchAllDocuments = async (selectedStatusTechnician) => {
-    setIsLoading(true);
-    try {
-      let queryRefTechnician = BorrowersCollectionRef; // Remove 'where' clause here
+const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, service) => {
+  setIsLoading(true);
+  try {
+    let queryRefTechnician = BorrowersCollectionRef;
 
-      // Exclude filter condition when selectedStatus is undefined or 'All'
-    if (selectedStatusTechnician && selectedStatusTechnician !== 'All') 
-        {
-          queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician));
-        }
-
-      const querySnapshot = await getDocs(queryRefTechnician);
-      const dataFromFirestore = [];
-
-      querySnapshot.forEach((doc) => {  
-        const data = doc.data();
-         if (data) {
-          data.id = doc.id;
-          dataFromFirestore.push(data);
-        }
-      });
-      setFetchedDataTechnician(dataFromFirestore);
-    } catch (error) {
-      console.error("Error fetching data from Firestore: ", error);
-    } finally {
-      setIsLoading(false);
+   // Build Firestore query with filter and sorting conditions combined
+   if (selectedStatusTechnician) {
+    if (selectedStatusTechnician === 'All') {
+      if (sortBy === 'newest') {
+        queryRefTechnician = query(queryRefTechnician, orderBy('timestamp', 'desc'));
+      } else if (sortBy === 'oldest') {
+        queryRefTechnician = query(queryRefTechnician, orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusTechnician === 'APPROVED' || selectedStatusTechnician === 'REJECTED' || selectedStatusTechnician === 'ARCHIVED') {
+      if (sortBy === 'newest') {
+        queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician), orderBy('timestamp', 'desc'));
+      } else if (sortBy === 'oldest') {
+        queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician), orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusTechnician === 'PENDING (Technician)' || selectedStatusTechnician === 'PENDING (Dean)') {
+      if (sortBy === 'newest') {
+        queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician), orderBy('timestamp', 'desc'));
+      } else if (sortBy === 'oldest') {
+        queryRefTechnician = query(queryRefTechnician, where('status', '==', selectedStatusTechnician), orderBy('timestamp', 'asc'));
+      }
     }
-  };
+  }
+
+   
+
+    const querySnapshot = await getDocs(queryRefTechnician);
+    const dataFromFirestore = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        data.id = doc.id;
+        dataFromFirestore.push(data);
+      }
+    });
+    setFetchedDataTechnician(dataFromFirestore);
+  } catch (error) {
+    console.error("Error fetching data from Firestore: ", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
   useEffect(() => {
-    fetchAllDocuments(selectedOptionTechnician);
-   }, []);
+    fetchAllDocuments(selectedOptionTechnician, sortBy);
+  }, [selectedOptionTechnician, sortBy]);
 
 // Dean Code for filter, status type:
   
@@ -942,44 +983,6 @@ const handleViewClose = () => {
     }
   };
 
-  const [openFilter, setOpenFilter] = useState(false);
- 
- const handleOpenFilter = () => {
-      setOpenFilter(true);
-    };
-  
-    const handleCloseFilter = () => {
-      setOpenFilter(false);
-    };
-
-
-    // const getStatusColor = (status) => {
-    //   switch (status) {
-    //     case 'PENDING (Technician)':
-    //       return 'orange';
-    //       case 'PENDING (Dean)':
-    //         return 'blue';
-    //     case 'APPROVED':
-    //       return 'success';
-    //     case 'REJECTED':
-    //       return 'banned';
-    //     default:
-    //       return 'red'; // Default color if status doesn't match any case
-    //   }
-    // };
-
-    // const getStatusColor = (status) => {
-    //   if (status === 'APPROVED') {
-    //     return 'success'; // Green color for 'approved'
-    //   } else if (status === 'PENDING (Dean)') {
-    //     return 'warning'; // Orange color for 'pending'
-    //   } else if (status === 'REJECTED') {
-    //     return 'error'; // Red color for 'reject'
-    //   } else {
-    //     return 'info'; // Default color for other status values
-    //   }
-    // };
-
     const getStatusColor = (status) => {
       if (status === 'APPROVED') {
         return 'success'; // Green color for 'APPROVED'
@@ -999,8 +1002,61 @@ const handleViewClose = () => {
       return 'info'; // Default color for other status values
     };
     
+    // const getStatusColor = (status) => {
+    //   switch (status) {
+    //     case 'PENDING (Technician)':
+    //       return 'orange';
+    //       case 'PENDING (Dean)':
+    //         return 'blue';
+    //     case 'APPROVED':
+    //       return 'success';
+    //     case 'REJECTED':
+    //       return 'banned';
+    //     default:
+    //       return 'red'; // Default color if status doesn't match any case
+    //   }
+    // };
+
+// Filter code
+
+const SORT_BY_OPTIONS = [
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'newest', label: 'Newest' },
+];
 
 
+const FILTER_CATEGORY_OPTIONS = [
+  'HDMI',
+  'Projector',
+  'TV',
+  'Others',
+];
+
+
+// ----------------------------------------------------------------------
+
+
+
+const [openFilter, setOpenFilter] = useState(false);
+ 
+    const handleOpenFilter = () => {
+      setOpenFilter(true);
+    };
+  
+    const handleCloseFilter = () => {
+      setOpenFilter(false);
+    };
+
+const [openSidebar, setOpenSidebar] = useState(null);
+
+    const handleOpenSidebar = (event) => {
+      setOpenSidebar(event.currentTarget);
+    };
+  
+    const handleCloseSidebar = () => {
+      setOpenSidebar(null);
+    };
+  
   return (
     <>
       <Helmet>
@@ -1068,13 +1124,10 @@ const handleViewClose = () => {
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
-        <ProductFilterSidebar 
-              alignItems="center"
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter} 
-            />
-        <Button
+      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilter}>
+        Filters&nbsp;
+      </Button>
+      <Button
           onClick={() => fetchUserDocuments(user?.uid, selectedOption)}
           variant="contained"
           size="large"
@@ -1288,7 +1341,7 @@ const handleViewClose = () => {
        <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={filteredData.length} 
+        count={filteredDataTechnician.length} 
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
@@ -1375,12 +1428,10 @@ const handleViewClose = () => {
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
-        <ProductFilterSidebar 
-              alignItems="center"
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter} 
-            />
+      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} 
+        onClick={handleOpenFilter}>
+          Filters&nbsp;
+      </Button>
         <Button
           onClick={() => fetchAllDocuments(selectedOptionTechnician)}
           variant="contained"
@@ -1587,12 +1638,9 @@ const handleViewClose = () => {
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
-        <ProductFilterSidebar 
-              alignItems="center"
-              openFilter={openFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter} 
-            />
+      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilter}>
+        Filters&nbsp;
+      </Button>
         <Button
           onClick={() => DeanfetchAllDocuments(selectedOptionDean)}
           variant="contained"
@@ -2081,6 +2129,112 @@ const handleViewClose = () => {
         message="The Document was archived successfully!"
       />
 
+
+<Drawer
+        anchor="right"
+        open={openFilter}
+        onClose={handleCloseFilter}
+        PaperProps={{
+          sx: { width: 280, border: 'none', overflow: 'hidden' },
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" sx={{ px: 1, py: 2 }}>
+          <Typography variant="subtitle1" sx={{ ml: 1 }}>
+            Filters
+          </Typography>
+          <IconButton onClick={handleCloseFilter}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </Stack>
+        <Divider/>
+        <Scrollbar>
+          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
+            Sort By:
+              <Button
+                variant="subtitle1" sx={{ ml: 1}}
+                alignItems="left"
+                display="flex"
+                color="inherit"
+                onClick={handleOpenSidebar}
+                endIcon={<Iconify icon={openSidebar ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+              >
+              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                {sortBy === 'newest' ? 'Newest' : 'Oldest'}
+              </Typography>
+            </Button>
+          </Typography>
+          <Menu
+            keepMounted
+            anchorEl={openSidebar}
+            open={Boolean(openSidebar)}
+            onClose={handleCloseSidebar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {SORT_BY_OPTIONS.map((option) => (
+              <MenuItem
+                key={option.value}
+                selected={option.value === sortBy}
+                onClick={() => {
+                  handleSortByChange(option.value);
+                  handleCloseSidebar();
+                }}
+                sx={{ typography: 'body2' }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date From:
+            </Typography>
+            <TextField
+              id="dateFrom"
+              size="small"
+              type="date"
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date To:
+            </Typography>
+            <TextField
+              id="dateTo"
+              size="small"
+              type="date"
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Location/Room:
+            </Typography>
+            <TextField
+              id="location"
+              size="small"
+              type="text"
+            />
+            <div>
+              <Typography variant="subtitle1" gutterBottom>
+                Service
+              </Typography>
+              <RadioGroup>
+                {FILTER_CATEGORY_OPTIONS.map((item) => (
+                  <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
+                ))}
+              </RadioGroup>
+            </div>
+          </Stack>
+        </Scrollbar>
+        <Box sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            color="inherit"
+            variant="outlined"
+            startIcon={<Iconify icon="ic:round-clear-all" />}
+          >
+            Clear All
+          </Button>
+        </Box>
+      </Drawer>
 
     </Container>
     </>
