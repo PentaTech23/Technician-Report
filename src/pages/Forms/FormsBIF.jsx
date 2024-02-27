@@ -384,22 +384,24 @@ useEffect(() => {
 // Technician Code for filter, status type:
   
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
-
 const [sortBy, setSortBy] = useState('newest'); // Default to 'newest'
+const [dateFrom, setDateFrom] = useState('');
+const [dateTo, setDateTo] = useState('');
+const [location, setLocation] = useState('');
+const [service, setService] = useState('');
+
 const handleSortByChange = (value) => {
   setSortBy(value);
 };
 
-const [dateFrom, setDateFrom] = useState('');
+const handleDateFromChange = (event) => {
+  setDateFrom(event.target.value);
+};
 
+const handleDateToChange = (event) => {
+  setDateTo(event.target.value);
+};
 
-const [dateTo, setDateTo] = useState('');
-
-
-const [location, setLocation] = useState('');
-
-
-const [service, setService] = useState('');
 
 
     
@@ -407,7 +409,7 @@ const handleOptionChangeTechnician = (e) => {
   const selectedStatusTechnician = e.target.value;
   console.log('Selected Status Technician:', selectedStatusTechnician); // Log the value
   setSelectedOptionTechnician(selectedStatusTechnician);
-  fetchAllDocuments(selectedStatusTechnician, sortBy);
+  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo,);
 };
 
 
@@ -440,6 +442,17 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
     }
   }
 
+  // Apply date range filtering if both dateFrom and dateTo are provided
+  if (dateFrom && dateTo) {
+    // Convert date strings to Firestore Timestamps
+    const startDate = new Date(dateFrom);
+    const endDate = new Date(dateTo);
+    // Adjust end date to include documents on the end date
+    endDate.setHours(23, 59, 59, 999);
+
+    // Add date range condition to the query
+    queryRefTechnician = query(queryRefTechnician, where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
+  }
    
 
     const querySnapshot = await getDocs(queryRefTechnician);
@@ -459,9 +472,10 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
     setIsLoading(false);
   }
 };
+
   useEffect(() => {
-    fetchAllDocuments(selectedOptionTechnician, sortBy);
-  }, [selectedOptionTechnician, sortBy]);
+    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo,);
+  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo,]);
 
 // Dean Code for filter, status type:
   
@@ -1082,7 +1096,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
     >
 
-        <Button onClick={handleClickOpen} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button onClick={handleClickOpen} style={{ backgroundColor:'#33b249' }} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
           New Document
         </Button>
  
@@ -1153,9 +1167,14 @@ const [openSidebar, setOpenSidebar] = useState(null);
         <Dialog open={open} onClose={handleClose}>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
+              <Typography variant="h3" sx={{ mb: 5 }} 
+              style={{
+                      alignSelf: 'center', color: '#ff5500', margin: 'auto', 
+                      fontSize: '40px', fontWeight: 'bold', marginTop:'10px',   
+                      }}>
+                Borrower's Form
               </Typography>
+             
               <DialogContent>
                 <form onSubmit={handleSubmit}>
                 <Grid
@@ -1168,20 +1187,42 @@ const [openSidebar, setOpenSidebar] = useState(null);
                   >
 
                     <Grid item xs={8}>
-                    <TextField
-                    type="date"
-                    name="Date"
-                    value={formData.userDate || ''}
-                    onChange={(e) => setFormData({ ...formData, userDate: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                    <Typography variant="subtitle1">Date:</Typography>
+                      <TextField
+                        type="date"
+                        name="Date"
+                        value={formData.userDate || ''}
+                        onChange={(e) => setFormData({ ...formData, userDate: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={8}>
+                    <Typography variant="subtitle1">Location/Room:</Typography>
+                      <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
+                        <Select   
+                          id="location-room"
+                          value={formData.LocationRoom || ''}
+                          onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                          style={{ maxHeight: '100px' }}
+                        >
+                          {Array.from({ length: 20 }, (_, i) => ( // Generate options dynamically
+                            <MenuItem
+                            key={`IT-${101 + i}`} // Start key and value from 100
+                            value={`IT ${101 + i}`}
+                          >
+                            {`IT ${101 + i}`}
+                          </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Grid>
 
                     <Grid item xs={16}>
+                    <Typography variant="subtitle1">Borrower:</Typography>
                     <TextField
                     type="text"
                     name="Borrower's Name"
-                    label="Borrower"
                     value={formData.Borrower || ''}
                     onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
                     sx={{ width: '100%', marginBottom: '10px' }}
@@ -1189,8 +1230,8 @@ const [openSidebar, setOpenSidebar] = useState(null);
                     </Grid>
 
                     <Grid item xs={8}>
+                    <Typography variant="subtitle1">Items:</Typography>
                     <fieldset>
-                    <legend name="Items" >ITEMS:</legend>
                     <Checkbox
                       value="HDMI"
                       checked={formData.Items.includes('HDMI')}
@@ -1226,17 +1267,6 @@ const [openSidebar, setOpenSidebar] = useState(null);
 
                     <Grid item xs={8} spacing={1}>
                       <Grid>
-                      <TextField
-                    type="text"
-                    name="LocationRoom"
-                    label="Location/Room"
-                    value={formData.LocationRoom || ''}
-                    onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                        <br/>
-                      </Grid>
-                      <Grid>
                       { <Typography variant="subtitle1">File:</Typography> }
                       <TextField
                           type="file"
@@ -1255,13 +1285,13 @@ const [openSidebar, setOpenSidebar] = useState(null);
               </DialogContent>
               <DialogActions>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-                  <Button variant="contained" onClick={clearForm} sx={{marginRight: '5px', marginLeft: '5px'}}>
-                    Clear
+                  <Button style={{ color:'#ffffff', backgroundColor:'#333333', border: '0.5px solid black' }} variant="contained" onClick={clearForm} sx={{marginRight: '5px', marginLeft: '5px'}}>
+                    Clear 
                   </Button>
-                  <Button variant="contained" onClick={handleClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
+                  <Button style={{ backgroundColor:'#ffbd03' }} variant="contained" onClick={handleClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
                     Cancel
                   </Button>
-                  <Button variant="contained" onClick={handleSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
+                  <Button style={{ backgroundColor:'#33b249' }} variant="contained" onClick={handleSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
                     Create
                   </Button>
                 </div>
@@ -1341,7 +1371,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
        <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={filteredDataTechnician.length} 
+        count={filteredData.length} 
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
@@ -1821,14 +1851,14 @@ const [openSidebar, setOpenSidebar] = useState(null);
                     </Grid>
 
                     <Grid item xs={8}>
-                    <Typography variant="subtitle1">Location/Room:</Typography>
-                      <TextField
-                        type="text"
-                        name="LocationRoom"
-                        value={editData ? editData.LocationRoom : ''}
-                        onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
+                    <Typography variant="subtitle1">Timestamp:</Typography>
+                    <TextField
+                    type="timestamp"
+                    name="timestamp"
+                    value={editData ? editData.timestamp.toDate().toLocaleString() : ''}
+                    disabled
+                    sx={{ width: '100%', marginBottom: '10px' }}
+                  />
                     </Grid>
 
                     <Grid item xs={8}>
@@ -1843,14 +1873,24 @@ const [openSidebar, setOpenSidebar] = useState(null);
                     </Grid>
 
                     <Grid item xs={8}>
-                    <Typography variant="subtitle1">Timestamp:</Typography>
-                    <TextField
-                    type="timestamp"
-                    name="timestamp"
-                    value={editData ? editData.timestamp.toDate().toLocaleString() : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                    <Typography variant="subtitle1">Location/Room:</Typography>
+                        <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
+                          <Select   
+                            id="location-room"
+                            value={editData ? editData.LocationRoom : ''}
+                            onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                            style={{ maxHeight: '100px' }}
+                          >
+                            {Array.from({ length: 20 }, (_, i) => ( // Generate options dynamically
+                              <MenuItem
+                              key={`IT-${101 + i}`} // Start key and value from 100
+                              value={`IT ${101 + i}`}
+                            >
+                              {`IT ${101 + i}`}
+                            </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={16}>
@@ -1919,10 +1959,10 @@ const [openSidebar, setOpenSidebar] = useState(null);
         </DialogContent>
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-            <Button variant="contained" onClick={handleEditClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
+            <Button style={{ backgroundColor:'#ffbd03' }} variant="contained" onClick={handleEditClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleEditSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
+            <Button style={{ backgroundColor:'#33b249' }} variant="contained" onClick={handleEditSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
               Save
             </Button>
           </div>
@@ -1936,7 +1976,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
-               BORROWER'S FORM
+              Borrower's Form
             </Typography>
             <DialogContent id="pdf-content">
             <Grid
@@ -2063,7 +2103,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
         </div>
         <DialogActions>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-            <Button variant="contained" onClick={handleViewClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
+            <Button style={{ backgroundColor:'#ffbd03' }}  variant="contained" onClick={handleViewClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
               Close
             </Button>
             <Button variant="contained" onClick={() => exportToPDF(viewItem)} sx={{ marginRight: '5px', marginLeft: '5px' }}>
@@ -2193,6 +2233,8 @@ const [openSidebar, setOpenSidebar] = useState(null);
               id="dateFrom"
               size="small"
               type="date"
+              value={dateFrom}
+              onChange={handleDateFromChange}
             />
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
               Date To:
@@ -2201,6 +2243,8 @@ const [openSidebar, setOpenSidebar] = useState(null);
               id="dateTo"
               size="small"
               type="date"
+              value={dateTo}
+              onChange={handleDateToChange}
             />
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
               Location/Room:
