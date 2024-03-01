@@ -75,7 +75,7 @@ export default function UserPage() {
   
         // Set the document IDs state
         setDocumentIds(documentIds);
-        console.log('Document IDs:', documentIds);
+       
       } catch (error) {
         console.error('Error fetching document IDs:', error);
       }
@@ -313,8 +313,11 @@ const handleChange = (e) => {
     fileURL: '',
   };
 
+
+
   const clearForm = () => {
     setFormData(initialFormData);
+    
   };
 
   // Handle change function
@@ -382,13 +385,13 @@ useEffect(() => {
 }, [user, selectedOption]);
 
 // Technician Code for filter, status type:
-  
+ 
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
 const [sortBy, setSortBy] = useState('newest'); // Default to 'newest'
 const [dateFrom, setDateFrom] = useState('');
 const [dateTo, setDateTo] = useState('');
 const [location, setLocation] = useState('');
-const [service, setService] = useState('');
+const [itemArray, setItemArray] = useState('');
 
 const handleSortByChange = (value) => {
   setSortBy(value);
@@ -402,19 +405,30 @@ const handleDateToChange = (event) => {
   setDateTo(event.target.value);
 };
 
+const handleLocationChange = (event) => {
+  setLocation(event.target.value);
+};
 
+const handleItemArrayChange = (event) => {
+  const { value, checked } = event.target;
+  if (checked) {
+    setItemArray([...itemArray, value]); // Add the selected item to itemArray
+  } else {
+    setItemArray(itemArray.filter(item => item !== value)); // Remove the deselected item from itemArray
+  }
+};
 
     
 const handleOptionChangeTechnician = (e) => {
   const selectedStatusTechnician = e.target.value;
   console.log('Selected Status Technician:', selectedStatusTechnician); // Log the value
   setSelectedOptionTechnician(selectedStatusTechnician);
-  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo,);
+  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo, location);
 };
 
 
 // Technician data fetch from firestore
-const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, service) => {
+const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, itemsArray) => {
   setIsLoading(true);
   try {
     let queryRefTechnician = BorrowersCollectionRef;
@@ -453,6 +467,11 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
     // Add date range condition to the query
     queryRefTechnician = query(queryRefTechnician, where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
   }
+
+  // Apply location filter if location is provided
+  if (location) {
+    queryRefTechnician = query(queryRefTechnician, where('LocationRoom', '==', location));
+  }
    
 
     const querySnapshot = await getDocs(queryRefTechnician);
@@ -474,8 +493,8 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
 };
 
   useEffect(() => {
-    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo,);
-  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo,]);
+    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location,);
+  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo, location,]);
 
 // Dean Code for filter, status type:
   
@@ -977,11 +996,11 @@ const handleViewClose = () => {
     setOpen(false);
   };
   const [isOtherChecked, setIsOtherChecked] = useState(false);
-
+ 
   const handleServiceChange = (e) => {
     const value = e.target.value;
     const isChecked = e.target.checked;
-  
+
     if (isChecked && value !== ' Others:') {
       // Add the new value to the array
       setFormData((prevData) => ({
@@ -1220,49 +1239,52 @@ const [openSidebar, setOpenSidebar] = useState(null);
 
                     <Grid item xs={16}>
                     <Typography variant="subtitle1">Borrower:</Typography>
-                    <TextField
-                    type="text"
-                    name="Borrower's Name"
-                    value={formData.Borrower || ''}
-                    onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="Borrower's Name"
+                        value={formData.Borrower || ''}
+                        onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Items:</Typography>
-                    <fieldset>
+                    
+                  <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
+                  <Grid item xs={5}>
                     <Checkbox
                       value="HDMI"
                       checked={formData.Items.includes('HDMI')}
                       onChange={handleServiceChange}
-                    />
-                    HDMI 
+                    />  HDMI 
                     <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
+                    </Grid>
+                    <Grid item xs={5}>
                     <Checkbox
                       value="TV"
                       checked={formData.Items.includes('TV')}
                       onChange={handleServiceChange}
-                    />
-                    TV
+                    /> TV
                     <br />
-                    <div style={{ marginLeft: '42px' }}> 
-                    Others:
-                    <input
-                    type="text"
-                    name="Others:"
-                    value={formData.otherItems || ''}
-                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
-                    />
+                    </Grid>
+                    <Grid item xs={6}> 
+                    <Checkbox
+                      value="Projector"
+                      checked={formData.Items.includes('Projector')}
+                      onChange={handleServiceChange}
+                    /> Projector
+                    <br />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <div style={{marginLeft:'15px'}}> 
+                        Others:
+                        <input
+                          type="text"
+                          style={{fontSize:'18px'}}
+                          name="Others:"
+                          value={formData.otherItems || ''}
+                          onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
+                          />
                       </div>
-                  </fieldset>
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
@@ -1904,40 +1926,45 @@ const [openSidebar, setOpenSidebar] = useState(null);
                   />
                     </Grid>
 
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Items:</Typography>
-                    <fieldset>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    />
-                    Projector
-                    <br />
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    />
-                    TV
-                    <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={editData  ? editData .otherItems :''}
-                      onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
-                    />
-                    </div>
-                  </fieldset>
-                    </Grid>
+                    
+                    <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
+                    <Grid item xs={5}>
+                      <Checkbox
+                        value="HDMI"
+                        checked={formData.Items.includes('HDMI')}
+                        onChange={handleServiceChange}
+                      />  HDMI 
+                      <br />
+                      </Grid>
+                      <Grid item xs={5}>
+                      <Checkbox
+                        value="TV"
+                        checked={formData.Items.includes('TV')}
+                        onChange={handleServiceChange}
+                      /> TV
+                      <br />
+                      </Grid>
+                      <Grid item xs={6}> 
+                      <Checkbox
+                        value="Projector"
+                        checked={formData.Items.includes('Projector')}
+                        onChange={handleServiceChange}
+                      /> Projector
+                      <br />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <div style={{marginLeft:'15px'}}>
+                          Others:
+                            <input
+                              type="text"
+                              style={{fontSize:'18px'}}
+                              value={editData  ? editData .otherItems :''}
+                              onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
+                            />
+                        </div>
+                     </Grid>
+
+                  
 
                     <Grid item xs={8} spacing={1}>
                       <Grid>
@@ -2013,73 +2040,75 @@ const [openSidebar, setOpenSidebar] = useState(null);
 
                     <Grid item xs={8}>
                     <Typography variant="subtitle1">Date:</Typography>
-                  <TextField
-                    type="date"
-                    name="Date"
-                    placeholder="Date"
-                    value={viewItem ? viewItem.userDate : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="date"
+                        name="Date"
+                        placeholder="Date"
+                        value={viewItem ? viewItem.userDate : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
                     <Grid item xs={8}>
                     <Typography variant="subtitle1">Timestamp:</Typography>
-                  <TextField
-                    type="text"
-                    name="id"
-                    placeholder="Timestamp"
-                    value={viewItem  ? viewItem .timestamp.toDate().toLocaleString() : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="id"
+                        placeholder="Timestamp"
+                        value={viewItem  ? viewItem .timestamp.toDate().toLocaleString() : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
                     <Grid item xs={16}>
                     <Typography variant="subtitle1">Borrower:</Typography>
-                  <TextField
-                    type="text"
-                    name="Borrower"
-                    placeholder="Borrower"
-                    value={viewItem  ? viewItem .Borrower : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
+                      <TextField
+                        type="text"
+                        name="Borrower"
+                        placeholder="Borrower"
+                        value={viewItem  ? viewItem .Borrower : ''}
+                        disabled
+                        sx={{ width: '100%', marginBottom: '10px' }}
+                      />
                     </Grid>
 
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Items:</Typography>
-                    <fieldset>
-                    <Checkbox
-                      value="HDMI"
-                      checked={viewItem && viewItem.Items.includes('HDMI')}
-                      disabled
-                    />
-                    HDMI
-                    <br />
-                    <Checkbox
-                      value="Projector"
-                      checked={viewItem && viewItem.Items.includes('Projector')}
-                      disabled
-                    />
-                    Projector
-                    <br />
+                    <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
+                    <Grid item xs={5}>
+                      <Checkbox
+                        value="HDMI"
+                        checked={viewItem && viewItem.Items.includes('HDMI')}
+                        disabled
+                      />  HDMI
+                      <br />
+                    </Grid>
+                    <Grid item xs={5}>
                     <Checkbox
                       value="TV"
                       checked={viewItem && viewItem.Items.includes('TV')}
                       disabled
-                    />
-                    TV
+                    /> TV
                     <br />
-                    <div style={{ marginLeft: '42px' }}>
-                    Others:
-                    <input
-                      type="text"
-                      value={viewItem ? viewItem.otherItems : ''}
+                    </Grid>
+                    <Grid item xs={6}>
+                    <Checkbox
+                      value="Projector"
+                      checked={viewItem && viewItem.Items.includes('Projector')}
                       disabled
-                    />
-                    </div>
-                  </fieldset>
+                    /> Projector
+                    <br />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <div style={{marginLeft:'15px'}}>
+                          Others:
+                          <input
+                            type="text"
+                            style={{fontSize:'18px'}}
+                            value={viewItem ? viewItem.otherItems : ''}
+                            disabled
+                          />
+                        </div>
                     </Grid>
 
                     <Grid item xs={8} spacing={1}>
@@ -2249,20 +2278,49 @@ const [openSidebar, setOpenSidebar] = useState(null);
             <Typography variant="subtitle1" sx={{ ml: 1 }}>
               Location/Room:
             </Typography>
-            <TextField
+            <Select   
+              style={{ maxHeight: '100px' }}
               id="location"
               size="small"
-              type="text"
-            />
+              value={location}
+              onChange={handleLocationChange}
+            >
+              <MenuItem value="">None</MenuItem> {/* Option for not choosing any location */}
+              {Array.from({ length: 20 }, (_, i) => (
+                <MenuItem
+                  key={`IT-${101 + i}`} // Start key and value from 100
+                  value={`IT ${101 + i}`}
+                >
+                  {`IT ${101 + i}`}
+                </MenuItem>
+              ))}
+            </Select>
             <div>
               <Typography variant="subtitle1" gutterBottom>
-                Service
+                Items
               </Typography>
-              <RadioGroup>
+              <fieldset>
                 {FILTER_CATEGORY_OPTIONS.map((item) => (
-                  <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
+                  <div key={item}>
+                    <Checkbox
+                      value={item}
+                      checked={itemArray.includes(item)}
+                      onChange={handleItemArrayChange}
+                    />
+                    {item}
+                    <br />
+                  </div>
                 ))}
-              </RadioGroup>
+                <div style={{ marginLeft: '42px' }}>
+                  Others:
+                  <input
+                    type="text"
+                    name="Others:"
+                    value={formData.otherItems || ''}
+                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
+                  />
+                </div>
+              </fieldset>
             </div>
           </Stack>
         </Scrollbar>
