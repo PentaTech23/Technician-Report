@@ -317,7 +317,7 @@ const handleChange = (e) => {
 
   const clearForm = () => {
     setFormData(initialFormData);
-    
+    setShowInput(false);
   };
 
   // Handle change function
@@ -385,14 +385,16 @@ useEffect(() => {
 }, [user, selectedOption]);
 
 // Technician Code for filter, status type:
- 
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
 const [sortBy, setSortBy] = useState('newest'); // Default to 'newest'
 const [dateFrom, setDateFrom] = useState('');
 const [dateTo, setDateTo] = useState('');
 const [location, setLocation] = useState('');
-const [itemArray, setItemArray] = useState('');
-
+const [selectedFilterItems, setSelectedFilterItems] = useState([]);
+const [otherItems, setOtherItems] = useState(''); // State for Other Items filter
+const [showInput, setShowInput] = useState(false);
+const [showOtherItemsInput, setShowOtherItemsInput] = useState(false);
+   
 const handleSortByChange = (value) => {
   setSortBy(value);
 };
@@ -412,23 +414,33 @@ const handleLocationChange = (event) => {
 const handleItemArrayChange = (event) => {
   const { value, checked } = event.target;
   if (checked) {
-    setItemArray([...itemArray, value]); // Add the selected item to itemArray
+    setSelectedFilterItems([...selectedFilterItems, value]); // Add the selected item to selectedFilterItems
   } else {
-    setItemArray(itemArray.filter(item => item !== value)); // Remove the deselected item from itemArray
+    setSelectedFilterItems(selectedFilterItems.filter(item => item !== value)); // Remove the deselected item from selectedFilterItems
   }
 };
 
+const handleCheckboxChange = () => {
+  setShowOtherItemsInput(!showOtherItemsInput);
+  if (!showOtherItemsInput) {
+    setOtherItems('');
+    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
+  } else {
+    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
+  }
+};
     
 const handleOptionChangeTechnician = (e) => {
   const selectedStatusTechnician = e.target.value;
   console.log('Selected Status Technician:', selectedStatusTechnician); // Log the value
   setSelectedOptionTechnician(selectedStatusTechnician);
-  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo, location);
+
+  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
 };
 
 
 // Technician data fetch from firestore
-const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, itemsArray) => {
+const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems) => {
   setIsLoading(true);
   try {
     let queryRefTechnician = BorrowersCollectionRef;
@@ -473,6 +485,20 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
     queryRefTechnician = query(queryRefTechnician, where('LocationRoom', '==', location));
   }
    
+// Apply filter for selected items if they are provided
+if (selectedFilterItems.length > 0) {
+  queryRefTechnician = query(queryRefTechnician, where('Items', 'array-contains-any', selectedFilterItems));
+}
+
+
+// Apply filter for "Other Items" if it's provided
+if (showOtherItemsInput) {
+  if (otherItems) {
+    queryRefTechnician = query(queryRefTechnician, where('otherItems', '==', otherItems));
+  } 
+  // Ensure the sorting order matches the filter property
+  queryRefTechnician = query(queryRefTechnician, orderBy('otherItems'));
+}
 
     const querySnapshot = await getDocs(queryRefTechnician);
     const dataFromFirestore = [];
@@ -493,8 +519,8 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
 };
 
   useEffect(() => {
-    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location,);
-  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo, location,]);
+    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
+  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems]);
 
 // Dean Code for filter, status type:
   
@@ -603,6 +629,7 @@ useEffect(() => {
     }
   
     setFormData(initialFormData);
+    setShowInput(false);
   };
 
   //  This one is for Search bar
@@ -1062,7 +1089,6 @@ const FILTER_CATEGORY_OPTIONS = [
   'HDMI',
   'Projector',
   'TV',
-  'Others',
 ];
 
 
@@ -1090,6 +1116,8 @@ const [openSidebar, setOpenSidebar] = useState(null);
       setOpenSidebar(null);
     };
   
+    
+
   return (
     <>
       <Helmet>
@@ -1274,16 +1302,26 @@ const [openSidebar, setOpenSidebar] = useState(null);
                     <br />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid item xs={5}> 
+                      <Checkbox
+                        checked={showInput}
+                        onChange={(e) => setShowInput(e.target.checked)}
+                      /> Others:
+                    </Grid>
+
+                    <Grid item xs={11}>
                       <div style={{marginLeft:'15px'}}> 
-                        Others:
-                        <input
-                          type="text"
-                          style={{fontSize:'18px'}}
-                          name="Others:"
-                          value={formData.otherItems || ''}
-                          onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
+                        {showInput && (
+                          <input
+                            type="text"
+                            style={{ fontSize: '18px', width:'80%' }}
+                            name="Others"
+                            value={formData.otherItems || ''}
+                            onChange={(e) =>
+                              setFormData({ ...formData, otherItems: e.target.value })
+                            }
                           />
+                        )}
                       </div>
                     </Grid>
 
@@ -1485,7 +1523,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
           Filters&nbsp;
       </Button>
         <Button
-          onClick={() => fetchAllDocuments(selectedOptionTechnician)}
+          onClick={() => fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems)}
           variant="contained"
           size="large"
           style={{
@@ -1952,15 +1990,33 @@ const [openSidebar, setOpenSidebar] = useState(null);
                       /> Projector
                       <br />
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid item xs={5}> 
+                        <Checkbox
+                          checked={editData && !!editData.otherItems}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (!checked) {
+                              // Clear otherItems if unchecked
+                              setEditData({ ...editData, otherItems: '' });
+                            } else if (!editData.otherItems) { // Modify this line
+                              // Preserve otherItems value if checked and it's empty
+                              setEditData({ ...editData, otherItems: '-'});
+                            }
+                          }}
+                        /> Others:
+                      </Grid>
+
+                      <Grid item xs={11}>
                         <div style={{marginLeft:'15px'}}>
-                          Others:
+                        {editData && ( // Null check added
                             <input
                               type="text"
-                              style={{fontSize:'18px'}}
-                              value={editData  ? editData .otherItems :''}
+                              style={{ fontSize: '18px' }}
+                              value={editData.otherItems || ''}
                               onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
                             />
+                          )}
                         </div>
                      </Grid>
 
@@ -2099,9 +2155,16 @@ const [openSidebar, setOpenSidebar] = useState(null);
                     /> Projector
                     <br />
                     </Grid>
-                    <Grid item xs={12}>
+
+                    <Grid item xs={5}>
+                      <Checkbox
+                        checked={!!viewItem?.otherItems}
+                        disabled
+                      /> Others:
+                    </Grid>
+
+                    <Grid item xs={11}>
                         <div style={{marginLeft:'15px'}}>
-                          Others:
                           <input
                             type="text"
                             style={{fontSize:'18px'}}
@@ -2299,28 +2362,34 @@ const [openSidebar, setOpenSidebar] = useState(null);
               <Typography variant="subtitle1" gutterBottom>
                 Items
               </Typography>
-              <fieldset>
+        
                 {FILTER_CATEGORY_OPTIONS.map((item) => (
                   <div key={item}>
                     <Checkbox
                       value={item}
-                      checked={itemArray.includes(item)}
+                      checked={selectedFilterItems.includes(item)}
                       onChange={handleItemArrayChange}
                     />
                     {item}
                     <br />
                   </div>
                 ))}
+
+                <Checkbox
+                  checked={showOtherItemsInput}
+                  onChange={handleCheckboxChange}
+                /> Others:
                 <div style={{ marginLeft: '42px' }}>
-                  Others:
-                  <input
-                    type="text"
-                    name="Others:"
-                    value={formData.otherItems || ''}
-                    onChange={(e) => setFormData({ ...formData, otherItems: e.target.value })}
-                  />
+                {showOtherItemsInput && (
+                         <input
+                         type="text"
+                         name="Others"
+                         value={otherItems}
+                         onChange={(e) => setOtherItems(e.target.value)} // Directly update otherItems state
+                       />
+                  )}
                 </div>
-              </fieldset>
+              
             </div>
           </Stack>
         </Scrollbar>
