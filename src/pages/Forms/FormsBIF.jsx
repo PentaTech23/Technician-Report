@@ -392,8 +392,10 @@ const [dateTo, setDateTo] = useState('');
 const [location, setLocation] = useState('');
 const [selectedFilterItems, setSelectedFilterItems] = useState([]);
 const [otherItems, setOtherItems] = useState(''); // State for Other Items filter
-const [showInput, setShowInput] = useState(false);
-const [showOtherItemsInput, setShowOtherItemsInput] = useState(false);
+const [showInput, setShowInput] = useState(false); // to show <input>
+const [showOtherItemsInput, setShowOtherItemsInput] = useState(false); // Statte to show Others <input>
+const [filterItemsString, setFilterItemsString] = useState('');
+
    
 const handleSortByChange = (value) => {
   setSortBy(value);
@@ -411,23 +413,24 @@ const handleLocationChange = (event) => {
   setLocation(event.target.value);
 };
 
+
+
 const handleItemArrayChange = (event) => {
   const { value, checked } = event.target;
-  if (checked) {
-    setSelectedFilterItems([...selectedFilterItems, value]); // Add the selected item to selectedFilterItems
-  } else {
-    setSelectedFilterItems(selectedFilterItems.filter(item => item !== value)); // Remove the deselected item from selectedFilterItems
-  }
+  const updatedFilterItems = checked
+    ? [...selectedFilterItems, value]
+    : selectedFilterItems.filter(item => item !== value);
+  setSelectedFilterItems(updatedFilterItems);
+  // Convert the updated array of filter items into a single string
+  const filterItemsString = updatedFilterItems.join(', ');
+  setFilterItemsString(filterItemsString);
 };
+
 
 const handleCheckboxChange = () => {
   setShowOtherItemsInput(!showOtherItemsInput);
-  if (!showOtherItemsInput) {
-    setOtherItems('');
-    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
-  } else {
-    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
-  }
+  setOtherItems('');
+  
 };
     
 const handleOptionChangeTechnician = (e) => {
@@ -486,18 +489,26 @@ const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dat
   }
    
 // Apply filter for selected items if they are provided
-if (selectedFilterItems.length > 0) {
-  queryRefTechnician = query(queryRefTechnician, where('Items', 'array-contains-any', selectedFilterItems));
+if (filterItemsString) {
+  if (selectedFilterItems.length === 1) {
+    queryRefTechnician = query(queryRefTechnician, where('ItemsString', '==', filterItemsString));
+  } else if (selectedFilterItems.length > 1) {
+    queryRefTechnician = query(queryRefTechnician, where('ItemsString', '==', filterItemsString));
+  }
 }
+
 
 
 // Apply filter for "Other Items" if it's provided
 if (showOtherItemsInput) {
+  
+
   if (otherItems) {
     queryRefTechnician = query(queryRefTechnician, where('otherItems', '==', otherItems));
   } 
   // Ensure the sorting order matches the filter property
-  queryRefTechnician = query(queryRefTechnician, orderBy('otherItems'));
+  // queryRefTechnician = query(queryRefTechnician, where(orderBy('otherItems', '!=', '')));
+  // queryRefTechnician = query(queryRefTechnician, orderBy('otherItems'));
 }
 
     const querySnapshot = await getDocs(queryRefTechnician);
@@ -600,6 +611,9 @@ useEffect(() => {
       const documentName = await incrementDocumentName();
       const docRef = doc(BorrowersCollectionRef, documentName);
   
+       // Convert Items array to a string
+      const ItemsString = Items.join(', ');
+
       const docData = {
         userDate,
         timestamp: new Date(),
@@ -607,6 +621,7 @@ useEffect(() => {
         FullName : Borrower || '',
         Borrower,
         Items,
+        ItemsString, // Include the stringified Items array
         otherItems,
         fileURL: fileURL || '',
         archived: false,
@@ -701,6 +716,7 @@ const handleEditOpen = (data) => {
 const handleEditClose = () => {
   setEditData(null); 
   setEditOpen(false);
+  clearForm();
 };
 
 const handleEditSubmit = async () => {
@@ -711,6 +727,12 @@ const handleEditSubmit = async () => {
       Items: formData.Items, // Update Services with checkbox values
       // Include other properties here
     };
+
+    // Convert Items array to a string
+    const ItemsString = formData.Items.join(', ');
+
+    // Include ItemsString in the updated editData
+    updatedEditData.ItemsString = ItemsString;
 
     const docRef = doc(BorrowersCollectionRef, formData.id);
 
@@ -1087,8 +1109,8 @@ const SORT_BY_OPTIONS = [
 
 const FILTER_CATEGORY_OPTIONS = [
   'HDMI',
-  'Projector',
   'TV',
+  'Projector',
 ];
 
 
@@ -1409,7 +1431,15 @@ const [openSidebar, setOpenSidebar] = useState(null);
                   </TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                   <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                  <TableCell style={{ textAlign: 'center' }}>
+                    {item.ItemsString && item.ItemsString}
+                    {item.otherItems && item.ItemsString && ', '}
+                    {item.otherItems && (
+                      <>
+                        <div>Others: {item.otherItems}</div>
+                      </>
+                    )}
+                  </TableCell>
                   <TableCell style={{ textAlign: 'center' }}>
                     <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                   </TableCell>
@@ -1593,7 +1623,15 @@ const [openSidebar, setOpenSidebar] = useState(null);
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
+                    {item.ItemsString && item.ItemsString}
+                    {item.otherItems && item.ItemsString && ', '}
+                    {item.otherItems && (
+                      <>
+                        <div>Others: {item.otherItems}</div>
+                      </>
+                    )}
+                  </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
@@ -1802,7 +1840,15 @@ const [openSidebar, setOpenSidebar] = useState(null);
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{`${item.Items}${item.otherItems ? `, ${item.otherItems}` : ''}`}</TableCell>
+                <TableCell style={{ textAlign: 'center' }}>
+                    {item.ItemsString && item.ItemsString}
+                    {item.otherItems && item.ItemsString && ', '}
+                    {item.otherItems && (
+                      <>
+                        <div>Others: {item.otherItems}</div>
+                      </>
+                    )}
+                  </TableCell>
                 {/* <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell> */}
                 <TableCell style={{ textAlign: 'center' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
