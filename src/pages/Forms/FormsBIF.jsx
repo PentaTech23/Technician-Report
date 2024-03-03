@@ -1113,6 +1113,17 @@ const FILTER_CATEGORY_OPTIONS = [
   'Projector',
 ];
 
+const handleClearAll = () => {
+  // Reset all filter states to their default values
+  setSortBy('newest');
+  setDateFrom('');
+  setDateTo('');
+  setLocation('');
+  setSelectedFilterItems([]);
+  setOtherItems('');
+  setShowOtherItemsInput(false);
+};
+
 
 // ----------------------------------------------------------------------
 
@@ -2447,6 +2458,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
             color="inherit"
             variant="outlined"
             startIcon={<Iconify icon="ic:round-clear-all" />}
+            onClick={handleClearAll}
           >
             Clear All
           </Button>
