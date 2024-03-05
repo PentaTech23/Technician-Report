@@ -332,19 +332,82 @@ const handleChange = (e) => {
 
 // Faculty Code for filter, status type:
   
-  const [selectedOption, setSelectedOption] = useState('All');
+const [selectedOptionFaculty, setSelectedOptionFaculty] = useState('All');
+const [sortByFaculty, setSortByFaculty] = useState('newest'); // Default to 'newest'
+const [dateFromFaculty, setDateFromFaculty] = useState('');
+const [dateToFaculty, setDateToFaculty] = useState('');
+const [locationFaculty, setLocationFaculty] = useState('');
+const [selectedFilterItemsFaculty, setSelectedFilterItemsFaculty] = useState([]);
+const [otherItemsFaculty, setOtherItemsFaculty] = useState(''); // State for Other Items filter
+const [showInputFaculty, setShowInputFaculty] = useState(false); // to show <input>
+const [showOtherItemsInputFaculty, setShowOtherItemsInputFaculty] = useState(false); // State to show Others <input>
+const [filterItemsStringFaculty, setFilterItemsStringFaculty] = useState('');
     
-  const handleOptionChange = (e) => {
-    const selectedStatus = e.target.value;
-    setSelectedOption(selectedStatus);
-    fetchUserDocuments(user?.uid, selectedStatus);
-  };
+
+const handleSortByChangeFaculty = (value) => {
+  setSortByFaculty(value);
+};
+
+const handleDateFromChangeFaculty = (event) => {
+  setDateFromFaculty(event.target.value);
+};
+
+const handleDateToChangeFaculty = (event) => {
+  setDateToFaculty(event.target.value);
+};
+
+const handleLocationChangeFaculty = (event) => {
+  setLocationFaculty(event.target.value);
+};
+
+
+const handleItemArrayChangeFaculty = (event) => {
+  const { value, checked } = event.target;
+  const updatedFilterItemsFaculty = checked
+    ? [...selectedFilterItemsFaculty, value]
+    : selectedFilterItemsFaculty.filter(item => item !== value);
+  setSelectedFilterItemsFaculty(updatedFilterItemsFaculty);
+  // Convert the updated array of filter items into a single string
+  const filterItemsStringFaculty = updatedFilterItemsFaculty.join(', ');
+  setFilterItemsStringFaculty(filterItemsStringFaculty);
+};
+
+
+const handleCheckboxChangeFaculty = () => {
+  setShowOtherItemsInputFaculty(!showOtherItemsInputFaculty);
+  setOtherItemsFaculty('');
+  
+};
+
+  const handleOptionChangeFaculty = (e) => {
+    const selectedStatusFaculty = e.target.value;
+    setSelectedOptionFaculty(selectedStatusFaculty);
+
+    fetchUserDocuments(
+    user?.uid, 
+    selectedStatusFaculty,
+    sortByFaculty, 
+    dateFromFaculty,
+    dateToFaculty, 
+    locationFaculty, 
+    selectedFilterItemsFaculty, 
+    otherItemsFaculty);
+};
+
   
 
 
 
 // Faculty data fetch from firestore 
-const fetchUserDocuments = async (userUID, selectedStatus) => {
+const fetchUserDocuments = async (
+  userUID,  
+  selectedStatusFaculty,
+  sortByFaculty, 
+  dateFromFaculty,
+  dateToFaculty, 
+  locationFaculty, 
+  selectedFilterItemsFaculty, 
+  otherItemsFaculty) => {
   setIsLoading(true);
   try {
     if (typeof userUID !== 'string') {
@@ -352,14 +415,68 @@ const fetchUserDocuments = async (userUID, selectedStatus) => {
       return;
     }
 
-    let queryRef = query(BorrowersCollectionRef, where('uid', '==', userUID));
+    let queryRefFaculty = query(BorrowersCollectionRef, where('uid', '==', userUID));
 
-    // Exclude filter condition when selectedStatus is undefined or 'All'
-    if (selectedStatus && selectedStatus !== 'All') {
-      queryRef = query(queryRef, where('status', '==', selectedStatus));
+    // Build Firestore query with filter and sorting conditions combined
+   if (selectedStatusFaculty) {
+    if (selectedStatusFaculty === 'All') {
+      if (sortByFaculty === 'newest') {
+        queryRefFaculty = query(queryRefFaculty, orderBy('timestamp', 'desc'));
+      } else if (sortByFaculty === 'oldest') {
+        queryRefFaculty = query(queryRefFaculty, orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusFaculty === 'APPROVED' || selectedStatusFaculty === 'REJECTED' || selectedStatusFaculty === 'ARCHIVED') {
+      if (sortByFaculty === 'newest') {
+        queryRefFaculty = query(queryRefFaculty, where('status', '==', selectedStatusFaculty), orderBy('timestamp', 'desc'));
+      } else if (sortByFaculty === 'oldest') {
+        queryRefFaculty = query(queryRefFaculty, where('status', '==', selectedStatusFaculty), orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusFaculty === 'PENDING (Technician)' || selectedStatusFaculty === 'PENDING (Dean)') {
+      if (sortByFaculty === 'newest') {
+        queryRefFaculty = query(queryRefFaculty, where('status', '==', selectedStatusFaculty), orderBy('timestamp', 'desc'));
+      } else if (sortByFaculty === 'oldest') {
+        queryRefFaculty = query(queryRefFaculty, where('status', '==', selectedStatusFaculty), orderBy('timestamp', 'asc'));
+      }
     }
+  }
+ // Apply date range filtering if both dateFrom and dateTo are provided
+ if (dateFromFaculty && dateToFaculty) {
+  // Convert date strings to Firestore Timestamps
+  const startDateFaculty = new Date(dateFromFaculty);
+  const endDateFaculty = new Date(dateToFaculty);
+  // Adjust end date to include documents on the end date
+  endDateFaculty.setHours(23, 59, 59, 999);
 
-    const querySnapshotuid = await getDocs(queryRef);
+  // Add date range condition to the query
+  queryRefFaculty = query(queryRefFaculty, where('timestamp', '>=', startDateFaculty), where('timestamp', '<=', endDateFaculty));
+}
+
+// Apply location filter if location is provided
+if (locationFaculty) {
+  queryRefFaculty = query(queryRefFaculty, where('LocationRoom', '==', locationFaculty));
+}
+ 
+// Apply filter for selected items if they are provided
+if (filterItemsStringFaculty) {
+if (selectedFilterItemsFaculty.length === 1) {
+  queryRefFaculty = query(queryRefFaculty, where('ItemsString', '==', filterItemsStringFaculty));
+} else if (selectedFilterItemsFaculty.length > 1) {
+  queryRefFaculty = query(queryRefFaculty, where('ItemsString', '==', filterItemsStringFaculty));
+}
+}
+
+
+
+// Apply filter for "Other Items" if it's provided
+if (showOtherItemsInputFaculty) {
+
+
+if (otherItemsFaculty) {
+  queryRefFaculty = query(queryRefFaculty, where('otherItems', '==', otherItemsFaculty));
+} 
+}
+
+    const querySnapshotuid = await getDocs(queryRefFaculty);
     const dataFromFirestore = [];
 
     querySnapshotuid.forEach((doc) => {
@@ -379,10 +496,26 @@ const fetchUserDocuments = async (userUID, selectedStatus) => {
 };
 
 useEffect(() => {
-  if (user?.uid && selectedOption !== undefined) {
-    fetchUserDocuments(user.uid, selectedOption);
+  if (user?.uid && selectedOptionFaculty !== undefined) {
+    fetchUserDocuments(
+      user.uid, 
+      selectedOptionFaculty, 
+      sortByFaculty, 
+      dateFromFaculty, 
+      dateToFaculty, 
+      locationFaculty, 
+      selectedFilterItemsFaculty, 
+      otherItemsFaculty);
   }
-}, [user, selectedOption]);
+}, [
+    user, 
+    selectedOptionFaculty, 
+    sortByFaculty, 
+    dateFromFaculty, 
+    dateToFaculty, 
+    locationFaculty, 
+    selectedFilterItemsFaculty, 
+    otherItemsFaculty]);
 
 // Technician Code for filter, status type:
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
@@ -435,15 +568,28 @@ const handleCheckboxChange = () => {
     
 const handleOptionChangeTechnician = (e) => {
   const selectedStatusTechnician = e.target.value;
-  console.log('Selected Status Technician:', selectedStatusTechnician); // Log the value
   setSelectedOptionTechnician(selectedStatusTechnician);
 
-  fetchAllDocuments(selectedStatusTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
+  fetchAllDocuments(
+    selectedStatusTechnician, 
+    sortBy, 
+    dateFrom,
+    dateTo, 
+    location, 
+    selectedFilterItems, 
+    otherItems);
 };
 
 
 // Technician data fetch from firestore
-const fetchAllDocuments = async (selectedStatusTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems) => {
+const fetchAllDocuments = async (
+  selectedStatusTechnician, 
+  sortBy, 
+  dateFrom, 
+  dateTo, 
+  location, 
+  selectedFilterItems, 
+  otherItems) => {
   setIsLoading(true);
   try {
     let queryRefTechnician = BorrowersCollectionRef;
@@ -530,30 +676,162 @@ if (showOtherItemsInput) {
 };
 
   useEffect(() => {
-    fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems);
-  }, [selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems]);
+    fetchAllDocuments(
+      selectedOptionTechnician, 
+      sortBy, 
+      dateFrom, 
+      dateTo, 
+      location, 
+      selectedFilterItems, 
+      otherItems
+    );
+  }, 
+    [
+      selectedOptionTechnician, 
+      sortBy, 
+      dateFrom, 
+      dateTo, 
+      location, 
+      selectedFilterItems, 
+      otherItems
+    ]);
 
 // Dean Code for filter, status type:
   
 const [selectedOptionDean, setSelectedOptionDean] = useState('PENDING (Dean)');
-    
+const [sortByDean, setSortByDean] = useState('newest'); // Default to 'newest'
+const [dateFromDean, setDateFromDean] = useState('');
+const [dateToDean, setDateToDean] = useState('');
+const [locationDean, setLocationDean] = useState('');
+const [selectedFilterItemsDean, setSelectedFilterItemsDean] = useState([]);
+const [otherItemsDean, setOtherItemsDean] = useState(''); // State for Other Items filter
+const [showInputDean, setShowInputDean] = useState(false); // to show <input>
+const [showOtherItemsInputDean, setShowOtherItemsInputDean] = useState(false); // State to show Others <input>
+const [filterItemsStringDean, setFilterItemsStringDean] = useState('');
+
+const handleSortByChangeDean = (value) => {
+  setSortByDean(value);
+};
+
+const handleDateFromChangeDean = (event) => {
+  setDateFromDean(event.target.value);
+};
+
+const handleDateToChangeDean = (event) => {
+  setDateToDean(event.target.value);
+};
+
+const handleLocationChangeDean = (event) => {
+  setLocationDean(event.target.value);
+};
+
+
+
+const handleItemArrayChangeDean = (event) => {
+  const { value, checked } = event.target;
+  const updatedFilterItemsDean = checked
+    ? [...selectedFilterItemsDean, value]
+    : selectedFilterItemsDean.filter(item => item !== value);
+  setSelectedFilterItemsDean(updatedFilterItemsDean);
+  // Convert the updated array of filter items into a single string
+  const filterItemsStringDean = updatedFilterItemsDean.join(', ');
+  setFilterItemsStringDean(filterItemsStringDean);
+};
+
+
+const handleCheckboxChangeDean = () => {
+  setShowOtherItemsInputDean(!showOtherItemsInputDean);
+  setOtherItemsDean('');
+  
+};
+
 const handleOptionChangeDean = (e) => {
   const selectedStatusDean = e.target.value;
   setSelectedOptionDean(selectedStatusDean);
-  DeanfetchAllDocuments(selectedStatusDean);
+
+  DeanfetchAllDocuments(
+    selectedStatusDean, 
+    sortByDean, 
+    dateFromDean, 
+    dateToDean, 
+    locationDean, 
+    selectedFilterItemsDean, 
+    otherItemsDean);
 };
 
 // Dean fetch data from firestore
-const DeanfetchAllDocuments = async (selectedStatusDean) => {
+const DeanfetchAllDocuments = async ( 
+  selectedStatusDean, 
+  sortByDean, 
+  dateFromDean, 
+  dateToDean, 
+  locationDean, 
+  selectedFilterItemsDean, 
+  otherItemsDean) => {
   setIsLoading(true);
   try {
-    let queryRefDean = BorrowersCollectionRef; // Remove 'where' clause here
+    let queryRefDean = BorrowersCollectionRef;
 
-     // Exclude filter condition when selectedStatus is undefined or 'All'
-     if (selectedStatusDean && selectedStatusDean !== 'All') 
-     {
-      queryRefDean = query(queryRefDean, where('status', '==', selectedStatusDean));
-     }
+    // Build Firestore query with filter and sorting conditions combined
+   if (selectedStatusDean) {
+    if (selectedStatusDean === 'All') {
+      if (sortByDean === 'newest') {
+        queryRefDean = query(queryRefDean, orderBy('timestamp', 'desc'));
+      } else if (sortByDean === 'oldest') {
+        queryRefDean = query(queryRefDean, orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusDean === 'APPROVED' || selectedStatusDean === 'REJECTED' || selectedStatusDean === 'ARCHIVED') {
+      if (sortByDean === 'newest') {
+        queryRefDean= query(queryRefDean, where('status', '==', selectedStatusDean), orderBy('timestamp', 'desc'));
+      } else if (sortByDean === 'oldest') {
+        queryRefDean = query(queryRefDean, where('status', '==', selectedStatusDean), orderBy('timestamp', 'asc'));
+      }
+    } else if (selectedStatusDean === 'PENDING (Technician)' || selectedStatusDean === 'PENDING (Dean)') {
+      if (sortByDean === 'newest') {
+        queryRefDean = query(queryRefDean, where('status', '==', selectedStatusDean), orderBy('timestamp', 'desc'));
+      } else if (sortByDean === 'oldest') {
+        queryRefDean = query(queryRefDean, where('status', '==', selectedStatusDean), orderBy('timestamp', 'asc'));
+      }
+    }
+  }
+
+  // Apply date range filtering if both dateFrom and dateTo are provided
+  if (dateFromDean && dateToDean) {
+    // Convert date strings to Firestore Timestamps
+    const startDateDean = new Date(dateFromDean);
+    const endDateDean = new Date(dateToDean);
+    // Adjust end date to include documents on the end date
+    endDateDean.setHours(23, 59, 59, 999);
+
+    // Add date range condition to the query
+    queryRefDean = query(queryRefDean, where('timestamp', '>=', startDateDean), where('timestamp', '<=', endDateDean));
+  }
+
+  // Apply location filter if location is provided
+  if (locationDean) {
+    queryRefDean = query(queryRefDean, where('LocationRoom', '==', locationDean));
+  }
+   
+// Apply filter for selected items if they are provided
+if (filterItemsStringDean) {
+  if (selectedFilterItemsDean.length === 1) {
+    queryRefDean = query(queryRefDean, where('ItemsString', '==', filterItemsStringDean));
+  } else if (selectedFilterItemsDean.length > 1) {
+    queryRefDean = query(queryRefDean, where('ItemsString', '==', filterItemsStringDean));
+  }
+}
+
+
+
+// Apply filter for "Other Items" if it's provided
+if (showOtherItemsInputDean) {
+
+  if (otherItemsDean) {
+    queryRefDean = query(queryRefDean, where('otherItems', '==', otherItemsDean));
+  } 
+
+}
+
 
    const querySnapshot = await getDocs(queryRefDean);
    const dataFromFirestore = [];
@@ -573,8 +851,25 @@ const DeanfetchAllDocuments = async (selectedStatusDean) => {
   }
 };
 useEffect(() => {
-  DeanfetchAllDocuments(selectedOptionDean);
-}, []);
+  DeanfetchAllDocuments(
+    selectedOptionDean, 
+    sortByDean, 
+    dateFromDean, 
+    dateToDean, 
+    locationDean, 
+    selectedFilterItemsDean, 
+    otherItemsDean
+  );
+}, 
+  [
+    selectedOptionDean, 
+    sortByDean, 
+    dateFromDean, 
+    dateToDean, 
+    locationDean, 
+    selectedFilterItemsDean, 
+    otherItemsDean
+  ]);
 
 
 
@@ -1124,12 +1419,36 @@ const handleClearAll = () => {
   setShowOtherItemsInput(false);
 };
 
+const handleClearAllDean = () => {
+  // Reset all filter states to their default values
+  setSortByDean('newest');
+  setDateFromDean('');
+  setDateToDean('');
+  setLocationDean('');
+  setSelectedFilterItemsDean([]);
+  setOtherItemsDean('');
+  setShowOtherItemsInputDean(false);
+};
+
+
+const handleClearAllFaculty = () => {
+  // Reset all filter states to their default values
+  setSortByFaculty('newest');
+  setDateFromFaculty('');
+  setDateToFaculty('');
+  setLocationFaculty('');
+  setSelectedFilterItemsFaculty([]);
+  setOtherItemsFaculty('');
+  setShowOtherItemsInputFaculty(false);
+};
+
 
 // ----------------------------------------------------------------------
 
 
-
+// -------- Technician Filter Code --------
 const [openFilter, setOpenFilter] = useState(false);
+const [openSidebar, setOpenSidebar] = useState(null);
  
     const handleOpenFilter = () => {
       setOpenFilter(true);
@@ -1139,8 +1458,6 @@ const [openFilter, setOpenFilter] = useState(false);
       setOpenFilter(false);
     };
 
-const [openSidebar, setOpenSidebar] = useState(null);
-
     const handleOpenSidebar = (event) => {
       setOpenSidebar(event.currentTarget);
     };
@@ -1149,6 +1466,47 @@ const [openSidebar, setOpenSidebar] = useState(null);
       setOpenSidebar(null);
     };
   
+// -------- Dean Filter Code --------
+const [openFilterDean, setOpenFilterDean] = useState(false);
+const [openSidebarDean, setOpenSidebarDean] = useState(null);
+ 
+    const handleOpenFilterDean = () => {
+      setOpenFilterDean(true);
+    };
+  
+    const handleCloseFilterDean = () => {
+      setOpenFilterDean(false);
+    };
+
+    const handleOpenSidebarDean = (event) => {
+      setOpenSidebarDean(event.currentTarget);
+    };
+  
+    const handleCloseSidebarDean = () => {
+      setOpenSidebarDean(null);
+    };
+
+// -------- Faculty Filter Code --------
+const [openFilterFaculty, setOpenFilterFaculty] = useState(false);
+const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
+ 
+    const handleOpenFilterFaculty = () => {
+      setOpenFilterFaculty(true);
+    };
+  
+    const handleCloseFilterFaculty = () => {
+      setOpenFilterFaculty(false);
+    };
+
+    const handleOpenSidebarFaculty = (event) => {
+      setOpenSidebarFaculty(event.currentTarget);
+    };
+  
+    const handleCloseSidebarFaculty = () => {
+      setOpenSidebarFaculty(null);
+    };
+  
+    
     
 
   return (
@@ -1165,7 +1523,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
-      <p>Selected Option: {selectedOption}</p>
+      <p>Selected Option: {selectedOptionFaculty}</p>
     </Stack>
 
     <Stack
@@ -1188,8 +1546,8 @@ const [openSidebar, setOpenSidebar] = useState(null);
           <Select
             labelId="options-label"
             id="options"
-            value={selectedOption}
-            onChange={handleOptionChange}
+            value={selectedOptionFaculty}
+            onChange={handleOptionChangeFaculty}
             label="Select an option"
           >
             <MenuItem value="All">All</MenuItem>
@@ -1218,11 +1576,19 @@ const [openSidebar, setOpenSidebar] = useState(null);
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
-      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilter}>
+      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilterFaculty}>
         Filters&nbsp;
       </Button>
       <Button
-          onClick={() => fetchUserDocuments(user?.uid, selectedOption)}
+          onClick={() => fetchUserDocuments(
+            user?.uid,  
+            selectedOptionFaculty, 
+            sortByFaculty, 
+            dateFromFaculty, 
+            dateToFaculty, 
+            locationFaculty, 
+            selectedFilterItemsFaculty, 
+            otherItemsFaculty)}
           variant="contained"
           size="large"
           style={{
@@ -1497,9 +1863,156 @@ const [openSidebar, setOpenSidebar] = useState(null);
       <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
     </Popover>
 
+    <Drawer
+        anchor="right"
+        open={openFilterFaculty}
+        onClose={handleCloseFilterFaculty}
+        PaperProps={{
+          sx: { width: 280, border: 'none', overflow: 'hidden' },
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" sx={{ px: 1, py: 2 }}>
+          <Typography variant="subtitle1" sx={{ ml: 1 }}>
+            Filters
+          </Typography>
+          <IconButton onClick={handleCloseFilterFaculty}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </Stack>
+        <Divider/>
+        <Scrollbar>
+          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
+            Sort By:
+              <Button
+                variant="subtitle1" sx={{ ml: 1}}
+                alignItems="left"
+                display="flex"
+                color="inherit"
+                onClick={handleOpenSidebarFaculty}
+                endIcon={<Iconify icon={openSidebarFaculty ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+              >
+              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                {sortByFaculty === 'newest' ? 'Newest' : 'Oldest'}
+              </Typography>
+            </Button>
+          </Typography>
+          <Menu
+            keepMounted
+            anchorEl={openSidebarFaculty}
+            open={Boolean(openSidebarFaculty)}
+            onClose={handleCloseSidebarFaculty}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {SORT_BY_OPTIONS.map((option) => (
+              <MenuItem
+                key={option.value}
+                selected={option.value === sortByFaculty}
+                onClick={() => {
+                  handleSortByChangeFaculty(option.value);
+                  handleCloseSidebarFaculty();
+                }}
+                sx={{ typography: 'body2' }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date From:
+            </Typography>
+            <TextField
+              id="dateFrom"
+              size="small"
+              type="date"
+              value={dateFromFaculty}
+              onChange={handleDateFromChangeFaculty}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date To:
+            </Typography>
+            <TextField
+              id="dateTo"
+              size="small"
+              type="date"
+              value={dateToFaculty}
+              onChange={handleDateToChangeFaculty}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Location/Room:
+            </Typography>
+            <Select   
+              style={{ maxHeight: '100px' }}
+              id="location"
+              size="small"
+              value={locationFaculty}
+              onChange={handleLocationChangeFaculty}
+            >
+              <MenuItem value="">None</MenuItem> {/* Option for not choosing any location */}
+              {Array.from({ length: 20 }, (_, i) => (
+                <MenuItem
+                  key={`IT-${101 + i}`} // Start key and value from 100
+                  value={`IT ${101 + i}`}
+                >
+                  {`IT ${101 + i}`}
+                </MenuItem>
+              ))}
+            </Select>
+            <div>
+              <Typography variant="subtitle1" gutterBottom>
+                Items
+              </Typography>
+        
+                {FILTER_CATEGORY_OPTIONS.map((item) => (
+                  <div key={item}>
+                    <Checkbox
+                      value={item}
+                      checked={selectedFilterItemsFaculty.includes(item)}
+                      onChange={handleItemArrayChangeFaculty}
+                    />
+                    {item}
+                    <br />
+                  </div>
+                ))}
+
+                <Checkbox
+                  checked={showOtherItemsInputFaculty}
+                  onChange={handleCheckboxChangeFaculty}
+                /> Others:
+                <div style={{ marginLeft: '42px' }}>
+                {showOtherItemsInputFaculty && (
+                         <input
+                         type="text"
+                         name="Others"
+                         value={otherItemsFaculty}
+                         onChange={(e) => setOtherItemsFaculty(e.target.value)} // Directly update otherItems state
+                       />
+                  )}
+                </div>
+              
+            </div>
+          </Stack>
+        </Scrollbar>
+        <Box sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            color="inherit"
+            variant="outlined"
+            startIcon={<Iconify icon="ic:round-clear-all" />}
+            onClick={handleClearAllFaculty}
+          >
+            Clear All
+          </Button>
+        </Box>
+      </Drawer>
+
+
         </Container>
       )}
-  {/* End of Faculty usertype view for tables and edit dialog */}
+  {/* End of Faculty usertype view for tables, edit dialog and filters */}
   
   {/* Start of Technician usertype view for Search bar (top side) */}
   {isTechnician && ( 
@@ -1715,10 +2228,159 @@ const [openSidebar, setOpenSidebar] = useState(null);
     </Popover>
 
 
+    <Drawer
+        anchor="right"
+        open={openFilter}
+        onClose={handleCloseFilter}
+        PaperProps={{
+          sx: { width: 280, border: 'none', overflow: 'hidden' },
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" sx={{ px: 1, py: 2 }}>
+          <Typography variant="subtitle1" sx={{ ml: 1 }}>
+            Filters
+          </Typography>
+          <IconButton onClick={handleCloseFilter}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </Stack>
+        <Divider/>
+        <Scrollbar>
+          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
+            Sort By:
+              <Button
+                variant="subtitle1" sx={{ ml: 1}}
+                alignItems="left"
+                display="flex"
+                color="inherit"
+                onClick={handleOpenSidebar}
+                endIcon={<Iconify icon={openSidebar ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+              >
+              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                {sortBy === 'newest' ? 'Newest' : 'Oldest'}
+              </Typography>
+            </Button>
+          </Typography>
+          <Menu
+            keepMounted
+            anchorEl={openSidebar}
+            open={Boolean(openSidebar)}
+            onClose={handleCloseSidebar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {SORT_BY_OPTIONS.map((option) => (
+              <MenuItem
+                key={option.value}
+                selected={option.value === sortBy}
+                onClick={() => {
+                  handleSortByChange(option.value);
+                  handleCloseSidebar();
+                }}
+                sx={{ typography: 'body2' }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date From:
+            </Typography>
+            <TextField
+              id="dateFrom"
+              size="small"
+              type="date"
+              value={dateFrom}
+              onChange={handleDateFromChange}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date To:
+            </Typography>
+            <TextField
+              id="dateTo"
+              size="small"
+              type="date"
+              value={dateTo}
+              onChange={handleDateToChange}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Location/Room:
+            </Typography>
+            <Select   
+              style={{ maxHeight: '100px' }}
+              id="location"
+              size="small"
+              value={location}
+              onChange={handleLocationChange}
+            >
+              <MenuItem value="">None</MenuItem> {/* Option for not choosing any location */}
+              {Array.from({ length: 20 }, (_, i) => (
+                <MenuItem
+                  key={`IT-${101 + i}`} // Start key and value from 100
+                  value={`IT ${101 + i}`}
+                >
+                  {`IT ${101 + i}`}
+                </MenuItem>
+              ))}
+            </Select>
+            <div>
+              <Typography variant="subtitle1" gutterBottom>
+                Items
+              </Typography>
+        
+                {FILTER_CATEGORY_OPTIONS.map((item) => (
+                  <div key={item}>
+                    <Checkbox
+                      value={item}
+                      checked={selectedFilterItems.includes(item)}
+                      onChange={handleItemArrayChange}
+                    />
+                    {item}
+                    <br />
+                  </div>
+                ))}
+
+                <Checkbox
+                  checked={showOtherItemsInput}
+                  onChange={handleCheckboxChange}
+                /> Others:
+                <div style={{ marginLeft: '42px' }}>
+                {showOtherItemsInput && (
+                         <input
+                         type="text"
+                         name="Others"
+                         value={otherItems}
+                         onChange={(e) => setOtherItems(e.target.value)} // Directly update otherItems state
+                       />
+                  )}
+                </div>
+              
+            </div>
+          </Stack>
+        </Scrollbar>
+        <Box sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            color="inherit"
+            variant="outlined"
+            startIcon={<Iconify icon="ic:round-clear-all" />}
+            onClick={handleClearAll}
+          >
+            Clear All
+          </Button>
+        </Box>
+      </Drawer>
+
 
     </Container>
   )}
-  {/* End of Technician usertype view for tables */}
+  {/* End of Technician usertype view for tables  & Filter */}
+
+
+
 
  {/* Start of Dean usertype view for Search bar (top side) */}
  {isDean && ( 
@@ -1727,7 +2389,7 @@ const [openSidebar, setOpenSidebar] = useState(null);
       <Typography variant="h2" style={{ color: '#ff5500' }}>
         Borrower's Form
       </Typography>
-      <p>Selected Option: {selectedOption}</p>
+      <p>Selected Option: {selectedOptionDean}</p>
       </Stack>
 
       <Stack
@@ -1777,11 +2439,18 @@ const [openSidebar, setOpenSidebar] = useState(null);
       </Stack>
 
       <div style={{ marginLeft: 'auto', display: 'flex' }}>
-      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilter}>
+      <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={handleOpenFilterDean}>
         Filters&nbsp;
       </Button>
         <Button
-          onClick={() => DeanfetchAllDocuments(selectedOptionDean)}
+          onClick={() => DeanfetchAllDocuments(
+            selectedOptionDean, 
+            sortByDean, 
+            dateFromDean, 
+            dateToDean, 
+            locationDean, 
+            selectedFilterItemsDean, 
+            otherItemsDean)}
           variant="contained"
           size="large"
           style={{
@@ -1932,9 +2601,158 @@ const [openSidebar, setOpenSidebar] = useState(null);
       <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
     </Popover>
 
+    
+  <Drawer
+        anchor="right"
+        open={openFilterDean}
+        onClose={handleCloseFilterDean}
+        PaperProps={{
+          sx: { width: 280, border: 'none', overflow: 'hidden' },
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" sx={{ px: 1, py: 2 }}>
+          <Typography variant="subtitle1" sx={{ ml: 1 }}>
+            Filters
+          </Typography>
+          <IconButton onClick={handleCloseFilterDean}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </Stack>
+        <Divider/>
+        <Scrollbar>
+          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
+            Sort By:
+              <Button
+                variant="subtitle1" sx={{ ml: 1}}
+                alignItems="left"
+                display="flex"
+                color="inherit"
+                onClick={handleOpenSidebarDean}
+                endIcon={<Iconify icon={openSidebarDean ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+              >
+              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                {sortByDean === 'newest' ? 'Newest' : 'Oldest'}
+              </Typography>
+            </Button>
+          </Typography>
+          <Menu
+            keepMounted
+            anchorEl={openSidebarDean}
+            open={Boolean(openSidebarDean)}
+            onClose={handleCloseSidebarDean}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {SORT_BY_OPTIONS.map((option) => (
+              <MenuItem
+                key={option.value}
+                selected={option.value === sortByDean}
+                onClick={() => {
+                  handleSortByChangeDean(option.value);
+                  handleCloseSidebarDean();
+                }}
+                sx={{ typography: 'body2' }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date From:
+            </Typography>
+            <TextField
+              id="dateFrom"
+              size="small"
+              type="date"
+              value={dateFromDean}
+              onChange={handleDateFromChangeDean}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Date To:
+            </Typography>
+            <TextField
+              id="dateTo"
+              size="small"
+              type="date"
+              value={dateToDean}
+              onChange={handleDateToChangeDean}
+            />
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Location/Room:
+            </Typography>
+            <Select   
+              style={{ maxHeight: '100px' }}
+              id="location"
+              size="small"
+              value={locationDean}
+              onChange={handleLocationChangeDean}
+            >
+              <MenuItem value="">None</MenuItem> {/* Option for not choosing any location */}
+              {Array.from({ length: 20 }, (_, i) => (
+                <MenuItem
+                  key={`IT-${101 + i}`} // Start key and value from 100
+                  value={`IT ${101 + i}`}
+                >
+                  {`IT ${101 + i}`}
+                </MenuItem>
+              ))}
+            </Select>
+            <div>
+              <Typography variant="subtitle1" gutterBottom>
+                Items
+              </Typography>
+        
+                {FILTER_CATEGORY_OPTIONS.map((item) => (
+                  <div key={item}>
+                    <Checkbox
+                      value={item}
+                      checked={selectedFilterItemsDean.includes(item)}
+                      onChange={handleItemArrayChangeDean}
+                    />
+                    {item}
+                    <br />
+                  </div>
+                ))}
+
+                <Checkbox
+                  checked={showOtherItemsInputDean}
+                  onChange={handleCheckboxChangeDean}
+                /> Others:
+                <div style={{ marginLeft: '42px' }}>
+                {showOtherItemsInputDean && (
+                         <input
+                         type="text"
+                         name="Others"
+                         value={otherItemsDean}
+                         onChange={(e) => setOtherItemsDean(e.target.value)} // Directly update otherItems state
+                       />
+                  )}
+                </div>
+              
+            </div>
+          </Stack>
+        </Scrollbar>
+        <Box sx={{ p: 3 }}>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            color="inherit"
+            variant="outlined"
+            startIcon={<Iconify icon="ic:round-clear-all" />}
+            onClick={handleClearAllDean}
+          >
+            Clear All
+          </Button>
+        </Box>
+      </Drawer>
+
     </Container>
   )}
-  {/* End of Dean usertype view for tables */}
+  {/* End of Dean usertype view for tables & Filter */}
+
+
 
   {/* Start of public container for all user */}
     <Container> 
@@ -2319,151 +3137,6 @@ const [openSidebar, setOpenSidebar] = useState(null);
       />
 
 
-<Drawer
-        anchor="right"
-        open={openFilter}
-        onClose={handleCloseFilter}
-        PaperProps={{
-          sx: { width: 280, border: 'none', overflow: 'hidden' },
-        }}
-      >
-        <Stack direction="row" justifyContent="space-between" sx={{ px: 1, py: 2 }}>
-          <Typography variant="subtitle1" sx={{ ml: 1 }}>
-            Filters
-          </Typography>
-          <IconButton onClick={handleCloseFilter}>
-            <Iconify icon="eva:close-fill" />
-          </IconButton>
-        </Stack>
-        <Divider/>
-        <Scrollbar>
-          <Typography variant="subtitle1" sx={{ ml: 3, mt: 3, }}>
-            Sort By:
-              <Button
-                variant="subtitle1" sx={{ ml: 1}}
-                alignItems="left"
-                display="flex"
-                color="inherit"
-                onClick={handleOpenSidebar}
-                endIcon={<Iconify icon={openSidebar ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
-              >
-              <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                {sortBy === 'newest' ? 'Newest' : 'Oldest'}
-              </Typography>
-            </Button>
-          </Typography>
-          <Menu
-            keepMounted
-            anchorEl={openSidebar}
-            open={Boolean(openSidebar)}
-            onClose={handleCloseSidebar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          >
-            {SORT_BY_OPTIONS.map((option) => (
-              <MenuItem
-                key={option.value}
-                selected={option.value === sortBy}
-                onClick={() => {
-                  handleSortByChange(option.value);
-                  handleCloseSidebar();
-                }}
-                sx={{ typography: 'body2' }}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
-          </Menu>
-          <Stack spacing={3} sx={{ p: 3 }}>
-            <Typography variant="subtitle1" sx={{ ml: 1 }}>
-              Date From:
-            </Typography>
-            <TextField
-              id="dateFrom"
-              size="small"
-              type="date"
-              value={dateFrom}
-              onChange={handleDateFromChange}
-            />
-            <Typography variant="subtitle1" sx={{ ml: 1 }}>
-              Date To:
-            </Typography>
-            <TextField
-              id="dateTo"
-              size="small"
-              type="date"
-              value={dateTo}
-              onChange={handleDateToChange}
-            />
-            <Typography variant="subtitle1" sx={{ ml: 1 }}>
-              Location/Room:
-            </Typography>
-            <Select   
-              style={{ maxHeight: '100px' }}
-              id="location"
-              size="small"
-              value={location}
-              onChange={handleLocationChange}
-            >
-              <MenuItem value="">None</MenuItem> {/* Option for not choosing any location */}
-              {Array.from({ length: 20 }, (_, i) => (
-                <MenuItem
-                  key={`IT-${101 + i}`} // Start key and value from 100
-                  value={`IT ${101 + i}`}
-                >
-                  {`IT ${101 + i}`}
-                </MenuItem>
-              ))}
-            </Select>
-            <div>
-              <Typography variant="subtitle1" gutterBottom>
-                Items
-              </Typography>
-        
-                {FILTER_CATEGORY_OPTIONS.map((item) => (
-                  <div key={item}>
-                    <Checkbox
-                      value={item}
-                      checked={selectedFilterItems.includes(item)}
-                      onChange={handleItemArrayChange}
-                    />
-                    {item}
-                    <br />
-                  </div>
-                ))}
-
-                <Checkbox
-                  checked={showOtherItemsInput}
-                  onChange={handleCheckboxChange}
-                /> Others:
-                <div style={{ marginLeft: '42px' }}>
-                {showOtherItemsInput && (
-                         <input
-                         type="text"
-                         name="Others"
-                         value={otherItems}
-                         onChange={(e) => setOtherItems(e.target.value)} // Directly update otherItems state
-                       />
-                  )}
-                </div>
-              
-            </div>
-          </Stack>
-        </Scrollbar>
-        <Box sx={{ p: 3 }}>
-          <Button
-            fullWidth
-            size="large"
-            type="submit"
-            color="inherit"
-            variant="outlined"
-            startIcon={<Iconify icon="ic:round-clear-all" />}
-            onClick={handleClearAll}
-          >
-            Clear All
-          </Button>
-        </Box>
-      </Drawer>
 
     </Container>
     </>
