@@ -7,7 +7,7 @@ import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, order
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { initializeApp } from 'firebase/app';
-import {Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
+import {Modal, Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box,
         MenuItem,TableBody,TableCell,Container,Typography,IconButton,TableContainer,
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
@@ -18,8 +18,11 @@ import html2canvas from 'html2canvas';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PrintIcon from '@mui/icons-material/Print';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
+
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
 
 import Scrollbar from '../../components/scrollbar';
@@ -140,9 +143,16 @@ export default function UserPage() {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'PENDING (Dean)' });
-      console.log('Status updated successfully!');
+      console.log('Status APPROVED successfully!');
       setStatus('PENDING (Dean)'); // Update local state if needed
-      fetchAllDocuments();
+      fetchAllDocuments(
+        selectedOptionTechnician, 
+        sortBy, 
+        dateFrom, 
+        dateTo, 
+        location, 
+        selectedFilterItems, 
+        otherItems);
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -152,9 +162,38 @@ export default function UserPage() {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'REJECTED' });
-      console.log('Status updated successfully!');
+      console.log('Status REJECTED successfully!');
       setStatus('REJECTED'); // Update local state if needed
-      fetchAllDocuments();
+      fetchAllDocuments(
+      selectedOptionTechnician, 
+      sortBy, 
+      dateFrom, 
+      dateTo, 
+      location, 
+      selectedFilterItems, 
+      otherItems
+      );
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+
+  const updateStatusInFirebaseArchive = async (documentId) => {
+    try {
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'ARCHIVED' });
+      console.log('Status ARCHIVED successfully!');
+      setStatus('ARCHIVED'); // Update local state if needed
+      fetchAllDocuments(
+      selectedOptionTechnician, 
+      sortBy, 
+      dateFrom, 
+      dateTo, 
+      location, 
+      selectedFilterItems, 
+      otherItems
+      );
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -236,17 +275,19 @@ export default function UserPage() {
   
     //   // Add the image to the PDF
     //   pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
+
+    const timestampString = viewItem ? viewItem.timestamp.toDate().toLocaleString() : '';
+    const itemsText = `Items: ${viewItem ? viewItem.Items.join(", ") : ""}`;
+    const otherItemsText =`Other: ${viewItem ? viewItem.otherItems : ""}`;
+    const comma = otherItemsText ? ", " : "";
+    const combinedText = itemsText + comma + otherItemsText;
+
+
     pdf.text("BORROWER'S FORM", 20, 20);
-    pdf.text(`Document ID: ${  viewItem ? viewItem.id : ""}`, 20, 30);
-    pdf.text(`Date: ${  viewItem ? viewItem.Date : ""}`, 20, 40);
-    pdf.text(`Faculty Name: ${  viewItem ? viewItem.FullName : ""}`, 20, 50);
+    pdf.text(`Document ID: ${  viewItem ? viewItem.id : ""}`, 20, 40);
+    pdf.text(`Date & Time: ${timestampString}`, 20, 50);
     pdf.text(`Borrower: ${  viewItem ? viewItem.Borrower : ""}`, 20, 60);
-  
-    // Add checkboxes
-    const itemsText = `ITEMS: ${  viewItem ? viewItem.Items.join(", ") : ""}`;
-    pdf.text(itemsText, 20, 70);
-  
-    // Add location/room and file information
+    pdf.text(combinedText, 20, 70);
     pdf.text(`Location/Room: ${  viewItem ? viewItem.LocationRoom : ""}`, 20, 80);
     // const fileText = "File: " + (viewItem && viewItem.fileURL ? "View / Download File" : "No File");
     // pdf.text(fileText, 20, 90);
@@ -254,6 +295,15 @@ export default function UserPage() {
       // Save the PDF
       pdf.save('sample.pdf');
     
+  };
+
+  const [pdfData, setPdfData] = useState(null); // State to store the generated PDF data
+
+  const handleExport = async () => {
+    const pdfDoc = await new Promise((resolve) => {
+      exportToPDF(viewItem, resolve); // Call exportToPDF with a callback
+    });
+    setPdfData(pdfDoc.output()); // Store the generated PDF data as a base64 string
   };
 
 // Check the user's userType
@@ -1318,6 +1368,7 @@ const [viewOpen, setViewOpen] = useState(false);
 const handleViewOpen = (item) => {
   setViewItem(item);
   setViewOpen(true);
+  handleMenuClose(); 
 };
 
 const handleViewClose = () => {
@@ -1506,8 +1557,65 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
       setOpenSidebarFaculty(null);
     };
   
-    
-    
+
+// ---------- Dialog for APPROVE, REJECT & ARCHIVE ------------
+
+const [techApproveConfirmationDialogOpen, setTechApproveConfirmationDialogOpen] = useState(false);
+const [techRejectConfirmationDialogOpen, setTechRejectConfirmationDialogOpen] = useState(false);
+const [techArchiveConfirmationDialogOpen, setTechArchiveConfirmationDialogOpen] = useState(false);
+const [techManageDialogOpen, setTechManageDialogOpen] = useState(false);
+const [selectedItemForManage, setSelectedItemForManage] = useState('');
+
+// Open Manage dialog, while carrying item.id
+const handleManageDialogOpen = (itemId) => {
+  setSelectedItemForManage(itemId);
+  setTechManageDialogOpen(true);
+};
+
+const handleApproveButtonClick = () => {
+  setTechApproveConfirmationDialogOpen(true);
+  setTechManageDialogOpen(false)
+};
+
+const handleRejectButtonClick = () => {
+  setTechRejectConfirmationDialogOpen(true);
+  setTechManageDialogOpen(false)
+};
+
+const handleArchiveButtonClick  = () => {
+  setTechArchiveConfirmationDialogOpen(true);
+  setTechManageDialogOpen(false)
+};
+
+const handleApproveClick = () => {
+  if (selectedItemForManage) {
+    updateStatusInFirebase(selectedItemForManage);
+    setTechApproveConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for approval');
+  }
+};
+
+const handleRejectClick = () => {
+  if (selectedItemForManage) {
+    updateStatusInFirebaseReject(selectedItemForManage);
+    setTechRejectConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for rejection');
+  }
+};
+
+const handleArchiveClick = () => {
+  if (selectedItemForManage) {
+    updateStatusInFirebaseArchive(selectedItemForManage);
+    setTechArchiveConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for rejection');
+  }
+};
+
+
+
 
   return (
     <>
@@ -1525,7 +1633,7 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
       </Typography>
       <p>Selected Option: {selectedOptionFaculty}</p>
     </Stack>
-
+ 
     <Stack
       direction="row"
       alignItems="center"
@@ -2143,7 +2251,7 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                 <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
-                  {item.timestamp && item.timestamp.toDate().toLocaleString()}
+                {item.timestamp ? item.timestamp.toDate().toLocaleString() : ''}
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
                 <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
@@ -2160,14 +2268,9 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
-                  <div style={{ display: 'center' }}>
-                    <IconButton style={{ color: 'green' }}  onClick={() => updateStatusInFirebase(item.id)}>
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton style={{ color: 'red' }} onClick={() => updateStatusInFirebaseReject(item.id)} >
-                      <CloseIcon />
-                    </IconButton>
-                  </div>
+                <Button onClick={() => handleManageDialogOpen(item.id)}> 
+                  Manage
+                </Button>
                 </TableCell>
                 
                 <TableCell  style={{ textAlign: 'center' }}>
@@ -2179,9 +2282,7 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                   </IconButton>
                 </TableCell>
             </TableRow>
-
             ))}
-
           </TableBody>
         </Table>
       </TableContainer>
@@ -2930,13 +3031,28 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
       </Dialog>
 
     {/* Dialog for View button */}
-      <Dialog open={viewOpen} onClose={handleViewClose}>
+      <Dialog open={viewOpen} onClose={handleViewClose} PaperProps={{ style: { minWidth: '40%', paddingLeft: '5px', paddingRight: '15px' } }}>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
+        <div  style={{ flexBasis: '10px', maxWidth: '10px', flexGrow: 0, paddingTop: '20px'}}>
+              <IconButton
+                  style={{
+                    backgroundColor: '#ffffff',
+                    alignSelf: 'left',
+                    alignItems: 'center',
+                    size: '30px',
+                    color: '#ff5500',
+                  }}
+                  onClick={handleViewClose}
+                  sx={{ marginRight: '5px', marginLeft: '5px' }}
+                >
+                  <ArrowBackIcon />
+              </IconButton>
+        </div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
+            <Typography variant="h3" sx={{ mb: 5 }} style={{ color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
               Borrower's Form
             </Typography>
-            <DialogContent id="pdf-content">
+            <DialogContent id="pdf-content" style={{border:'3px solid #e0e0e0'}}>
             <Grid
                     container
                     spacing={2}
@@ -3004,7 +3120,7 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                         sx={{ width: '100%', marginBottom: '10px' }}
                       />
                     </Grid>
-
+                   
                     <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
                     <Grid item xs={5}>
                       <Checkbox
@@ -3048,7 +3164,7 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                           />
                         </div>
                     </Grid>
-
+                    
                     <Grid item xs={8} spacing={1}>
                       <Grid>
                       <Typography variant="subtitle1">File:</Typography>
@@ -3065,19 +3181,15 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
                   </Grid>
 
                   <br />
-            </DialogContent>
+            </DialogContent >
           </div>
         </div>
-        <DialogActions>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-            <Button style={{ backgroundColor:'#ffbd03' }}  variant="contained" onClick={handleViewClose} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-              Close
-            </Button>
-            <Button variant="contained" onClick={() => exportToPDF(viewItem)} sx={{ marginRight: '5px', marginLeft: '5px' }}>
-        Export to PDF
-      </Button>
-          </div>
-        </DialogActions>
+
+        <div style={{ display: 'flex', padding: '25px', justifyContent: 'right', gap: '13px' }}>  {/* Combined styles */}
+        <IconButton onClick={handleExport} style={{color:'black'}}>
+          <PrintIcon/> 
+        </IconButton>
+        </div>
       </Dialog>
 
        {/* Dialog for Remove Button */}
@@ -3107,9 +3219,92 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
         <Button onClick={handleConfirmDeleteAll} color="error">Delete</Button>
       </DialogActions>
     </Dialog>
-  
+            
+       {/* Dialog for APPROVE Button */}
+      <Dialog open={techApproveConfirmationDialogOpen} onClose={() => setTechApproveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: 'green', fontWeight: 'bold' }}>APPROVE</span> this document?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setTechApproveConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleApproveClick} variant='contained' style={{ color: '#ffffff', backgroundColor: '#2ECC71' }}>
+          <CheckIcon/> APPROVE
+        </Button>
+      </DialogActions>  
+      </Dialog>
 
-   
+      {/* Dialog for REJECT Button */}
+      <Dialog open={techRejectConfirmationDialogOpen} onClose={() => setTechRejectConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: 'red', fontWeight: 'bold' }}>REJECT</span> this document?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setTechRejectConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleRejectClick} variant='contained' style={{ color: '#ffffff', backgroundColor: '#FF0000' }}>
+          <CloseIcon /> REJECT
+        </Button>
+      </DialogActions> 
+      </Dialog>
+
+      {/* Dialog for ARCHIVE Button */}
+      <Dialog open={techArchiveConfirmationDialogOpen} onClose={() => setTechArchiveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: '#ff5500', fontWeight: 'bold' }}>ARCHIVE</span> this document ?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setTechArchiveConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleArchiveClick} variant='outlined' style={{ borderColor: '#ff5500', color: '#ff5500', backgroundColor: 'white' }}>
+          ARCHIVE
+        </Button>
+      </DialogActions> 
+      </Dialog>
+
+        
+
+
+  {/* Technician Dialog for Manage Button */}
+      <Dialog open={techManageDialogOpen} onClose={() => setTechManageDialogOpen(false)}>
+        <DialogTitle>Manage Document</DialogTitle>
+        <DialogContent>
+          Select what you want to do with the document:
+        </DialogContent>
+        <DialogActions> 
+        
+          <Button onClick={() => handleArchiveButtonClick(selectedItemForManage)} variant='outlined' style={{ borderColor: '#ff5500', color: '#ff5500', backgroundColor: 'white' }}>
+            ARCHIVE
+          </Button>
+
+          {isTechnician && (
+            <> 
+              
+              <Button onClick={() => handleRejectButtonClick(selectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#FF4136' }}>
+                <CloseIcon/> REJECT
+              </Button>
+
+              <Button onClick={() => handleApproveButtonClick(selectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#2ECC71' }}>
+                <CheckIcon/> APPROVE
+              </Button>
+              
+            </>
+          )}
+
+          {isDean && (
+            <Button>
+              This is for Dean
+            </Button>
+          )}
+
+          {isFaculty && (
+            <Button>
+              This is for Faculty
+            </Button>
+          )}
+          </DialogActions>
+        </Dialog>
+
     <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -3135,8 +3330,6 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
         onClose={() => setSnackbarOpenArchive(false)}
         message="The Document was archived successfully!"
       />
-
-
 
     </Container>
     </>
