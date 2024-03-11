@@ -139,11 +139,36 @@ export default function UserPage() {
   //     console.error('Error updating status:', error);
   //   }
   // };
+
+
+// Faculty File Status Update Archive
+const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
+  try {
+    const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+    await updateDoc(statusRef, { status: 'ARCHIVED' });
+    setSnackbarOpenArchive(true);
+    setStatus('ARCHIVED'); 
+    fetchUserDocuments(
+      user?.uid,  
+      selectedOptionFaculty, 
+      sortByFaculty, 
+      dateFromFaculty, 
+      dateToFaculty, 
+      locationFaculty, 
+      selectedFilterItemsFaculty, 
+      otherItemsFaculty);
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
+  setArchiveDialogOpen(false);
+};
+
+// Technician File Status Update
   const updateStatusInFirebase = async (documentId) => {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'PENDING (Dean)' });
-      console.log('Status APPROVED successfully!');
+      setSnackbarOpenApproved(true);
       setStatus('PENDING (Dean)'); // Update local state if needed
       fetchAllDocuments(
         selectedOptionTechnician, 
@@ -162,7 +187,7 @@ export default function UserPage() {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'REJECTED' });
-      console.log('Status REJECTED successfully!');
+      setSnackbarOpenRejected(true);
       setStatus('REJECTED'); // Update local state if needed
       fetchAllDocuments(
       selectedOptionTechnician, 
@@ -183,7 +208,7 @@ export default function UserPage() {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'ARCHIVED' });
-      console.log('Status ARCHIVED successfully!');
+      setSnackbarOpenArchive(true);
       setStatus('ARCHIVED'); // Update local state if needed
       fetchAllDocuments(
       selectedOptionTechnician, 
@@ -197,17 +222,26 @@ export default function UserPage() {
     } catch (error) {
       console.error('Error updating status:', error);
     }
+    setArchiveDialogOpen(false);
   };
 
-
+// Dean File Status Update
 
   const updateStatusInFirebaseDean = async (documentId) => {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'APPROVED' });
-      console.log('Status updated successfully!');
+      setSnackbarOpenApproved(true);
       setStatus('APPROVED'); // Update local state if needed
-      DeanfetchAllDocuments();
+      DeanfetchAllDocuments(
+        selectedOptionDean, 
+        sortByDean, 
+        dateFromDean, 
+        dateToDean, 
+        locationDean, 
+        selectedFilterItemsDean, 
+        otherItemsDean
+      );
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -217,13 +251,44 @@ export default function UserPage() {
     try {
       const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
       await updateDoc(statusRef, { status: 'REJECTED' });
-      console.log('Status updated successfully!');
+      setSnackbarOpenRejected(true);
       setStatus('REJECTED'); // Update local state if needed
-      DeanfetchAllDocuments();
+      DeanfetchAllDocuments(
+        selectedOptionDean, 
+        sortByDean, 
+        dateFromDean, 
+        dateToDean, 
+        locationDean, 
+        selectedFilterItemsDean, 
+        otherItemsDean
+      );
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
+
+  const updateStatusInFirebaseArchiveDean = async (documentId) => {
+    try {
+      const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
+      await updateDoc(statusRef, { status: 'ARCHIVED' });
+      setSnackbarOpenArchive(true);
+      setStatus('ARCHIVED'); // Update local state if needed
+      DeanfetchAllDocuments(
+        selectedOptionDean, 
+        sortByDean, 
+        dateFromDean, 
+        dateToDean, 
+        locationDean, 
+        selectedFilterItemsDean, 
+        otherItemsDean
+      );
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+    setArchiveDialogOpen(false);
+  };
+
+
 
 
 
@@ -327,7 +392,15 @@ useEffect(() => {
         setUserType(userData.userType);
 
         if (userData.uid && typeof userData.uid === 'string') {
-          fetchUserDocuments(userData.uid);
+          fetchUserDocuments(
+            userData.uid,
+            selectedOptionFaculty, 
+            sortByFaculty, 
+            dateFromFaculty, 
+            dateToFaculty, 
+            locationFaculty, 
+            selectedFilterItemsFaculty, 
+            otherItemsFaculty);
         } else {
           console.error('Invalid UID in userData:', userData.uid);
         }
@@ -982,7 +1055,14 @@ useEffect(() => {
   
       setOpen(false);
       setSnackbarOpen(true);
-      fetchUserDocuments(user?.uid);
+      fetchUserDocuments(user?.uid,  
+        selectedOptionFaculty, 
+        sortByFaculty, 
+        dateFromFaculty, 
+        dateToFaculty, 
+        locationFaculty, 
+        selectedFilterItemsFaculty, 
+        otherItemsFaculty);
     } catch (error) {
       console.error(error);
       alert("Input cannot be incomplete");
@@ -1036,9 +1116,16 @@ const filteredDataDean = fetchedDataDean.filter((item) => {
 // This one is for the Edit button for Faculty only
 const [editData, setEditData] = useState(null);
 const [editOpen, setEditOpen] = useState(false);
+const [showEditMessageDialog, setShowEditMessageDialog] = useState(false);
 
 const handleEditOpen = (data) => {
   if (data && data.id) {
+    if (data.status === "PENDING (Dean)" || data.status === "APPROVED") {
+      // Display a dialog with the message
+      setShowEditMessageDialog(true);
+      return; // Exit the function
+    }
+
     // Populate the form fields with existing data
     setFormData({
       ...formData,
@@ -1069,7 +1156,9 @@ const handleEditSubmit = async () => {
     // Include the checkbox values in editData
     const updatedEditData = {
       ...editData,
-      Items: formData.Items, // Update Services with checkbox values
+      Items: formData.Items,
+      status: "PENDING (Technician)", 
+      timestamp: new Date(),// Update Services with checkbox values
       // Include other properties here
     };
 
@@ -1087,14 +1176,22 @@ const handleEditSubmit = async () => {
     await updateDoc(docRef, updatedEditData);
     handleEditClose();
     setSnackbarOpen1(true);
-    fetchUserDocuments(user?.uid);
+    fetchUserDocuments(
+      user?.uid,
+      selectedOptionFaculty, 
+      sortByFaculty, 
+      dateFromFaculty, 
+      dateToFaculty, 
+      locationFaculty, 
+      selectedFilterItemsFaculty, 
+      otherItemsFaculty);
   } catch (error) {
     console.error("Error updating data in Firestore: ", error);
   }
 };
 
 // This one is for the Delete button
-const [documentToDelete, setDocumentToDelete] = useState(null);
+const [documentToDelete, setDocumentToDelete] = useState('');
 
 const handleConfirmDeleteWithoutArchive = async () => {
   try {
@@ -1122,6 +1219,7 @@ const handleConfirmDeleteWithoutArchive = async () => {
     setDocumentToDelete(null);
   }
 };
+
 
 const handleDelete = (documentId) => {
   // Show a confirmation dialog before deleting
@@ -1558,7 +1656,9 @@ const [openSidebarFaculty, setOpenSidebarFaculty] = useState(null);
     };
   
 
-// ---------- Dialog for APPROVE, REJECT & ARCHIVE ------------
+// ---------- TECHNICIAN Dialog for APPROVE, REJECT & ARCHIVE ------------
+const [snackbarOpenApproved, setSnackbarOpenApproved] = useState(false);
+const [snackbarOpenRejected, setSnackbarOpenRejected] = useState(false);
 
 const [techApproveConfirmationDialogOpen, setTechApproveConfirmationDialogOpen] = useState(false);
 const [techRejectConfirmationDialogOpen, setTechRejectConfirmationDialogOpen] = useState(false);
@@ -1614,6 +1714,63 @@ const handleArchiveClick = () => {
   }
 };
 
+
+// ---------- Dean Dialog for APPROVE, REJECT & ARCHIVE ------------
+
+const [deanApproveConfirmationDialogOpen, setDeanApproveConfirmationDialogOpen] = useState(false);
+const [deanRejectConfirmationDialogOpen, setDeanRejectConfirmationDialogOpen] = useState(false);
+const [deanArchiveConfirmationDialogOpen, setDeanArchiveConfirmationDialogOpen] = useState(false);
+const [deanManageDialogOpen, setDeanManageDialogOpen] = useState(false);
+const [deanselectedItemForManage, setDeanSelectedItemForManage] = useState('');
+
+// Open Manage dialog, while carrying item.id
+const handleDeanManageDialogOpen = (itemId) => {
+  setDeanSelectedItemForManage(itemId);
+  setDeanManageDialogOpen(true);
+};
+
+const handleDeanApproveButtonClick = () => {
+  setDeanApproveConfirmationDialogOpen(true);
+  setDeanManageDialogOpen(false)
+};
+
+const handleDeanRejectButtonClick = () => {
+  setDeanRejectConfirmationDialogOpen(true);
+  setDeanManageDialogOpen(false)
+};
+
+const handleDeanArchiveButtonClick  = () => {
+  setDeanArchiveConfirmationDialogOpen(true);
+  setDeanManageDialogOpen(false)
+};
+
+
+const handleDeanApproveClick = () => {
+  if (deanselectedItemForManage) {
+    updateStatusInFirebaseDean(deanselectedItemForManage);
+    setDeanApproveConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for approval');
+  }
+};
+
+const handleDeanRejectClick = () => {
+  if (deanselectedItemForManage) {
+    updateStatusInFirebaseRejectDean(deanselectedItemForManage);
+    setDeanRejectConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for rejection');
+  }
+};
+
+const handleDeanArchiveClick = () => {
+  if (deanselectedItemForManage) {
+    updateStatusInFirebaseArchiveDean(deanselectedItemForManage);
+    setDeanArchiveConfirmationDialogOpen(false);
+  } else {
+    console.error('No selectedItem available for rejection');
+  }
+};
 
 
 
@@ -1968,7 +2125,7 @@ const handleArchiveClick = () => {
     >
       <MenuItem onClick={() => handleViewOpen(selectedItem)}>View</MenuItem>
       <MenuItem onClick={() => handleEditOpen(selectedItem)}>Edit</MenuItem>
-      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Remove</MenuItem>
+      <MenuItem onClick={() => handleDelete(selectedItem.id)}>Archive</MenuItem>
     </Popover>
 
     <Drawer
@@ -2117,6 +2274,18 @@ const handleArchiveClick = () => {
         </Box>
       </Drawer>
 
+{/* FACULTY Archive Dialog */}
+<Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
+        <DialogTitle>Archive Document</DialogTitle>
+        <DialogContent>
+          Do you want to or archive {documentToDelete} ?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
+          {/* <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button> */}
+          <Button onClick={() => updateStatusInFirebaseArchiveFaculty(documentToDelete)} style={{ color: 'orange' }}>Archive</Button>
+        </DialogActions>
+    </Dialog>
 
         </Container>
       )}
@@ -2268,9 +2437,11 @@ const handleArchiveClick = () => {
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
-                <Button onClick={() => handleManageDialogOpen(item.id)}> 
-                  Manage
-                </Button>
+                  {item.status === "PENDING (Technician)" && (
+                    <Button onClick={() => handleManageDialogOpen(item.id)}> 
+                      Manage
+                    </Button>
+                  )}
                 </TableCell>
                 
                 <TableCell  style={{ textAlign: 'center' }}>
@@ -2289,14 +2460,14 @@ const handleArchiveClick = () => {
     )}
 
     <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-      <DialogTitle>Remove Document</DialogTitle>
+      <DialogTitle>Archive Document</DialogTitle>
       <DialogContent>
-        Do you want to delete or archive this document?
+        Do you want to archive {documentToDelete} ?
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-        <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-        <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
+        <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button> 
+        <Button onClick={() => updateStatusInFirebaseArchive(documentToDelete)} style={{ color: 'orange' }}>Archive</Button>
       </DialogActions>
     </Dialog>
     
@@ -2635,14 +2806,11 @@ const handleArchiveClick = () => {
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
                 <TableCell style={{ textAlign: 'center' }}>
-                  <div style={{ display: 'center' }}>
-                    <IconButton style={{ color: 'green' }}>
-                      <CheckIcon onClick={() => updateStatusInFirebaseDean(item.id)} />
-                    </IconButton>
-                    <IconButton style={{ color: 'red' }}>
-                      <CloseIcon onClick={() => updateStatusInFirebaseRejectDean(item.id)} />
-                    </IconButton>
-                  </div>
+                {item.status === "PENDING (Dean)" && (
+                  <Button onClick={() => handleDeanManageDialogOpen(item.id)}> 
+                    Manage
+                  </Button>
+                )}
                 </TableCell>
               
                 <TableCell style={{ textAlign: 'center' }}>
@@ -2663,14 +2831,14 @@ const handleArchiveClick = () => {
     )}
 
     <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-      <DialogTitle>Remove Document</DialogTitle>
+      <DialogTitle>Archive Document</DialogTitle>
       <DialogContent>
-        Do you want to delete or archive this document?
+        Do you want to archive {documentToDelete} ?
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-        <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-        <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
+         <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button> 
+         <Button onClick={() => updateStatusInFirebaseArchiveDean(documentToDelete)} style={{ color: 'orange' }}>Archive</Button>
       </DialogActions>
     </Dialog>
     
@@ -3185,25 +3353,12 @@ const handleArchiveClick = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', padding: '25px', justifyContent: 'right', gap: '13px' }}>  {/* Combined styles */}
+        <div style={{ display: 'flex', padding: '10px', justifyContent: 'center', gap: '13px' }}>  {/* Combined styles */}
         <IconButton onClick={handleExport} style={{color:'black'}}>
           <PrintIcon/> 
         </IconButton>
         </div>
       </Dialog>
-
-       {/* Dialog for Remove Button */}
-    <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-        <DialogTitle>Remove Document</DialogTitle>
-        <DialogContent>
-          Do you want to delete or archive this document?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setArchiveDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleConfirmDeleteWithoutArchive} color="error">Delete</Button>
-          <Button onClick={handleConfirmDelete} style={{ color: 'orange' }}>Archive</Button>
-        </DialogActions>
-    </Dialog>
         
          {/* Dialog for Delete Button */}
     <Dialog
@@ -3220,11 +3375,15 @@ const handleArchiveClick = () => {
       </DialogActions>
     </Dialog>
             
-       {/* Dialog for APPROVE Button */}
+
+
+
+{ /* TECHNICIAN Dialog for Confirmation Buttons */ }
+       { /* Dialog for APPROVE Button */ }
       <Dialog open={techApproveConfirmationDialogOpen} onClose={() => setTechApproveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
-        Are you sure you want to <span style={{ color: 'green', fontWeight: 'bold' }}>APPROVE</span> this document?
+        Are you sure you want to <span style={{ color: 'green', fontWeight: 'bold' }}>APPROVE</span> "<span style={{ fontWeight: 'bold' }}>{selectedItemForManage}</span>" ?
       </DialogContent>
       <DialogActions> 
         <Button onClick={() => setTechApproveConfirmationDialogOpen(false)}>Cancel</Button>
@@ -3238,7 +3397,7 @@ const handleArchiveClick = () => {
       <Dialog open={techRejectConfirmationDialogOpen} onClose={() => setTechRejectConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
-        Are you sure you want to <span style={{ color: 'red', fontWeight: 'bold' }}>REJECT</span> this document?
+        Are you sure you want to <span style={{ color: 'red', fontWeight: 'bold' }}>REJECT</span> "<span style={{ fontWeight: 'bold' }}>{selectedItemForManage}</span>" ?
       </DialogContent>
       <DialogActions> 
         <Button onClick={() => setTechRejectConfirmationDialogOpen(false)}>Cancel</Button>
@@ -3252,7 +3411,7 @@ const handleArchiveClick = () => {
       <Dialog open={techArchiveConfirmationDialogOpen} onClose={() => setTechArchiveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
-        Are you sure you want to <span style={{ color: '#ff5500', fontWeight: 'bold' }}>ARCHIVE</span> this document ?
+        Are you sure you want to <span style={{ color: '#ff5500', fontWeight: 'bold' }}>ARCHIVE</span> "<span style={{ fontWeight: 'bold' }}>{selectedItemForManage}</span>" ?
       </DialogContent>
       <DialogActions> 
         <Button onClick={() => setTechArchiveConfirmationDialogOpen(false)}>Cancel</Button>
@@ -3263,23 +3422,66 @@ const handleArchiveClick = () => {
       </Dialog>
 
         
+{ /* Dean Dialog for Confirmation Buttons */ }
+       { /* Dialog for APPROVE Button */ }
+      <Dialog open={deanApproveConfirmationDialogOpen} onClose={() => setDeanApproveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: 'green', fontWeight: 'bold' }}>APPROVE</span> "<span style={{ fontWeight: 'bold' }}>{deanselectedItemForManage}</span>" ?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setDeanApproveConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleDeanApproveClick} variant='contained' style={{ color: '#ffffff', backgroundColor: '#2ECC71' }}>
+          <CheckIcon/> APPROVE
+        </Button>
+      </DialogActions>  
+      </Dialog>
 
+      {/* Dialog for REJECT Button */}
+      <Dialog open={deanRejectConfirmationDialogOpen} onClose={() => setDeanRejectConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: 'red', fontWeight: 'bold' }}>REJECT</span> "<span style={{ fontWeight: 'bold' }}>{deanselectedItemForManage}</span>" ?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setDeanRejectConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleDeanRejectClick} variant='contained' style={{ color: '#ffffff', backgroundColor: '#FF0000' }}>
+          <CloseIcon /> REJECT
+        </Button>
+      </DialogActions> 
+      </Dialog>
+
+      {/* Dialog for ARCHIVE Button */}
+      <Dialog open={deanArchiveConfirmationDialogOpen} onClose={() => setDeanArchiveConfirmationDialogOpen(false)} style={{justifyContent:'center'}}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent style={{ borderBottom:'3px solid #e0e0e0', paddingTop: '11px', marginLeft: '20px', marginRight: '20px'}}>
+        Are you sure you want to <span style={{ color: '#ff5500', fontWeight: 'bold' }}>ARCHIVE</span> "<span style={{ fontWeight: 'bold' }}>{deanselectedItemForManage}</span>" ?
+      </DialogContent>
+      <DialogActions> 
+        <Button onClick={() => setDeanArchiveConfirmationDialogOpen(false)}>Cancel</Button>
+        <Button onClick={handleDeanArchiveClick} variant='outlined' style={{ borderColor: '#ff5500', color: '#ff5500', backgroundColor: 'white' }}>
+          ARCHIVE
+        </Button>
+      </DialogActions> 
+      </Dialog>
+
+
+
+
+
+ {/* DIALOGS for Manage Button */}
 
   {/* Technician Dialog for Manage Button */}
       <Dialog open={techManageDialogOpen} onClose={() => setTechManageDialogOpen(false)}>
         <DialogTitle>Manage Document</DialogTitle>
         <DialogContent>
-          Select what you want to do with the document:
+          Select what you want to do with "<span style={{ fontWeight: 'bold' }}>{selectedItemForManage}</span>"
         </DialogContent>
         <DialogActions> 
         
           <Button onClick={() => handleArchiveButtonClick(selectedItemForManage)} variant='outlined' style={{ borderColor: '#ff5500', color: '#ff5500', backgroundColor: 'white' }}>
             ARCHIVE
           </Button>
-
-          {isTechnician && (
-            <> 
-              
               <Button onClick={() => handleRejectButtonClick(selectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#FF4136' }}>
                 <CloseIcon/> REJECT
               </Button>
@@ -3287,21 +3489,27 @@ const handleArchiveClick = () => {
               <Button onClick={() => handleApproveButtonClick(selectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#2ECC71' }}>
                 <CheckIcon/> APPROVE
               </Button>
-              
-            </>
-          )}
+          </DialogActions>
+        </Dialog>
 
-          {isDean && (
-            <Button>
-              This is for Dean
-            </Button>
-          )}
+  {/* Dean Dialog for Manage Button */}
+      <Dialog open={deanManageDialogOpen} onClose={() => setDeanManageDialogOpen(false)}>
+        <DialogTitle>Manage Document</DialogTitle>
+          <DialogContent>
+            Select what you want to do with "<span style={{ fontWeight: 'bold' }}>{deanselectedItemForManage}</span>"
+          </DialogContent>
+        <DialogActions> 
+        
+          <Button onClick={() => handleDeanArchiveButtonClick(deanselectedItemForManage)} variant='outlined' style={{ borderColor: '#ff5500', color: '#ff5500', backgroundColor: 'white' }}>
+            ARCHIVE
+          </Button>
+              <Button onClick={() => handleDeanRejectButtonClick(deanselectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#FF4136' }}>
+                <CloseIcon/> REJECT
+              </Button>
 
-          {isFaculty && (
-            <Button>
-              This is for Faculty
-            </Button>
-          )}
+              <Button onClick={() => handleDeanApproveButtonClick(deanselectedItemForManage)} variant='contained' style={{ color: '#ffffff', backgroundColor: '#2ECC71' }}>
+                <CheckIcon/> APPROVE
+              </Button>
           </DialogActions>
         </Dialog>
 
@@ -3309,27 +3517,58 @@ const handleArchiveClick = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        message="The Document was created successfully!"
+        message="The Document was CREATED successfully!"
       />
     <Snackbar
         open={snackbarOpen1}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen1(false)}
-        message="The Document was edited successfully!"
+        message="The Document was EDITED successfully!"
       />
       <Snackbar
         open={snackbarOpenDelete}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpenDelete(false)}
-        message="The Document was deleted successfully!"
+        message="The Document was DELETED successfully!"
       />
 
       <Snackbar
         open={snackbarOpenArchive}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpenArchive(false)}
-        message="The Document was archived successfully!"
+        message="The Document was ARCHIVED successfully!"
       />
+
+      <Snackbar
+        open={snackbarOpenApproved}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpenApproved(false)}
+        message="The Document was APPROVED successfully!"
+      />
+
+      <Snackbar
+        open={snackbarOpenRejected}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpenRejected(false)}
+        message="The Document was REJECTED successfully!"
+      />
+      
+
+  {/* Dialog for Edit Button */}
+  <Dialog
+    open={showEditMessageDialog}
+    onClose={() => setShowEditMessageDialog(false)}
+  >
+    <DialogTitle>Cannot Edit</DialogTitle>
+    <DialogContent>
+        You can't edit this document because it's already APPROVED or PENDING (Dean).
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={() => setShowEditMessageDialog(false)} color="primary">
+        Close
+      </Button>
+    </DialogActions>
+  </Dialog>
 
     </Container>
     </>
