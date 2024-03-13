@@ -22,6 +22,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
+import Cict from '../../components/logo/CICTbSULOGO.png'
 
 import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
 
@@ -327,40 +328,78 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
   // };
 
 
+
   const exportToPDF = (viewItem) => {
+ 
     // eslint-disable-next-line new-cap
     const pdf = new jsPDF();
-  
-    // Get the content to be exported
-    // const content = document.getElementById('pdf-content');
-  
-    // // Use html2canvas to capture the content as an image
-    // html2canvas(content).then((canvas) => {
-    //   const imgData = canvas.toDataURL('image/png');
-  
-    //   // Add the image to the PDF
-    //   pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
-
     const timestampString = viewItem ? viewItem.timestamp.toDate().toLocaleString() : '';
-    const itemsText = `Items: ${viewItem ? viewItem.Items.join(", ") : ""}`;
-    const otherItemsText =`Other: ${viewItem ? viewItem.otherItems : ""}`;
+    const itemsText = `${viewItem ? viewItem.Items.join(", ") : ""}`;
+    const otherItemsText =`Others: ${viewItem ? viewItem.otherItems : ""}`;
     const comma = otherItemsText ? ", " : "";
     const combinedText = itemsText + comma + otherItemsText;
 
+      // pdf Image vars
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imageWidth = 40; 
+    const xPosition = (pageWidth - imageWidth) / 2; 
 
-    pdf.text("BORROWER'S FORM", 20, 20);
-    pdf.text(`Document ID: ${  viewItem ? viewItem.id : ""}`, 20, 40);
-    pdf.text(`Date & Time: ${timestampString}`, 20, 50);
-    pdf.text(`Borrower: ${  viewItem ? viewItem.Borrower : ""}`, 20, 60);
-    pdf.text(combinedText, 20, 70);
-    pdf.text(`Location/Room: ${  viewItem ? viewItem.LocationRoom : ""}`, 20, 80);
-    // const fileText = "File: " + (viewItem && viewItem.fileURL ? "View / Download File" : "No File");
-    // pdf.text(fileText, 20, 90);
+    pdf.addImage(Cict, 'PNG', xPosition, 10, imageWidth, 0);
+      // Set font style to bold for specific texts
+      pdf.setFont("times", "bold");
+      pdf.text("BORROWER'S FORM", xPosition -10, 55);
+      pdf.text("DATE & TIME:", 10, 70);
+      pdf.text("CONTROL NO.:", 130, 70);
+      pdf.text("FACULTY NAME:", 10, 80);
+      pdf.text("LOCATION/ROOM:", 10, 90);
+      pdf.text("ITEMS:", 10, 110);
+      pdf.text("BORROWER:", 10, 165);
+      pdf.text("___________________________________", 10, 176);
+      pdf.setFont("times", "normal");
+      pdf.text("  Signature over printed name / Designation", 10, 185);
+      pdf.setFont("times", "bold");
+      pdf.text("Dean, CICT ", 160, 185);
+      pdf.text("DR. KENO C. PIAD", 148, 175);
+      pdf.text("________________", 150, 176);
   
-      // Save the PDF
+      // Set font style to normal for the rest
+      pdf.setFont("times", "normal");
+      pdf.text(timestampString, 55, 70);
+      pdf.text(viewItem ? viewItem.id : "", 175, 70);
+      pdf.text(viewItem ? viewItem.Borrower : "", 60, 80);
+      pdf.text(viewItem ? viewItem.LocationRoom : "", 65, 90);
+      pdf.setFont("times", "bold");
+      pdf.text(viewItem ? viewItem.Borrower : "", 10, 175);
+      pdf.text(viewItem ? viewItem.userDesignation : "", 86, 175);
+      // pdf.text(combinedText, 30, 100);
+
+      // Draw checkboxes and their labels
+      pdf.setFont("times", "bold");
+      drawCheckbox(pdf, 25, 120, viewItem ? viewItem.Items.includes('HDMI') : false, "HDMI");
+      drawCheckbox(pdf, 130, 120, viewItem ? viewItem.Items.includes('TV') : false, "TV");
+      drawCheckbox(pdf, 25, 140, viewItem ? viewItem.Items.includes('Projector') : false, "Projector");
+   
+      // Check if otherItems is populated and draw checkbox accordingly
+      const otherItemsChecked = !!viewItem?.otherItems;
+      drawCheckbox(pdf, 130, 140, otherItemsChecked, otherItemsText);
+     
       pdf.save('sample.pdf');
-    
-  };
+  
+};
+
+  function drawCheckbox(pdf, x, y, checked, label) {
+    // Draw the checkbox square
+    pdf.setDrawColor(0); // Set the border color to black
+    pdf.rect(x, y, 10, 10, 'S', { rounded: 4.5 }); // Draw the checkbox outline with slightly rounded corners
+    // Fill the checkbox with black color if checked
+    if (checked) {
+        pdf.setFillColor(0); // Set the fill color to black
+        pdf.rect(x, y, 10, 10, 'F'); // Fill the entire checkbox area
+    }
+    pdf.setTextColor(0); // Set the text color to black
+    pdf.text(label, x + 15, y + 8); // Draw the checkbox label
+}
+
 
   const [pdfData, setPdfData] = useState(null); // State to store the generated PDF data
 
@@ -431,6 +470,7 @@ const handleChange = (e) => {
     LocationRoom: '',
     Borrower: '',
     Items: [],
+    userDesignation: '',
     otherItems: '',
     fileInput: '',
     fileURL: '',
@@ -449,6 +489,7 @@ const handleChange = (e) => {
     LocationRoom: '',
     Borrower: '',
     Items: [],
+    userDesignation: '',
     otherItems: '',
     fileURL: '',
   });
@@ -1018,10 +1059,10 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const { userDate, LocationRoom, Borrower, Items = [], otherItems, fileURL } = formData;
+    const { userDate, LocationRoom, Borrower, Items = [], otherItems, fileURL, userDesignation } = formData;
   
     // Validation logic for required fields
-    if (!userDate || !LocationRoom || !Borrower) {
+    if (!userDate || !LocationRoom || !Borrower || !userDesignation) {
       alert('Please fill out all required fields');
       return;
     }
@@ -1046,6 +1087,7 @@ useEffect(() => {
         originalLocation: "ITEM-BORROWERS",
         uid: user?.uid || '',
         status: "PENDING (Technician)",
+        userDesignation,
       };
   
       await setDoc(docRef, docData);
@@ -1081,7 +1123,7 @@ const handleFilterByName = (event) => {
 };
 
 const filteredData = fetchedData.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'userDate', 'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -1092,7 +1134,7 @@ const filteredData = fetchedData.filter((item) => {
 });
 
 const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date', 'LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'userDate', 'LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -1103,7 +1145,7 @@ const filteredDataTechnician = fetchedDataTechnician.filter((item) => {
 });
 
 const filteredDataDean = fetchedDataDean.filter((item) => {
-  const fieldsToSearchIn = ['id', 'Date','LocationRoom', 'Borrower'];
+  const fieldsToSearchIn = ['id', 'userDate','LocationRoom', 'Borrower'];
 
   return fieldsToSearchIn.some(field => {
     if (item[field] && typeof item[field] === 'string') {
@@ -1138,6 +1180,7 @@ const handleEditOpen = (data) => {
       otherItems: data.otherItems || '',
       fileURL: data.fileURL || '',
       id: data.id, // Set the document ID here
+      userDesignation: data.userDesignation || '',
     });
     setEditData(data);
     setEditOpen(true);
@@ -1153,6 +1196,12 @@ const handleEditClose = () => {
 
 const handleEditSubmit = async () => {
   try {
+    // Validation logic for required fields
+    if (!editData.userDate || !editData.LocationRoom || !editData.Borrower || !editData.userDesignation) {
+      alert('Please fill out all required fields');
+      return;
+    }
+
     // Include the checkbox values in editData
     const updatedEditData = {
       ...editData,
@@ -1527,21 +1576,6 @@ const handleViewClose = () => {
       }
       return 'info'; // Default color for other status values
     };
-    
-    // const getStatusColor = (status) => {
-    //   switch (status) {
-    //     case 'PENDING (Technician)':
-    //       return 'orange';
-    //       case 'PENDING (Dean)':
-    //         return 'blue';
-    //     case 'APPROVED':
-    //       return 'success';
-    //     case 'REJECTED':
-    //       return 'banned';
-    //     default:
-    //       return 'red'; // Default color if status doesn't match any case
-    //   }
-    // };
 
 // Filter code
 
@@ -1875,153 +1909,166 @@ const handleDeanArchiveClick = () => {
           />
         </div>
 
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} PaperProps={{ style: { minWidth: '40%', paddingLeft: '5px', paddingRight: '15px' } }}>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h3" sx={{ mb: 5 }} 
-              style={{
-                      alignSelf: 'center', color: '#ff5500', margin: 'auto', 
-                      fontSize: '40px', fontWeight: 'bold', marginTop:'10px',   
-                      }}>
-                Borrower's Form
-              </Typography>
-             
-              <DialogContent>
-                <form onSubmit={handleSubmit}>
-                <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+            <div  style={{ flexBasis: '10px', maxWidth: '10px', flexGrow: 0, paddingTop: '20px'}}>
+              <IconButton
+                    style={{
+                      backgroundColor: '#ffffff',
+                      alignSelf: 'left',
+                      alignItems: 'center',
+                      size: '30px',
+                      color: '#ff5500',
+                    }}
+                    onClick={handleClose}
+                    sx={{ marginRight: '5px', marginLeft: '5px' }}
                   >
+                    <ArrowBackIcon />
+                </IconButton>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
+                <Typography variant="h3" sx={{ mb: 5 }} style={{ color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
+                  Borrower's Form
+                </Typography>      
+                  <DialogContent >
+                    <form onSubmit={handleSubmit}>
 
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Date:</Typography>
-                      <TextField
-                        type="date"
-                        name="Date"
-                        value={formData.userDate || ''}
-                        onChange={(e) => setFormData({ ...formData, userDate: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Location/Room:</Typography>
-                      <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
-                        <Select   
-                          id="location-room"
-                          value={formData.LocationRoom || ''}
-                          onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
-                          style={{ maxHeight: '100px' }}
+                      <Grid
+                        container
+                        spacing={2}
+                        columns={16}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
                         >
-                          {Array.from({ length: 20 }, (_, i) => ( // Generate options dynamically
-                            <MenuItem
-                            key={`IT-${101 + i}`} // Start key and value from 100
-                            value={`IT ${101 + i}`}
-                          >
-                            {`IT ${101 + i}`}
-                          </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
-                      <TextField
-                        type="text"
-                        name="Borrower's Name"
-                        value={formData.Borrower || ''}
-                        onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
-                        sx={{ width: '100%', marginBottom: '10px' }}
-                      />
-                    </Grid>
-                    
-                  <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
-                  <Grid item xs={5}>
-                    <Checkbox
-                      value="HDMI"
-                      checked={formData.Items.includes('HDMI')}
-                      onChange={handleServiceChange}
-                    />  HDMI 
-                    <br />
-                    </Grid>
-                    <Grid item xs={5}>
-                    <Checkbox
-                      value="TV"
-                      checked={formData.Items.includes('TV')}
-                      onChange={handleServiceChange}
-                    /> TV
-                    <br />
-                    </Grid>
-                    <Grid item xs={6}> 
-                    <Checkbox
-                      value="Projector"
-                      checked={formData.Items.includes('Projector')}
-                      onChange={handleServiceChange}
-                    /> Projector
-                    <br />
-                    </Grid>
-
-                    <Grid item xs={5}> 
-                      <Checkbox
-                        checked={showInput}
-                        onChange={(e) => setShowInput(e.target.checked)}
-                      /> Others:
-                    </Grid>
-
-                    <Grid item xs={11}>
-                      <div style={{marginLeft:'15px'}}> 
-                        {showInput && (
-                          <input
-                            type="text"
-                            style={{ fontSize: '18px', width:'80%' }}
-                            name="Others"
-                            value={formData.otherItems || ''}
-                            onChange={(e) =>
-                              setFormData({ ...formData, otherItems: e.target.value })
-                            }
+                        <Grid item xs={8}>
+                          <Typography variant="subtitle1">Date:</Typography>
+                          <TextField
+                            type="date"
+                            name="Date"
+                            value={formData.userDate || ''}
+                            onChange={(e) => setFormData({ ...formData, userDate: e.target.value })}
+                            sx={{ width: '100%', marginBottom: '10px' }}
                           />
-                        )}
-                      </div>
-                    </Grid>
+                        </Grid>
+                        <Grid item xs={8}>
+                          <Typography variant="subtitle1">Location/Room:</Typography>
+                          <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
+                            <Select   
+                              id="location-room"
+                              value={formData.LocationRoom || ''}
+                              onChange={(e) => setFormData({ ...formData, LocationRoom: e.target.value })}
+                              style={{ maxHeight: '100px' }}
+                            >
+                              {Array.from({ length: 20 }, (_, i) => ( 
+                                <MenuItem
+                                key={`IT-${101 + i}`} 
+                                value={`IT ${101 + i}`}
+                              >
+                                {`IT ${101 + i}`}
+                              </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
 
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      { <Typography variant="subtitle1">File:</Typography> }
-                      <TextField
-                          type="file"
-                          fullWidth
-                          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                          onChange={(e) => handleFileUpload(e.target.files[0])}
-                          sx={{ width: '100%' }}
-                        />
-                        <br/>
+                        <Grid item xs={16}>
+                        <Typography variant="subtitle1">Borrower:</Typography>
+                          <TextField
+                            type="text"
+                            name="Borrower's Name"
+                            value={formData.Borrower || ''}
+                            onChange={(e) => setFormData({ ...formData, Borrower: e.target.value })}
+                            sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                        </Grid>
+                        
+                      <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
+                      <Grid item xs={5}>
+                        <Checkbox
+                          value="HDMI"
+                          checked={formData.Items.includes('HDMI')}
+                          onChange={handleServiceChange}
+                        />  HDMI 
+                        <br />
+                        </Grid>
+                        <Grid item xs={5}>
+                        <Checkbox
+                          value="TV"
+                          checked={formData.Items.includes('TV')}
+                          onChange={handleServiceChange}
+                        /> TV
+                        <br />
+                        </Grid>
+                        <Grid item xs={6}> 
+                        <Checkbox
+                          value="Projector"
+                          checked={formData.Items.includes('Projector')}
+                          onChange={handleServiceChange}
+                        /> Projector
+                        <br />
+                        </Grid>
+
+                        <Grid item xs={16} container alignItems="center"> 
+                          <Checkbox
+                            checked={showInput}
+                            onChange={(e) => setShowInput(e.target.checked)}
+                          /> Others:
+
+                          <div style={{marginLeft:'15px'}}> 
+                            {showInput && (
+                              <input
+                                type="text"
+                                style={{ fontSize: '18px', width:'80%' }}
+                                name="Others"
+                                value={formData.otherItems || ''}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, otherItems: e.target.value })
+                                }
+                              />
+                            )}
+                          </div>
+                        </Grid>
+
+                        <Grid item xs={8} spacing={1}>
+                          <Typography variant="subtitle1">Designation:</Typography> 
+                            <TextField
+                              type="text"
+                              name="Designation"
+                              value={formData.userDesignation || ''}
+                              onChange={(e) => setFormData({ ...formData, userDesignation: e.target.value })}
+                              sx={{ width: '100%' }}
+                              />
+                        </Grid>
+
+                        <Grid item xs={8} spacing={1}>
+                          { <Typography variant="subtitle1">File:</Typography> }
+                          <TextField
+                              type="file"
+                              fullWidth
+                              accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                              onChange={(e) => handleFileUpload(e.target.files[0])}
+                              sx={{ width: '100%' }}
+                            />
+                            <br/>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <br />
-                </form>
-              </DialogContent>
-              <DialogActions>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-                  <Button style={{ color:'#ffffff', backgroundColor:'#333333', border: '0.5px solid black' }} variant="contained" onClick={clearForm} sx={{marginRight: '5px', marginLeft: '5px'}}>
-                    Clear 
-                  </Button>
-                  <Button style={{ backgroundColor:'#ffbd03' }} variant="contained" onClick={handleClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
-                    Cancel
-                  </Button>
-                  <Button style={{ backgroundColor:'#33b249' }} variant="contained" onClick={handleSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
-                    Create
-                  </Button>
+                    </form>
+                  </DialogContent>
+                  </div>
                 </div>
-              </DialogActions>
-            </div>
-          </div>
+
+                <DialogActions style={{ justifyContent: 'flex-end', padding: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+                    <Button style={{ color:'#ffffff', backgroundColor:'#333333', border: '0.5px solid black', marginRight: '25px' }} variant="contained" onClick={clearForm}>
+                      Clear 
+                    </Button>
+                    <Button style={{ backgroundColor:'#33b249', marginRight: '10px' }} variant="contained" onClick={handleSubmit} type="submit">
+                      Create
+                    </Button>
+                  </div>
+                </DialogActions>
+          
         </Dialog>
    
   </Stack> 
@@ -3026,182 +3073,197 @@ const handleDeanArchiveClick = () => {
   {/* Start of public container for all user */}
     <Container> 
       {/* This is the dialog for the Edit button */}
-      <Dialog open={editOpen} onClose={handleEditClose}>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h3" sx={{ mb: 5 }} style={{ alignSelf: 'center', color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop:'10px' }}>
-                BORROWER'S FORM
-              </Typography>
-        <DialogContent>
-          <form onSubmit={handleEditSubmit}>
-            {/* Fields to edit */}
-            <Grid
-                    container
-                    spacing={2}
-                    columns={16}
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+      <Dialog open={editOpen} onClose={handleEditClose} PaperProps={{ style: { minWidth: '40%', paddingLeft: '5px', paddingRight: '15px' } }}>
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <div  style={{ flexBasis: '10px', maxWidth: '10px', flexGrow: 0, paddingTop: '20px'}}>
+            <IconButton
+                    style={{
+                      backgroundColor: '#ffffff',
+                      alignSelf: 'left',
+                      alignItems: 'center',
+                      size: '30px',
+                      color: '#ff5500',
+                    }}
+                    onClick={handleEditClose}
+                    sx={{ marginRight: '5px', marginLeft: '5px' }}
                   >
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Document ID:</Typography>
-                    <TextField
-                    type="text"
-                    name="id"
-                    value={editData ? editData.id : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Timestamp:</Typography>
-                    <TextField
-                    type="timestamp"
-                    name="timestamp"
-                    value={editData ? editData.timestamp.toDate().toLocaleString() : ''}
-                    disabled
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                      <Typography variant="subtitle1">Date:</Typography>
+                    <ArrowBackIcon />
+                </IconButton>
+                </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
+                <Typography variant="h3" sx={{ mb: 5 }} style={{ color: '#ff5500', margin: 'auto', fontSize: '40px', fontWeight: 'bold', marginTop: '10px' }}>
+                  Borrower's Form
+                </Typography>      
+                <DialogContent>
+                  <form onSubmit={handleEditSubmit}>
+                    {/* Fields to edit */}
+                      <Grid
+                        container
+                        spacing={2}
+                        columns={16}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                      <Grid item xs={8}>
+                        <Typography variant="subtitle1">Document ID:</Typography>
                         <TextField
-                          type="date"
-                          name="Date"
-                          value={editData ? editData.userDate : ''}
-                          onChange={(e) => setEditData({ ...editData, userDate: e.target.value })}
+                          type="text"
+                          name="id"
+                          value={editData ? editData.id : ''}
+                          disabled
                           sx={{ width: '100%', marginBottom: '10px' }}
                         />
-                    </Grid>
-
-                    <Grid item xs={8}>
-                    <Typography variant="subtitle1">Location/Room:</Typography>
-                        <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
-                          <Select   
-                            id="location-room"
-                            value={editData ? editData.LocationRoom : ''}
-                            onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
-                            style={{ maxHeight: '100px' }}
-                          >
-                            {Array.from({ length: 20 }, (_, i) => ( // Generate options dynamically
-                              <MenuItem
-                              key={`IT-${101 + i}`} // Start key and value from 100
-                              value={`IT ${101 + i}`}
-                            >
-                              {`IT ${101 + i}`}
-                            </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={16}>
-                    <Typography variant="subtitle1">Borrower:</Typography>
-                    <TextField
-                    type="text"
-                    name="Borrower"
-                    value={editData ? editData.Borrower : ''}
-                    onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
-                    sx={{ width: '100%', marginBottom: '10px' }}
-                  />
-                    </Grid>
-
-                    
-                    <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
-                    <Grid item xs={5}>
-                      <Checkbox
-                        value="HDMI"
-                        checked={formData.Items.includes('HDMI')}
-                        onChange={handleServiceChange}
-                      />  HDMI 
-                      <br />
-                      </Grid>
-                      <Grid item xs={5}>
-                      <Checkbox
-                        value="TV"
-                        checked={formData.Items.includes('TV')}
-                        onChange={handleServiceChange}
-                      /> TV
-                      <br />
-                      </Grid>
-                      <Grid item xs={6}> 
-                      <Checkbox
-                        value="Projector"
-                        checked={formData.Items.includes('Projector')}
-                        onChange={handleServiceChange}
-                      /> Projector
-                      <br />
                       </Grid>
 
-                      <Grid item xs={5}> 
-                        <Checkbox
-                          checked={editData && !!editData.otherItems}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            if (!checked) {
-                              // Clear otherItems if unchecked
-                              setEditData({ ...editData, otherItems: '' });
-                            } else if (!editData.otherItems) { // Modify this line
-                              // Preserve otherItems value if checked and it's empty
-                              setEditData({ ...editData, otherItems: '-'});
-                            }
-                          }}
-                        /> Others:
-                      </Grid>
+                            <Grid item xs={8}>
+                            <Typography variant="subtitle1">Timestamp:</Typography>
+                            <TextField
+                            type="timestamp"
+                            name="timestamp"
+                            value={editData ? editData.timestamp.toDate().toLocaleString() : ''}
+                            disabled
+                            sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                            </Grid>
 
-                      <Grid item xs={11}>
-                        <div style={{marginLeft:'15px'}}>
-                        {editData && ( // Null check added
-                            <input
-                              type="text"
-                              style={{ fontSize: '18px' }}
-                              value={editData.otherItems || ''}
-                              onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
-                            />
-                          )}
-                        </div>
-                     </Grid>
+                            <Grid item xs={8}>
+                              <Typography variant="subtitle1">Date:</Typography>
+                                <TextField
+                                  type="date"
+                                  name="Date"
+                                  value={editData ? editData.userDate : ''}
+                                  onChange={(e) => setEditData({ ...editData, userDate: e.target.value })}
+                                  sx={{ width: '100%', marginBottom: '10px' }}
+                                />
+                            </Grid>
 
-                  
+                            <Grid item xs={8}>
+                            <Typography variant="subtitle1">Location/Room:</Typography>
+                                <FormControl sx={{ width: '100%', marginBottom: '10px' }} >
+                                  <Select   
+                                    id="location-room"
+                                    value={editData ? editData.LocationRoom : ''}
+                                    onChange={(e) => setEditData({ ...editData, LocationRoom: e.target.value })}
+                                    style={{ maxHeight: '100px' }}
+                                  >
+                                    {Array.from({ length: 20 }, (_, i) => ( // Generate options dynamically
+                                      <MenuItem
+                                      key={`IT-${101 + i}`} // Start key and value from 100
+                                      value={`IT ${101 + i}`}
+                                    >
+                                      {`IT ${101 + i}`}
+                                    </MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                            </Grid>
 
-                    <Grid item xs={8} spacing={1}>
-                      <Grid>
-                      <Typography variant="subtitle1">File:</Typography>
-                  <TextField
-                    type="file"
-                    name="fileInput"
-                    accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
-                    onChange={(e) => handleFileUpload(e.target.files[0])}
-                    inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
-                  />
-                        <br/>
-                      </Grid>
-                    </Grid>
-                  </Grid>
+                            <Grid item xs={16}>
+                            <Typography variant="subtitle1">Borrower:</Typography>
+                            <TextField
+                            type="text"
+                            name="Borrower"
+                            value={editData ? editData.Borrower : ''}
+                            onChange={(e) => setEditData({ ...editData, Borrower: e.target.value })}
+                            sx={{ width: '100%', marginBottom: '10px' }}
+                          />
+                            </Grid>
 
-                  <br />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 'auto' }}>
-            <Button style={{ backgroundColor:'#ffbd03' }} variant="contained" onClick={handleEditClose} sx={{marginRight: '5px', marginLeft: '5px'}}>
-              Cancel
-            </Button>
-            <Button style={{ backgroundColor:'#33b249' }} variant="contained" onClick={handleEditSubmit} type="submit" sx={{marginRight: '5px', marginLeft: '5px'}}>
-              Save
-            </Button>
-          </div>
-        </DialogActions>
-        </div>
-      </div>
-      </Dialog>
+                            
+                            <Grid item xs={16}> <Typography variant="subtitle1">Items:</Typography></Grid>
+                            <Grid item xs={5}>
+                              <Checkbox
+                                value="HDMI"
+                                checked={formData.Items.includes('HDMI')}
+                                onChange={handleServiceChange}
+                              />  HDMI 
+                              <br />
+                              </Grid>
+                              <Grid item xs={5}>
+                              <Checkbox
+                                value="TV"
+                                checked={formData.Items.includes('TV')}
+                                onChange={handleServiceChange}
+                              /> TV
+                              <br />
+                              </Grid>
+                              <Grid item xs={6}> 
+                              <Checkbox
+                                value="Projector"
+                                checked={formData.Items.includes('Projector')}
+                                onChange={handleServiceChange}
+                              /> Projector
+                              <br />
+                              </Grid>
+
+                              <Grid item xs={16} container alignItems="center"> 
+                                <Checkbox
+                                  checked={editData && !!editData.otherItems}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    if (!checked) {
+                                      // Clear otherItems if unchecked
+                                      setEditData({ ...editData, otherItems: '' });
+                                    } else if (!editData.otherItems) { // Modify this line
+                                      // Preserve otherItems value if checked and it's empty
+                                      setEditData({ ...editData, otherItems: '-'});
+                                    }
+                                  }}
+                                /> Others:
+
+                                <div style={{marginLeft:'15px'}}>
+                                  {editData && ( // Null check added
+                                      <input
+                                        type="text"
+                                        style={{ fontSize: '18px' }}
+                                        value={editData.otherItems || ''}
+                                        onChange={(e) => setEditData({ ...editData, otherItems: e.target.value })}
+                                      />
+                                    )}
+                                  </div>
+                              </Grid>
+
+                              <Grid item xs={8} spacing={1}>
+                                <Typography variant="subtitle1">Designation:</Typography> 
+                                  <TextField
+                                    type="text"
+                                    name="Designation"
+                                    value={editData ? editData.userDesignation: ''}
+                                    onChange={(e) => setEditData({ ...editData, userDesignation: e.target.value })}
+                                    sx={{ width: '100%' }}
+                                    />
+                              </Grid>
+
+                            <Grid item xs={8} spacing={1}>
+                              <Typography variant="subtitle1">File:</Typography>
+                              <TextField
+                                type="file"
+                                name="fileInput"
+                                accept=".pdf,.png,.jpg,.jpeg,.xlsx,.doc,.xls,text/plain"
+                                onChange={(e) => handleFileUpload(e.target.files[0])}
+                                inputProps={{ className: "w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke dark:file:border-strokedark file:bg-[#EEEEEE] dark:file:bg-white/30 dark:file:text-white file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input" }}
+                              />
+                                <br/>
+                            </Grid>
+                          </Grid>
+                  </form>
+                </DialogContent>
+              </div>
+            </div>
+            <DialogActions style={{ justifyContent: 'flex-end', padding: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+                <Button style={{ backgroundColor:'#33b249' }} variant="contained" onClick={handleEditSubmit} type="submit" sx={{ marginRight: '10px' }}>
+                  Save
+                </Button>
+              </div>
+            </DialogActions>   
+          </Dialog>
 
     {/* Dialog for View button */}
       <Dialog open={viewOpen} onClose={handleViewClose} PaperProps={{ style: { minWidth: '40%', paddingLeft: '5px', paddingRight: '15px' } }}>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <div  style={{ flexBasis: '10px', maxWidth: '10px', flexGrow: 0, paddingTop: '20px'}}>
+          <div  style={{ flexBasis: '10px', maxWidth: '10px', flexGrow: 0, paddingTop: '20px'}}>
               <IconButton
                   style={{
                     backgroundColor: '#ffffff',
@@ -3315,14 +3377,12 @@ const handleDeanArchiveClick = () => {
                     <br />
                     </Grid>
 
-                    <Grid item xs={5}>
+                    <Grid item xs={16} container alignItems="center"> 
                       <Checkbox
                         checked={!!viewItem?.otherItems}
                         disabled
                       /> Others:
-                    </Grid>
 
-                    <Grid item xs={11}>
                         <div style={{marginLeft:'15px'}}>
                           <input
                             type="text"
@@ -3332,31 +3392,40 @@ const handleDeanArchiveClick = () => {
                           />
                         </div>
                     </Grid>
-                    
+
                     <Grid item xs={8} spacing={1}>
-                      <Grid>
+                          <Typography variant="subtitle1">Designation:</Typography> 
+                            <TextField
+                              type="text"
+                              name="Designation"
+                              value={viewItem ? viewItem.userDesignation : ''}
+                              disabled
+                              sx={{ width: '100%' }}
+                              />
+                        </Grid>
+
+                    <Grid item xs={8} spacing={1}>
                       <Typography variant="subtitle1">File:</Typography>
-                    {viewItem && viewItem.fileURL ? (
-                      <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
-                        View / Download File
-                      </a>
-                    ) : (
-                      "No File"
-                    )}
-                        <br/>
-                      </Grid>
+                      {viewItem && viewItem.fileURL ? (
+                        <a href={viewItem.fileURL} target="_blank" rel="noreferrer noopener" download>
+                          View / Download File
+                        </a>
+                      ) : (
+                        "No File"
+                      )}
+                          <br/>
                     </Grid>
                   </Grid>
-
-                  <br />
             </DialogContent >
           </div>
         </div>
 
-        <div style={{ display: 'flex', padding: '10px', justifyContent: 'center', gap: '13px' }}>  {/* Combined styles */}
-        <IconButton onClick={handleExport} style={{color:'black'}}>
-          <PrintIcon/> 
-        </IconButton>
+        <div style={{ display: 'flex', padding: '10px', justifyContent: 'flex-end', gap: '13px' }}>  {/* Combined styles */}
+        <Button variant='outlined' style={{border: '3px solid #FF7F00'}}> 
+          <IconButton onClick={handleExport} style={{color:'black'}}>
+            <PrintIcon/> 
+          </IconButton>
+        </Button>
         </div>
       </Dialog>
         
