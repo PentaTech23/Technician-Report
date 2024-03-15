@@ -33,32 +33,6 @@ export default function UserPage() {
 
   const [status, setStatus] = useState('initialStatus');
   const [documentId, setDocumentId] = useState(null);
-
-  
-  // useEffect(() => {
-  //   const fetchDocumentId = async () => {
-  //     try {
-  //       // Reference to the subcollection "ITEM-BORROWERS" within "WP4-TESTING-AREA"
-  //       const subcollectionRef = collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS');
-  //       const querySnapshot = await getDocs(subcollectionRef);
-
-  //       // Check if there are any documents in the subcollection
-  //       if (querySnapshot.size === 0) {
-  //         console.error('No documents found in the subcollection.');
-  //         return;
-  //       }
-
-  //       // Assuming there is only one document in the subcollection
-  //       const firstDocument = querySnapshot.docs[0];
-  //       setDocumentId(firstDocument.id);
-  //       console.log('Document ID:', firstDocument.id);
-  //     } catch (error) {
-  //       console.error('Error fetching document ID:', error);
-  //     }
-  //   };
-
-  //   fetchDocumentId();
-  // }, [firestore]);
   const [documentIds, setDocumentIds] = useState([]);
 
   useEffect(() => {
@@ -87,59 +61,6 @@ export default function UserPage() {
   
     fetchDocumentIds();
   }, [firestore]);
-
-
-  // useEffect(() => {
-  //   const fetchDocumentId = async () => {
-  //     try {
-  //       // Reference to the subcollection "ITEM-BORROWERS" within "WP4-TESTING-AREA"
-  //       const subcollectionRef = collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS');
-  //       const querySnapshot = await getDocs(subcollectionRef);
-  
-  //       // Check if there are any documents in the subcollection
-  //       if (querySnapshot.size === 0) {
-  //         console.error('No documents found in the subcollection.');
-  //         return;
-  //       }
-  
-  //       // Find the document with a specific condition (e.g., where status is 'someValue')
-  //       const specificDocument = querySnapshot.docs.find(doc => doc.data().status === 'someValue');
-  
-  //       if (!specificDocument) {
-  //         console.error('No document found with the specified condition.');
-  //         return;
-  //       }
-  
-  //       // Set the document ID state
-  //       setDocumentId(specificDocument.id);
-  //       console.log('Document ID:', specificDocument.id);
-  //     } catch (error) {
-  //       console.error('Error fetching document ID:', error);
-  //     }
-  //   };
-  
-  //   fetchDocumentId();
-  // }, [firestore]);
-
-  // const updateStatusInFirebase = async () => {
-  //   try {
-  //     if (!documentId) {
-  //       console.error('Document ID is null. Cannot update status.');
-  //       return;
-  //     }
-  
-  //     // Reference to the specific document within the subcollection
-  //     const statusRef = doc(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS', documentId);
-  
-  //     // Update the status field with the new value
-  //     await updateDoc(statusRef, { status: 'PENDING (Dean)' });
-  
-  //     console.log('Status updated successfully!');
-  //     setStatus('PENDING (Dean)'); // Update local state if needed
-  //   } catch (error) {
-  //     console.error('Error updating status:', error);
-  //   }
-  // };
 
 
 // Faculty File Status Update Archive
@@ -289,45 +210,7 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
     setArchiveDialogOpen(false);
   };
 
-
-
-
-
-
-
-
-  // const [status, setStatus] = useState('initialStatus');
-  // const [documentId, setDocumentId] = useState(null);
-
-  // useEffect(() => {
-  //   // Reference to the Firestore collection
-  //   const collectionRef = firebase.firestore().collection('yourCollection');
-
-  //   // Get documents from the collection
-  //   collectionRef.get().then((querySnapshot) => {
-  //     querySnapshot.forEach((doc) => {
-  //       // Assuming there is only one document in the collection
-  //       setDocumentId(doc.id);
-  //     });
-  //   });
-  // }, []);
-
-  // const updateStatusInFirebase = () => {
-  //   const firestore = firebase.firestore();
-  //   const statusRef = firestore.collection('mainCollectionRef').doc(documentId);
-
-  //   // Update the status field with a new value
-  //   statusRef.update({ status: 'PENDING (Dean)' })
-  //     .then(() => {
-  //       console.log('Status updated successfully!');
-  //       setStatus('PENDING (Dean)'); // Update local state if needed
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error updating status:', error);
-  //     });
-  // };
-
-
+// Code for Print function to PDF
 
   const exportToPDF = (viewItem) => {
  
@@ -413,7 +296,11 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
 // Check the user's userType
 const { user } = useAuthState();
 const [username, setUsername] = useState(null);
+const [isFaculty, setIsFaculty] = useState(false);
+const [isTechnician, setIsTechnician] = useState(false);
+const [isDean, setIsDean] = useState(false);
 const [userType, setUserType] = useState(null);
+
 
 useEffect(() => {
   const fetchUserData = async () => {
@@ -450,9 +337,11 @@ useEffect(() => {
   fetchUserData();
 }, [user]);
 
-const isFaculty = userType === 'faculty';
-const isTechnician = userType === 'technician';
-const isDean = userType === 'dean';
+useEffect(() => {
+    setIsFaculty(userType === 'faculty');
+    setIsTechnician(userType === 'technician');
+    setIsDean(userType === 'dean');
+  }, [userType]);
 
 // Start of Code
   const [fetchedData, setFetchedData] = useState([]);
@@ -680,6 +569,7 @@ useEffect(() => {
     locationFaculty, 
     selectedFilterItemsFaculty, 
     otherItemsFaculty]);
+
 
 // Technician Code for filter, status type:
 const [selectedOptionTechnician, setSelectedOptionTechnician] = useState('PENDING (Technician)');
@@ -1807,6 +1697,85 @@ const handleDeanArchiveClick = () => {
 };
 
 
+
+// Code for Auto Archive
+useEffect(() => {
+  const autoArchive = async () => {
+    try {
+      // Define the query to find documents with status 'PENDING (Technician)' or 'PENDING (Dean)'
+      const q = query(collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS'), 
+                      where('status', 'in', ['PENDING (Technician)', 'PENDING (Dean)']));
+
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(async (doc) => {
+        // Check if the document is older than 5 days
+        const currentDate = new Date();
+        const documentDate = doc.data().timestamp.toDate(); // Assuming 'timestamp' is a Firestore Timestamp
+        const differenceInDays = Math.floor((currentDate - documentDate) / (1000 * 60 * 60 * 24));
+
+        if (differenceInDays >= 5) {
+          // Update status to "ARCHIVED"
+          await updateDoc(doc.ref, { status: 'ARCHIVED' });
+        }
+      });
+
+      // Set snackbar and status (if needed)
+      setSnackbarOpenArchive(true);
+      setStatus('ARCHIVED');
+
+      // Execute fetch documents based on user's role
+      if (isFaculty) {
+        fetchUserDocuments(
+          user?.uid,  
+          selectedOptionFaculty, 
+          sortByFaculty, 
+          dateFromFaculty, 
+          dateToFaculty, 
+          locationFaculty, 
+          selectedFilterItemsFaculty, 
+          otherItemsFaculty
+        );
+        console.log('Faculty Auto ARCHIVE');
+      } 
+      else if (isTechnician) {
+        fetchAllDocuments(
+          selectedOptionTechnician, 
+          sortBy, 
+          dateFrom, 
+          dateTo, 
+          location, 
+          selectedFilterItems, 
+          otherItems
+        );
+        console.log('Technician Auto ARCHIVE');
+      } 
+      else if (isDean) {
+        DeanfetchAllDocuments(
+          selectedOptionDean, 
+          sortByDean, 
+          dateFromDean, 
+          dateToDean, 
+          locationDean, 
+          selectedFilterItemsDean, 
+          otherItemsDean
+        );
+        console.log('Dean Auto ARCHIVE');
+      }
+    } catch (error) {
+      console.error('Error auto-archiving documents:', error);
+    }
+    setArchiveDialogOpen(false); // Close the archive dialog
+  };
+
+  // Run the function when the component mounts
+  autoArchive();
+
+  // Clean up function (optional)
+  return () => {
+    // Any cleanup code if needed
+  };
+}, []); // Empty dependency array to run the effect only once
 
   return (
     <>
