@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
 // import firebase from 'firebase/app';
@@ -12,6 +12,7 @@ import {Modal, Card,Grid,Table,Stack,Paper,Avatar,Popover,Checkbox,TableRow, Box
         TablePagination,Dialog, DialogTitle, DialogContent, DialogActions, Button, 
         Backdrop, Snackbar, TableHead, CircularProgress, TextField, Select,
         FormControl, InputLabel, Menu, Radio, RadioGroup, FormControlLabel, Drawer, Divider } from '@mui/material';
+
 import RefreshIcon from '@mui/icons-material/Refresh';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -20,6 +21,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
+import CircularProgressWithLabel from '../PageComponents/CircularProgressWithLabel'
 import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import Cict from '../../components/logo/CICTbSULOGO.png'
@@ -99,7 +101,8 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
         dateTo, 
         location, 
         selectedFilterItems, 
-        otherItems);
+        otherItems
+      );
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -112,13 +115,13 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
       setSnackbarOpenRejected(true);
       setStatus('REJECTED'); // Update local state if needed
       fetchAllDocuments(
-      selectedOptionTechnician, 
-      sortBy, 
-      dateFrom, 
-      dateTo, 
-      location, 
-      selectedFilterItems, 
-      otherItems
+        selectedOptionTechnician, 
+        sortBy, 
+        dateFrom, 
+        dateTo, 
+        location, 
+        selectedFilterItems, 
+        otherItems
       );
     } catch (error) {
       console.error('Error updating status:', error);
@@ -133,13 +136,13 @@ const updateStatusInFirebaseArchiveFaculty = async (documentId) => {
       setSnackbarOpenArchive(true);
       setStatus('ARCHIVED'); // Update local state if needed
       fetchAllDocuments(
-      selectedOptionTechnician, 
-      sortBy, 
-      dateFrom, 
-      dateTo, 
-      location, 
-      selectedFilterItems, 
-      otherItems
+        selectedOptionTechnician, 
+        sortBy, 
+        dateFrom, 
+        dateTo, 
+        location, 
+        selectedFilterItems, 
+        otherItems
       );
     } catch (error) {
       console.error('Error updating status:', error);
@@ -625,13 +628,14 @@ const handleOptionChangeTechnician = (e) => {
   setSelectedOptionTechnician(selectedStatusTechnician);
 
   fetchAllDocuments(
-    selectedStatusTechnician, 
+    selectedOptionTechnician, 
     sortBy, 
-    dateFrom,
+    dateFrom, 
     dateTo, 
     location, 
     selectedFilterItems, 
-    otherItems);
+    otherItems
+  );
 };
 
 
@@ -1697,78 +1701,39 @@ const handleDeanArchiveClick = () => {
 };
 
 
+const [autoArchived, setAutoArchived] = useState(false);
 
-// Code for Auto Archive
+// Auto Archiving Effect
 useEffect(() => {
   const autoArchive = async () => {
     try {
-      // Define the query to find documents with status 'PENDING (Technician)' or 'PENDING (Dean)'
       const q = query(collection(firestore, 'WP4-TESTING-AREA', 'FORMS', 'ITEM-BORROWERS'), 
-                      where('status', 'in', ['PENDING (Technician)', 'PENDING (Dean)']));
+      where('status', 'in', ['PENDING (Technician)', 'PENDING (Dean)']));
 
-      const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach(async (doc) => {
+        querySnapshot.forEach(async (doc) => {
         // Check if the document is older than 5 days
         const currentDate = new Date();
         const documentDate = doc.data().timestamp.toDate(); // Assuming 'timestamp' is a Firestore Timestamp
         const differenceInDays = Math.floor((currentDate - documentDate) / (1000 * 60 * 60 * 24));
 
         if (differenceInDays >= 5) {
-          // Update status to "ARCHIVED"
-          await updateDoc(doc.ref, { status: 'ARCHIVED' });
+        // Update status to "ARCHIVED"
+        await updateDoc(doc.ref, { status: 'ARCHIVED' });
         }
       });
 
       // Set snackbar and status (if needed)
-      setSnackbarOpenArchive(true);
       setStatus('ARCHIVED');
-
-      // Execute fetch documents based on user's role
-      if (isFaculty) {
-        fetchUserDocuments(
-          user?.uid,  
-          selectedOptionFaculty, 
-          sortByFaculty, 
-          dateFromFaculty, 
-          dateToFaculty, 
-          locationFaculty, 
-          selectedFilterItemsFaculty, 
-          otherItemsFaculty
-        );
-        console.log('Faculty Auto ARCHIVE');
-      } 
-      else if (isTechnician) {
-        fetchAllDocuments(
-          selectedOptionTechnician, 
-          sortBy, 
-          dateFrom, 
-          dateTo, 
-          location, 
-          selectedFilterItems, 
-          otherItems
-        );
-        console.log('Technician Auto ARCHIVE');
-      } 
-      else if (isDean) {
-        DeanfetchAllDocuments(
-          selectedOptionDean, 
-          sortByDean, 
-          dateFromDean, 
-          dateToDean, 
-          locationDean, 
-          selectedFilterItemsDean, 
-          otherItemsDean
-        );
-        console.log('Dean Auto ARCHIVE');
-      }
+      setAutoArchived(true);
     } catch (error) {
       console.error('Error auto-archiving documents:', error);
     }
     setArchiveDialogOpen(false); // Close the archive dialog
   };
 
-  // Run the function when the component mounts
+  // Run the auto archiving function when the component mounts
   autoArchive();
 
   // Clean up function (optional)
@@ -1776,6 +1741,50 @@ useEffect(() => {
     // Any cleanup code if needed
   };
 }, []); // Empty dependency array to run the effect only once
+
+// Fetching Effect, dependent on Auto Archiving
+useEffect(() => {
+  // Execute fetch documents based on user's role after setting status to ARCHIVED
+  if (autoArchived) {
+    if (isFaculty) {
+      fetchUserDocuments(
+        user?.uid,  
+        selectedOptionFaculty, 
+        sortByFaculty, 
+        dateFromFaculty, 
+        dateToFaculty, 
+        locationFaculty, 
+        selectedFilterItemsFaculty, 
+        otherItemsFaculty
+      );
+      console.log('Faculty Auto ARCHIVE');
+    } 
+    else if (isTechnician) {
+      fetchAllDocuments(
+        selectedOptionTechnician, 
+        sortBy, 
+        dateFrom, 
+        dateTo, 
+        location, 
+        selectedFilterItems, 
+        otherItems
+      );
+      console.log('Technician Auto ARCHIVE');
+    } 
+    else if (isDean) {
+      DeanfetchAllDocuments(
+        selectedOptionDean, 
+        sortByDean, 
+        dateFromDean, 
+        dateToDean, 
+        locationDean, 
+        selectedFilterItemsDean, 
+        otherItemsDean
+      );
+      console.log('Dean Auto ARCHIVE');
+    }
+  }
+}, [autoArchived, isFaculty, isTechnician, isDean]);
 
   return (
     <>
@@ -2049,7 +2058,7 @@ useEffect(() => {
 {/* Start of Faculty userType "Table" function */}
 
       {isLoading ? (
-        <CircularProgress />
+        <CircularProgressWithLabel />
       ) : (
         <TableContainer component={Paper} style={{ maxHeight: 500 }}>
           <Table>
@@ -2370,7 +2379,15 @@ useEffect(() => {
           Filters&nbsp;
       </Button>
         <Button
-          onClick={() => fetchAllDocuments(selectedOptionTechnician, sortBy, dateFrom, dateTo, location, selectedFilterItems, otherItems)}
+          onClick={() => fetchAllDocuments(
+            selectedOptionTechnician, 
+            sortBy, 
+            dateFrom, 
+            dateTo, 
+            location, 
+            selectedFilterItems, 
+            otherItems
+          )}
           variant="contained"
           size="large"
           style={{
@@ -2398,7 +2415,7 @@ useEffect(() => {
   {/* Start of Technician usertype view for tables */}
 
     {isLoading ? (
-      <CircularProgress />
+      <CircularProgressWithLabel />
     ) : (
       <TableContainer component={Paper} style={{ maxHeight: 500 }}>
         <Table>
@@ -2766,7 +2783,7 @@ useEffect(() => {
   {/* Start of Dean usertype view for tables */}
  
     {isLoading ? (
-      <CircularProgress />
+      <CircularProgressWithLabel />
     ) : (
       <TableContainer component={Paper} style={{ maxHeight: 500 }}>
         <Table>
