@@ -40,9 +40,13 @@ function NavItem({ item }) {
         to={path}
         sx={{
           '&.active': {
-            color: 'text.primary',
-            bgcolor: 'action.selected',
+            color: '#FFFFFF',
+            bgcolor: '#f06418',
             fontWeight: 'fontWeightBold',
+          },
+          '&:not(.active)': {
+            color: '#242424', 
+            fontWeight: 'fontWeightBold', 
           },
         }}
         onClick={children ? handleExpand : undefined}
@@ -59,11 +63,17 @@ function NavItem({ item }) {
                 key={subItem.title}
                 component={RouterLink}
                 to={subItem.path}
-                sx={{ '&.active': {
-                  color: 'text.primary',
-                  bgcolor: 'action.selected',
-                  fontWeight: 'fontWeightBold',
-                }, pl: 4
+                sx={{
+                  '&.active': {
+                    color: '#FFFFFF',
+                    bgcolor: '#f06418',
+                    fontWeight: 'fontWeightBold',
+                  },
+                  '&:not(.active)': {
+                    color: '#242424',
+                    fontWeight: 'fontWeightBold',
+                  },
+                  pl: 4,
                 }}
               >
                 <ListItemText primary={subItem.title} />

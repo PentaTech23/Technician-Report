@@ -24,6 +24,7 @@ const db = getFirestore(firebaseApp);
 // Access main collections
 const mainCollectionRef = collection(db, "WP4-TESTING-AREA");
 const userCollectionRef = collection(db, "WP4-pendingUsers");
+const notificationCollectionRef = collection(db, "WP4-notifications");
 
 // Access FORMS document under main collection
 const formsDocRef = doc(mainCollectionRef, "FORMS");
@@ -79,6 +80,7 @@ export {
   db,
   mainCollectionRef,
   userCollectionRef,
+  notificationCollectionRef,
   formsDocRef,
   BorrowersCollectionRef,
   RequestCollectionRef,

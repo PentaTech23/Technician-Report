@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'; // Import useEffect
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Stack, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Link as MuiLink,Stack, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -87,6 +87,14 @@ export default function LoginForm() {
     }
   };
 
+
+  // Use navigate function to navigate to the signup page
+  const handleSignupClick = () => {
+    navigate('/signup');
+  };
+  
+
+
   return (
     <>
       <form onSubmit={handleLogin}>
@@ -94,39 +102,46 @@ export default function LoginForm() {
           <TextField
             name="email"
             label="Email address"
-            placeholder="Email"
-            size="small"
+            placeholder="@bulsu.edu.ph"
+            size="large"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
+            sx={{ width: '300px' }}
           />
           <TextField
             name="password"
             label="Password"
-            placeholder="Password"
-            size="small"
+            size="large"
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                  </IconButton>
-                </InputAdornment>
+                <InputAdornment position="end"  onClick={() => setShowPassword(!showPassword)} />
               ),
             }}
             autoComplete="password"
           />
-        </Stack>
-
-        <Stack direction="row" alignItems="center" justifyContent="center" sx={{ my: 2 }}>
-          <Link variant="subtitle2" underline="hover">
+      </Stack>
+          
+      <Stack direction="row" alignItems="right" justifyContent="right" sx={{ my: 2, paddingLeft: '5px', paddingBottom: '10px' }}>
+          <MuiLink  
+            variant="subtitle2" 
+            underline="none" // Remove underline
+            color="242424" // Use the default text color
+            sx={{ 
+              '&:hover': {
+                textDecoration: 'underline', // Add underline on hover
+              }
+            }}
+          >
             Forgot password?
-          </Link>
+          </MuiLink>
         </Stack>
-
+        
+      <Stack spacing={3}>
         <LoadingButton
           fullWidth
           size="large"
@@ -134,10 +149,27 @@ export default function LoginForm() {
           variant="contained"
           onClick={handleLogin}
           loading={isLoading}
-          style={{ backgroundColor: '#0073e6', color: 'white' }}
+          style={{ backgroundColor: '#f06418', color: 'white' }}
+         
         >
           Login
         </LoadingButton>
+
+        <MuiLink 
+            variant="subtitle2"
+            underline="none" // Remove underline
+            
+            sx={{ 
+              color:"#242424",
+              textAlign: 'center',
+              '&:hover': {
+                textDecoration: 'underline', // Add underline on hover
+              }
+            }}
+            onClick={handleSignupClick} // Call the function to navigate to the signup page
+          >
+            Don't have an account?  <a style={{color:"#f06418"}}> Click here! </a>
+          </MuiLink>
         {error && ( // Render the error message if it exists
           <Typography
             variant="body2"
@@ -146,7 +178,7 @@ export default function LoginForm() {
               marginTop: 1,
               backgroundColor: '#f8d7da',
               color: '#721c24',
-              padding: '8px',
+              padding: '3px',
               borderRadius: '4px',
               border: '1px solid #f5c6cb',
             }}
@@ -154,11 +186,8 @@ export default function LoginForm() {
             {error}
           </Typography>
         )}
-        <Stack direction="row" alignItems="center" justifyContent="center" sx={{ my: 2 }}>
-          <Link to="/signup" variant="subtitle2">
-            Click here to register!
-          </Link>
         </Stack>
+
       </form>
     </>
   );

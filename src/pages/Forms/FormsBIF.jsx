@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
 // import firebase from 'firebase/app';
-import { getFirestore, collection, query, onSnapshot, doc, getDocs, where, orderBy, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
+import { serverTimestamp, getFirestore, collection, query, onSnapshot, doc, getDocs, where, orderBy, updateDoc, deleteDoc, addDoc, getDoc, documentId, setDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { initializeApp } from 'firebase/app';
@@ -26,7 +26,7 @@ import Iconify from '../../components/iconify';
 import Label from '../../components/label';
 import Cict from '../../components/logo/CICTbSULOGO.png'
 
-import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, BorrowersCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
+import { useAuthState, firebaseApp, db, mainCollectionRef, userCollectionRef, formsDocRef, BorrowersCollectionRef, notificationCollectionRef, archivesRef,archivesCollectionRef, storage } from '../../firebase';
 
 import Scrollbar from '../../components/scrollbar';
 
@@ -948,8 +948,7 @@ useEffect(() => {
     return newDocumentName; // Return the generated document name
   };
 
-  // Add function
-
+// Add/Submit Document Function
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -999,9 +998,12 @@ useEffect(() => {
         locationFaculty, 
         selectedFilterItemsFaculty, 
         otherItemsFaculty);
+
+         // Send notifications to Technicians and Deans
+    await sendNotificationToTechnicianAndDean(documentName);
+
     } catch (error) {
-      console.error(error);
-      alert("Input cannot be incomplete");
+      console.error("Error submitting document: ", error);
     }
   
     setFormData(initialFormData);
@@ -1128,8 +1130,12 @@ const handleEditSubmit = async () => {
       locationFaculty, 
       selectedFilterItemsFaculty, 
       otherItemsFaculty);
+
+       // Send notifications to Technicians and Deans
+    await sendNotificationToTechnicianAndDean(formData.id);
+
   } catch (error) {
-    console.error("Error updating data in Firestore: ", error);
+    console.error("Error submitting document: ", error);
   }
 };
 
@@ -1757,7 +1763,7 @@ useEffect(() => {
         selectedFilterItemsFaculty, 
         otherItemsFaculty
       );
-      console.log('Faculty Auto ARCHIVE');
+
     } 
     else if (isTechnician) {
       fetchAllDocuments(
@@ -1769,7 +1775,7 @@ useEffect(() => {
         selectedFilterItems, 
         otherItems
       );
-      console.log('Technician Auto ARCHIVE');
+ 
     } 
     else if (isDean) {
       DeanfetchAllDocuments(
@@ -1781,16 +1787,60 @@ useEffect(() => {
         selectedFilterItemsDean, 
         otherItemsDean
       );
-      console.log('Dean Auto ARCHIVE');
+  
     }
   }
 }, [autoArchived, isFaculty, isTechnician, isDean]);
+
+// Notification code
+const sendNotificationToTechnicianAndDean = async (documentName) => {
+  try {
+    // Create the query to find users with userType "technician" or "dean"
+    const userQuery = query(userCollectionRef, where('userType', 'in', ['technician', 'dean']));
+    
+    // Execute the query and get the query snapshot
+    const querySnapshot = await getDocs(userQuery);
+    
+    // Iterate over the query snapshot and send notifications to each user found
+    querySnapshot.forEach(async (doc) => {
+      const receiverUID = doc.data().uid; // Receiver UID (User ID)
+      const userType = doc.data().userType; // User Type
+      const userName = doc.data().username; // User Type
+      
+      // Determine the appropriate notification message based on userType
+      let notificationMessage = "";
+      let userTypeMessage = ""; // Initialize userTypeMessage variable
+      
+      if (userType === "technician") {
+        notificationMessage = `Hey ${userName}, you have the document ${documentName} pending for approval.`;
+        userTypeMessage = "technician"; // Set userTypeMessage to "technician"
+      } else if (userType === "dean") {
+        notificationMessage = `Hello ${userName}, the Technicians have ${documentName} pending for approval.`;
+        userTypeMessage = "dean"; // Set userTypeMessage to "dean"
+      }
+      
+      // Add notification to notifications collection
+      await addDoc(notificationCollectionRef, {
+        receiverUID, 
+        userName,
+        message: notificationMessage,
+        userType: userTypeMessage, // Include userType in the notification data
+        timestamp: serverTimestamp(),
+      });
+    });
+
+    
+  } catch (error) {
+    console.error('Error sending notifications:', error);
+  }
+};
 
   return (
     <>
       <Helmet>
         <title> BORROWER'S FORM | Minimal UI </title>
       </Helmet>
+      <div style={{ backgroundColor: "#f2f2f2" }}>
 
         {/* This is the beginning of the Container for Faculty */}
         {isFaculty && ( 
@@ -1808,18 +1858,20 @@ useEffect(() => {
       alignItems="center"
       justifyContent="space-between"
       mb={3}
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}
     >
-
-        <Button onClick={handleClickOpen} style={{ backgroundColor:'#33b249' }} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
+    
+ 
+     <Stack direction="row" alignItems="center" justifyContent="space-between" style={{maxHeight: '50px'}}>
+      <Box>
+        <Button onClick={handleClickOpen} style={{ backgroundColor:'#44c763', height:'54px'  }} variant="contained" size="large" startIcon={<Iconify icon="eva:plus-fill" />}>
           New Document
         </Button>
- 
-     <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <div style={{ marginLeft: '10px'}}>
+      </Box>
+      <div style={{ marginLeft: '10px'}} >
       <Box sx={{ minWidth: 200 }}>
-        <FormControl fullWidth>
-          <InputLabel id="options-label">File Status:</InputLabel>
+        <FormControl fullWidth >
+          <InputLabel  id="options-label">File Status:</InputLabel>
           <Select
             labelId="options-label"
             id="options"
@@ -1874,6 +1926,7 @@ useEffect(() => {
               display: 'flex',
               alignContent: 'center',
               justifyContent: 'center',
+              height:'56px' ,
               backgroundColor: '#ff5500',
           }}
           startIcon={<RefreshIcon />} />
@@ -2062,43 +2115,43 @@ useEffect(() => {
       ) : (
         <TableContainer component={Paper} style={{ maxHeight: 500 }}>
           <Table>
-            <TableHead>
+            <TableHead >
               <TableRow>
-                <TableCell>
+                <TableCell style={{backgroundColor: '#5c5c5c'}}>
                 <Checkbox
                   checked={selectAll}
                   onChange={handleSelectAllFaculty}
                   color="primary"
                 />
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Document ID</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Date</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Timestamp</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Location/Room</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Borrower</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Items</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>File Status</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Menu</TableCell>
               </TableRow>
             </TableHead>
-            
+
             <TableBody>
               {displayedData.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell> 
-                      <Checkbox
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => handleSelection(item.id)}
-                      />
+                  <TableCell style={{backgroundColor: '#fff'}}>
+                    <Checkbox
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleSelection(item.id)}
+                    />
                   </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>{item.id}</TableCell>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>{item.userDate}</TableCell>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>
                     {item.timestamp && item.timestamp.toDate().toLocaleString()}
                   </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>{item.LocationRoom}</TableCell>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>{item.Borrower}</TableCell>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>
                     {item.ItemsString && item.ItemsString}
                     {item.otherItems && item.ItemsString && ', '}
                     {item.otherItems && (
@@ -2107,11 +2160,10 @@ useEffect(() => {
                       </>
                     )}
                   </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>
+                    <Label color={getStatusColor(item.status)}>{item.status}</Label>
                   </TableCell>
-            
-                  <TableCell style={{ textAlign: 'center' }}>
+                  <TableCell style={{ textAlign: 'center', backgroundColor: '#fff' }}>
                     <IconButton
                       aria-label="menu"
                       onClick={(event) => handleMenuOpen(event, item)}
@@ -2119,7 +2171,7 @@ useEffect(() => {
                       <MoreVertIcon />
                     </IconButton>
                   </TableCell>
-              </TableRow>
+                </TableRow>
               ))}
             </TableBody>
           </Table>
@@ -2421,22 +2473,22 @@ useEffect(() => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell style={{backgroundColor: '#5c5c5c', color:'#FFFFFF'}}>
               <Checkbox
                 checked={selectAll}
                 onChange={handleSelectAllTechnician}
                 color="primary"
               />
               </TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Action</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Document ID</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Date</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Timestamp</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Location/Room</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Borrower</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Items</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>File Status</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Action</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -2444,20 +2496,20 @@ useEffect(() => {
           <TableBody>
             {displayedDataTechnician.map((item, index) => (
               <TableRow key={index}>
-                <TableCell> 
+                <TableCell style={{backgroundColor: '#fff'}}> 
                     <Checkbox
                       checked={selectedItems.includes(item.id)}
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>{item.id}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>{item.userDate}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>
                 {item.timestamp ? item.timestamp.toDate().toLocaleString() : ''}
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>{item.LocationRoom}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>{item.Borrower}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>
                     {item.ItemsString && item.ItemsString}
                     {item.otherItems && item.ItemsString && ', '}
                     {item.otherItems && (
@@ -2466,10 +2518,10 @@ useEffect(() => {
                       </>
                     )}
                   </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff'}}>
                   {item.status === "PENDING (Technician)" && (
                     <Button onClick={() => handleManageDialogOpen(item.id)}> 
                       Manage
@@ -2477,7 +2529,7 @@ useEffect(() => {
                   )}
                 </TableCell>
                 
-                <TableCell  style={{ textAlign: 'center' }}>
+                <TableCell  style={{ textAlign: 'center',backgroundColor: '#fff'}}>
                   <IconButton
                     aria-label="menu"
                     onClick={(event) => handleMenuOpen(event, item)}
@@ -2789,22 +2841,22 @@ useEffect(() => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell style={{backgroundColor: '#5c5c5c', color:'#FFFFFF'}}>
               <Checkbox
                 checked={selectAll}
                 onChange={handleSelectAllDean}
                 color="primary"
               />
               </TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Document ID</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Date</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Timestamp</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Location/Room</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Borrower</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Items</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>File Status</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Action</TableCell>
-              <TableCell style={{ textAlign: 'center' }}>Menu</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Document ID</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Date</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Timestamp</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Location/Room</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Borrower</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Items</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>File Status</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Action</TableCell>
+              <TableCell style={{ textAlign: 'center',backgroundColor: '#5c5c5c', color:'#FFFFFF' }}>Menu</TableCell>
 
             </TableRow>
           </TableHead>
@@ -2812,20 +2864,20 @@ useEffect(() => {
           <TableBody>
             {displayedDataDean.map((item, index) => (
               <TableRow key={index}>
-                <TableCell> 
+                <TableCell style={{backgroundColor: '#fff'}}> 
                     <Checkbox
                       checked={selectedItems.includes(item.id)}
                       onChange={() => handleSelection(item.id)}
                     />
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.id}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.userDate}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>{item.id}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>{item.userDate}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>
                   {item.timestamp && item.timestamp.toDate().toLocaleString()}
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.LocationRoom}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>{item.Borrower}</TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>{item.LocationRoom}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>{item.Borrower}</TableCell>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>
                     {item.ItemsString && item.ItemsString}
                     {item.otherItems && item.ItemsString && ', '}
                     {item.otherItems && (
@@ -2835,10 +2887,10 @@ useEffect(() => {
                     )}
                   </TableCell>
                 {/* <TableCell style={{ color: getStatusColor(item.status) }}>{item.status}</TableCell> */}
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>
                   <Label color={getStatusColor(item.status)}>{(item.status)}</Label>
                 </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>
                 {item.status === "PENDING (Dean)" && (
                   <Button onClick={() => handleDeanManageDialogOpen(item.id)}> 
                     Manage
@@ -2846,7 +2898,7 @@ useEffect(() => {
                 )}
                 </TableCell>
               
-                <TableCell style={{ textAlign: 'center' }}>
+                <TableCell style={{ textAlign: 'center',backgroundColor: '#fff' }}>
                   <IconButton
                     aria-label="menu"
                     onClick={(event) => handleMenuOpen(event, item)}
@@ -3626,6 +3678,7 @@ useEffect(() => {
   </Dialog>
 
     </Container>
+    </div>
     </>
   );}
 

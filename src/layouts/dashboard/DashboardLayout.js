@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { Box, Button, Drawer } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import Header from './header';
 import Nav from './nav'; // Adjust the import path
+
 
 const APP_BAR_MOBILE = 64;
 const APP_BAR_DESKTOP = 92;
@@ -28,20 +31,23 @@ const MainContent = styled('div')(({ theme }) => ({
 
 export default function DashboardLayout({ isFaculty, isDean, isTechnician }) {
   const [open, setOpen] = useState(false);
+  
+  const closeNav = () => {
+    setOpen(false);
+  };
 
   return (
     <StyledRoot>
-      <Header onOpenNav={() => setOpen(true)} />
-
-      <Nav
-        isFaculty={isFaculty}
-        isDean={isDean}
-        isTechnician={isTechnician}
-        openNav={open}
-        onCloseNav={() => setOpen(false)}
-      />
-
-      <MainContent>
+      <Header setOpen={setOpen}/>
+        {open && (
+          <Nav
+            isFaculty={isFaculty}
+            isDean={isDean}
+            isTechnician={isTechnician}
+            onCloseNav={() => setOpen(false)}
+          />
+        )}
+      <MainContent onClick={closeNav}>
         <Outlet />
       </MainContent>
     </StyledRoot>

@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
-
 import { Box, Button, Drawer } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 // mock
@@ -11,24 +10,12 @@ import useResponsive from '../../../hooks/useResponsive';
 // components
 import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
-import NavSection from '../../../components/nav-section';
-
+import NavSection from './nav-section';
 //
 import { navConfig, navConfigFaculty, navConfigDean } from './config';
 
 // ----------------------------------------------------------------------
-
 const NAV_WIDTH = 280;
-
-// const StyledAccount = styled('div')(({ theme }) => ({
-//   display: 'flex',
-//   alignItems: 'center',
-//   padding: theme.spacing(2, 2.5),
-//   borderRadius: Number(theme.shape.borderRadius) * 1.5,
-//   backgroundColor: alpha(theme.palette.grey[500], 0.12),
-// }));
-
-// ----------------------------------------------------------------------
 
 Nav.propTypes = {
   isFaculty: PropTypes.bool, // Add prop type for isFaculty
@@ -77,12 +64,6 @@ export default function Nav({ isFaculty, isDean, openNav, onCloseNav, setOpenNav
         width: { lg: NAV_WIDTH },
       }}
     >
-      <Button
-        onClick={() => setOpenNav(!openNav)}
-        sx={{ mb: 2, color: 'black' }} // Use color: 'black' to set text color
-      >
-        {openNav ? <MenuIcon /> : 'Open Sidebar'}
-      </Button>
       {isDesktop ? (
         <Drawer
           open
@@ -90,8 +71,7 @@ export default function Nav({ isFaculty, isDean, openNav, onCloseNav, setOpenNav
           PaperProps={{
             sx: {
               width: NAV_WIDTH,
-              bgcolor: '#F0EFF6', // Change this to your desired color
-              // bgcolor: '#F0EFF6', // Change this to your desired color
+              bgcolor: '#fcfbfa' , // f06418
               borderRightStyle: 'dashed',
             },
           }}

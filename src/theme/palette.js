@@ -88,8 +88,8 @@ const palette = {
     disabled: GREY[500],
   },
   background: {
-    paper: '#fff',
-    default: GREY[100],
+    paper: '#f2f2f2',
+    default: '#f2f2f2',
     neutral: GREY[200],
   },
   action: {

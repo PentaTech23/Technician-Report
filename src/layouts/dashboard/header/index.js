@@ -11,7 +11,7 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
-import { Home } from '../../../pages/Login-Signup/Home';
+import { Home } from './Home';
 
 
 
@@ -27,7 +27,8 @@ const StyledRoot = styled(AppBar)(({ theme }) => ({
   ...bgBlur({ color: theme.palette.background.default }),
   boxShadow: 'none',
   [theme.breakpoints.up('lg')]: {
-    width: `calc(100% - ${NAV_WIDTH + 1}px)`,
+    // width: `calc(100% - ${NAV_WIDTH + 1}px)`,
+    width: `xl`,
   },
 }));
 
@@ -42,23 +43,30 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 Header.propTypes = {
-  onOpenNav: PropTypes.func,
+  setOpen: PropTypes.func,
 };
 
-export default function Header({ onOpenNav }) {
+export default function Header({ setOpen }) {
   return (
     <StyledRoot>
       <StyledToolbar>
-        <IconButton
-          onClick={onOpenNav}
-          sx={{
-            mr: 1,
-            color: 'text.primary',
-            display: { lg: 'none' },
+      <Stack
+          direction="row"
+          alignItems="flex-start"
+          spacing={{
+            xs: 0.5,
+            sm: 1,
           }}
         >
-          <Iconify icon="eva:menu-2-fill" />
-        </IconButton>
+          <IconButton
+            onClick={() => setOpen(true)}
+            sx={{
+              color: 'text.primary',
+            }}
+          >
+            <Iconify icon="eva:menu-2-fill" />
+          </IconButton>
+        </Stack>
 
         <Searchbar />
         <Box sx={{ flexGrow: 1 }} />
