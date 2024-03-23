@@ -21,6 +21,21 @@ import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, ServiceC
 
 export default function UserPage() {
 
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+  
 // Check the user's userType
 const { user } = useAuthState();
 const [username, setUsername] = useState(null);

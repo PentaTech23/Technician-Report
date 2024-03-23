@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
+import { keyframes } from '@mui/system';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
@@ -38,16 +39,6 @@ const StyledRoot = styled('div')(({ theme }) => ({
   },
 }));
 
-const StyledSection = styled('div')(({ theme }) => ({
-  width: '100%',
-  maxWidth: 480,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  boxShadow: theme.customShadows.card,
-  backgroundColor: theme.palette.background.default,
-}));
-
 const StyledContent = styled('div')(({ theme }) => ({
   minWidth: '28vw',
   minHeight: '100vh',
@@ -60,6 +51,7 @@ const StyledContent = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   border: '1px solid rgba(255, 255, 255, 0.25)', // Apply the border with transparency
 }));
+
 
 // ----------------------------------------------------------------------
 
@@ -76,16 +68,15 @@ export default function LoginPage() {
         <div style={{ display: 'flex' }}>
           <StyledContent> 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ marginBottom: '10px' }}>
                 <Logo />
-              </div>
               <div style={{textAlign: 'center'}}> 
-                <Typography variant="h4" sx={{ mb: 5, color: '#f06418' }}>
+                <Typography variant="h4" sx={{color: '#f06418' }}>
                   Bulacan State University
-                  <Typography variant="h6" sx={{ mb: 5, color: '#242424' }}>
-                  College of Information &<br/>Communications Technology
-                  </Typography>
                 </Typography>
+                <Typography variant="h6" sx={{ mb: 5, color: '#242424' }}>
+                  College of Information &<br/>Communications Technology
+                </Typography>
+                
               </div>
              
               <LoginForm />

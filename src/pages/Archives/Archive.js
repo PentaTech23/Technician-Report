@@ -29,6 +29,23 @@ import {useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, Borrowers
         InspectionCollectionRef, MemorandumCollectionRef, CondemnedCollectionRef} from '../../firebase';
 
 export default function UserPage() {
+
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+
+  
   const [fetchedData, setFetchedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 

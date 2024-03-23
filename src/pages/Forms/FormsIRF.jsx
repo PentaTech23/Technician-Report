@@ -21,6 +21,21 @@ import { useAuthState, firebaseApp, db, mainCollectionRef, formsDocRef, Inspecti
 
 export default function UserPage() {
 
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+  
    // -------------------------testing for the dynamic input fields ---------------------------------------------
 
    const [inputField, setInputField] = useState([

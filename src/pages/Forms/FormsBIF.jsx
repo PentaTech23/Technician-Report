@@ -33,6 +33,21 @@ import Scrollbar from '../../components/scrollbar';
 const firestore = getFirestore(firebaseApp);
 export default function UserPage() {
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+  
+
   const [status, setStatus] = useState('initialStatus');
   const [documentId, setDocumentId] = useState(null);
   const [documentIds, setDocumentIds] = useState([]);

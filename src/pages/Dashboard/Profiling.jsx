@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {getDocs, collectionGroup, getFirestore } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
@@ -20,6 +21,23 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 export default function DashboardAppPage() {
+
+    
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+
+
   const [mreceipts, setMreceipts] = useState([]);
   const [totalMreceipts, setTotalMreceipts] = useState([]);
   const [citems, setCitems] = useState([]);

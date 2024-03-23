@@ -1,6 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -103,6 +101,23 @@ const storage = getStorage(firebaseApp);
 // ----------------------------------------------------------------------
 
 export default function ReportsMARILF() {
+
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+
+  
   // -------------------------testing for the dynamic input fields ---------------------------------------------
 
   // -------------------------OBSERVATIONS FIELDS ---------------------------------------------

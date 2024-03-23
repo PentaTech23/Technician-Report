@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation,Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Grid, Button, Container, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
 
 export default function DashboardAppPage() {
+
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const currentPageUrl = window.location.pathname;
+    localStorage.setItem('currentPageUrl', currentPageUrl);
+  }, []);
+
+  useEffect(() => {
+    const storedPageUrl = localStorage.getItem('currentPageUrl');
+    if (!storedPageUrl) {
+      navigate('/dashboard'); // Navigate to the default page if there's no stored URL
+    }
+  }, [navigate]);
+
   return (
     <>
       <Helmet>

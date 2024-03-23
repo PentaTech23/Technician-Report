@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'; // Import useEffect
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Link as MuiLink,Stack, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions , Link as MuiLink, Stack, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -31,7 +31,32 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogContent, setDialogContent] = useState('');
 
+  
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDialogOpen = (title, content) => {
+    setDialogTitle(title);
+    setDialogContent(content);
+    setDialogOpen(true);
+  };
+
+    // Function to set error message with a time limit
+    const setErrorMessageWithTimeout = (message, duration) => {
+      setError(message);
+  
+      // Clear error message after the specified duration
+      setTimeout(() => {
+        setError('');
+      }, duration);
+    };
+
+    
   useEffect(() => {
     let isHandled = false;
 
@@ -50,11 +75,12 @@ export default function LoginForm() {
           const userData = querySnapshot.docs[0].data();
 
           if (userData && userData.status === 'registered') {
-            const prevPath = location.state?.from || '/dashboard';
+            const storedPageUrl = localStorage.getItem('currentPageUrl');
+            const prevPath = storedPageUrl || '/dashboard';
             navigate(prevPath);
             localStorage.setItem('authenticated', 'true');
           } else {
-            alert('Your account is still pending or not registered. Please wait for approval or contact support.');
+            handleDialogOpen('Pending', 'Your account is still pending or not registered. Please wait for approval or contact support.');
             await signOut(auth);
           }
         } else {
@@ -72,16 +98,19 @@ export default function LoginForm() {
     return () => unsubscribe();
   }, [navigate, location, auth]);
 
-  // ---------------------------------------
 
-  const handleLogin = async () => {
+  // ---------------------------------------
+  // Handle login function
+  
+  const handleLogin = async (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
     try {
       setIsLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/', { replace: true });
+      navigate('/', { replace: true }); // Redirect to home page after successful login
     } catch (error) {
       console.error('Error signing in: ', error.message);
-      setError('Invalid email / password. Try again.');
+      setErrorMessageWithTimeout('Invalid email / password. Try again.', 5000);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +151,6 @@ export default function LoginForm() {
                 <InputAdornment position="end"  onClick={() => setShowPassword(!showPassword)} />
               ),
             }}
-            autoComplete="password"
           />
       </Stack>
           
@@ -142,35 +170,33 @@ export default function LoginForm() {
         </Stack>
         
       <Stack spacing={3}>
-        <LoadingButton
+        <Button
           fullWidth
           size="large"
           type="submit" // Use type="button" to prevent form submission
           variant="contained"
-          onClick={handleLogin}
-          loading={isLoading}
           style={{ backgroundColor: '#f06418', color: 'white' }}
          
         >
           Login
-        </LoadingButton>
+        </Button>
 
         <MuiLink 
-            variant="subtitle2"
-            underline="none" // Remove underline
-            
-            sx={{ 
-              color:"#242424",
-              textAlign: 'center',
-              '&:hover': {
-                textDecoration: 'underline', // Add underline on hover
-              }
-            }}
-            onClick={handleSignupClick} // Call the function to navigate to the signup page
-          >
-            Don't have an account?  <a style={{color:"#f06418"}}> Click here! </a>
-          </MuiLink>
-        {error && ( // Render the error message if it exists
+          variant="subtitle2"
+          underline="none"
+          sx={{ 
+            color:"#242424",
+            textAlign: 'center',
+            '&:hover': {
+              textDecoration: 'underline',
+              color: '#f06418' // Change color on hover
+            }
+          }}
+          onClick={handleSignupClick}
+        >
+          Don't have an account? <span style={{ color: '#f06418' }}>Click here!</span>
+        </MuiLink>
+        {error && ( 
           <Typography
             variant="body2"
             color="error"
@@ -187,7 +213,16 @@ export default function LoginForm() {
           </Typography>
         )}
         </Stack>
-
+        <Dialog open={dialogOpen} onClose={handleDialogClose}>
+          <DialogTitle>{dialogTitle}</DialogTitle>
+          <DialogContent>{dialogContent}</DialogContent>
+          <DialogActions>
+            <LoadingButton onClick={handleDialogClose} autoFocus>
+              OK
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
+        
       </form>
     </>
   );
